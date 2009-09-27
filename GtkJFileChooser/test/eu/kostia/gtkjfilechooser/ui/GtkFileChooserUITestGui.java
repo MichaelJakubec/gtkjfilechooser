@@ -15,7 +15,9 @@ public class GtkFileChooserUITestGui {
 	public void testGTKFileChooserUI() throws Exception {
 		UIManager.setLookAndFeel(GTKLookAndFeel.class.getName());
 
-		UIManager.put("FileChooserUI", eu.kostia.gtkjfilechooser.ui.GtkFileChooserUI.class.getName());
+		if ("GTK look and feel".equals(UIManager.getLookAndFeel().getName())){
+			UIManager.put("FileChooserUI", eu.kostia.gtkjfilechooser.ui.GtkFileChooserUI.class.getName());
+		}		
 
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.showOpenDialog(null);
