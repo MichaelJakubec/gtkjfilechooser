@@ -10,7 +10,7 @@ import javax.swing.UIManager;
 
 import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
 
-public class GTKFileChooserUITestGui {
+public class GtkFileChooserUITestGui {
 
 	public void testGTKFileChooserUI() throws Exception {
 		UIManager.setLookAndFeel(GTKLookAndFeel.class.getName());
@@ -47,8 +47,8 @@ public class GTKFileChooserUITestGui {
 	}
 
 	public static void main(String[] args) throws Exception {
-		new GTKFileChooserUITestGui().testGTKFileChooserUI();
-		//new GTKFileChooserUITestGui().testLayout();
+		new GtkFileChooserUITestGui().testGTKFileChooserUI();
+		//new GtkFileChooserUITestGui().testLayout();
 
 	}
 }
