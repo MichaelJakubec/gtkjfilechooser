@@ -46,6 +46,7 @@ import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.Icon;
 import javax.swing.InputMap;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -90,6 +91,7 @@ import sun.awt.shell.ShellFolder;
 import sun.awt.shell.ShellFolderColumnInfo;
 import sun.swing.SwingUtilities2;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
+import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil.WellKnownDir;
 import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
@@ -1801,31 +1803,38 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			return popupMenu;
 		}
 
-		JMenu viewMenu = getViewMenu();
 		if (contextMenu == null) {
 			contextMenu = new JPopupMenu();
-			if (viewMenu != null) {
-				contextMenu.add(viewMenu);
-				if (listViewWindowsStyle) {
-					contextMenu.addSeparator();
-				}
-			}
+
 			ActionMap actionMap = getActionMap();
 			Action refreshAction = actionMap.get(ACTION_REFRESH);
-			Action newFolderAction = actionMap.get(ACTION_NEW_FOLDER);
 			if (refreshAction != null) {
-				contextMenu.add(refreshAction);
-				if (listViewWindowsStyle && newFolderAction != null) {
-					contextMenu.addSeparator();
-				}
+				contextMenu.add(refreshAction);				
 			}
+			
+			//TODO leave new folder action?
+			Action newFolderAction = actionMap.get(ACTION_NEW_FOLDER);
 			if (newFolderAction != null) {
 				contextMenu.add(newFolderAction);
 			}
+						
+			// Add "show hidden files" CheckBoxMenuItem
+			JCheckBoxMenuItem showHiddenCheckBoxItem = new JCheckBoxMenuItem();
+			//TODO I18N
+			showHiddenCheckBoxItem.setText("Show hidden files");
+			showHiddenCheckBoxItem.setSelected(GtkFileChooserSettings.get().getShowHidden());
+			showHiddenCheckBoxItem.addActionListener(new ActionListener(){
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					JCheckBoxMenuItem source = (JCheckBoxMenuItem) e.getSource();
+					boolean showHidden = source.isSelected();
+					getFileChooser().setFileHidingEnabled(!showHidden);
+					GtkFileChooserSettings.get().setShowHidden(showHidden);					
+				}				
+			});
+			contextMenu.add(showHiddenCheckBoxItem);
 		}
-		if (viewMenu != null) {
-			viewMenu.getPopupMenu().setInvoker(viewMenu);
-		}
+
 		return contextMenu;
 	}
 
