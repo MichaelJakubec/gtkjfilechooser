@@ -228,7 +228,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		private int getNextMatch(int startIndex, int finishIndex) {
 			BasicDirectoryModel model = getModel();
 			JFileChooser fileChooser = getFileChooser();
-			DetailsTableRowSorter rowSorter = getRowSorter();
+			GtkFilePaneRowSorter rowSorter = getRowSorter();
 
 			String prefix = typedString.toString().toLowerCase();
 
@@ -317,7 +317,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	// Used for accessing methods in the corresponding UI class
 	private FileChooserUIAccessor fileChooserUIAccessor;
 	private DetailsTableModel detailsTableModel;
-	private DetailsTableRowSorter rowSorter;
+	private GtkFilePaneRowSorter rowSorter;
 
 	public GtkFilePane(FileChooserUIAccessor fileChooserUIAccessor) {
 		super(new BorderLayout());
@@ -959,15 +959,15 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		}
 	}
 
-	private DetailsTableRowSorter getRowSorter() {
+	private GtkFilePaneRowSorter getRowSorter() {
 		if (rowSorter == null) {
-			rowSorter = new DetailsTableRowSorter();
+			rowSorter = new GtkFilePaneRowSorter();
 		}
 		return rowSorter;
 	}
 
-	private class DetailsTableRowSorter extends TableRowSorter {
-		public DetailsTableRowSorter() {
+	private class GtkFilePaneRowSorter extends TableRowSorter {
+		public GtkFilePaneRowSorter() {
 			setModelWrapper(new SorterModelWrapper());
 		}
 
@@ -1191,7 +1191,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		detailsTable.setRowSelectionAllowed(true);
 		detailsTable.putClientProperty("JTable.autoStartsEdit", Boolean.FALSE);
 		detailsTable.addKeyListener(detailsKeyListener);
-		//		detailsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
 
 
