@@ -30,7 +30,7 @@ import eu.kostia.gtkjfilechooser.GtkStockIcon;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil.WellKnownDir;
 import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
 
-public class GtkButtonsCombo extends JPanel {
+public class GtkPathBar extends JPanel {
 
 	private static final int BUTTON_HEIGHT = 34;
 
@@ -60,7 +60,7 @@ public class GtkButtonsCombo extends JPanel {
 
 	private List<ActionListener> actionListeners = new ArrayList<ActionListener>();
 
-	public GtkButtonsCombo(File location) {
+	public GtkPathBar(File location) {
 		setDirectories(location);
 
 		setLayout(new BorderLayout());
@@ -174,7 +174,7 @@ public class GtkButtonsCombo extends JPanel {
 				dirButton.setIcon(GtkStockIcon.get("places/user-desktop", Size.GTK_ICON_SIZE_MENU));
 			} 
 
-			final GtkButtonsCombo thisInstance = this;
+			final GtkPathBar thisInstance = this;
 			dirButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
