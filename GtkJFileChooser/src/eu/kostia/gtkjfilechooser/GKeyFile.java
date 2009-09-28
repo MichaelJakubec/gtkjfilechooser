@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -32,21 +31,12 @@ import java.util.Map.Entry;
  * </p>
  * <div class="informalexample">
  * 
- * <pre class="programlisting">
- * # this is just an example
- * # there can be comments before the first group
- * [First Group]
- * Name=Key File Example\tthis value shows\nescaping
- * # localized strings are stored in multiple key-value pairs
- * Welcome=Hello
- * Welcome[de]=Hallo
- * Welcome[fr_FR]=Bonjour
- * Welcome[it]=Ciao
- * Welcome[be@latin]=Hello
- * [Another Group]
- * Numbers=2;20;-200;0
- * Booleans=true;false;true;true
- * </pre>
+ * <pre class="programlisting"> # this is just an example # there can be
+ * comments before the first group [First Group] Name=Key File Example\tthis
+ * value shows\nescaping # localized strings are stored in multiple key-value
+ * pairs Welcome=Hello Welcome[de]=Hallo Welcome[fr_FR]=Bonjour Welcome[it]=Ciao
+ * Welcome[be@latin]=Hello [Another Group] Numbers=2;20;-200;0
+ * Booleans=true;false;true;true </pre>
  * 
  * </div>
  * <p>
@@ -58,18 +48,18 @@ import java.util.Map.Entry;
  * the file. Each key-value pair must be contained in a group.
  * </p>
  * <p>
- * Key-value pairs generally have the form
- * <code class="literal">key=value</code>, with the exception of localized
- * strings, which have the form
+ * Key-value pairs generally have the form <code
+ * class="literal">key=value</code>, with the exception of localized strings,
+ * which have the form
  * 
  * <code class="literal">key[locale]=value</code>, with a locale identifier of
- * the form
- * <code class="literal">lang_COUNTRY<em class="parameter"><code>MODIFIER</code>
- * </em></code> where <code class="literal">COUNTRY</code> and
- * <code class="literal">MODIFIER</code> are optional. Space before and after
- * the '=' character are ignored. Newline, tab, carriage return and backslash
- * characters in value are escaped as \n, \t, \r, and \\, respectively. To
- * preserve leading spaces in values, these can also be escaped as \s.
+ * the form <code class="literal">lang_COUNTRY<em class="parameter">
+ * <code>MODIFIER</code> </em></code> where <code class="literal">COUNTRY</code>
+ * and <code class="literal">MODIFIER</code> are optional. Space before and
+ * after the '=' character are ignored. Newline, tab, carriage return and
+ * backslash characters in value are escaped as \n, \t, \r, and \\,
+ * respectively. To preserve leading spaces in values, these can also be escaped
+ * as \s.
  * </p>
  * <p>
  * Key files can store strings (possibly with localized variants), integers,
@@ -82,21 +72,17 @@ import java.util.Map.Entry;
  * This syntax is obviously inspired by the <code class="filename">.ini</code>
  * files commonly met on Windows, but there are some important differences:
  * </p>
- * <div class="itemizedlist">
- * <ul type="disc">
- * <li>
+ * <div class="itemizedlist"> <ul type="disc"> <li>
  * <p>
  * <code class="filename">.ini</code> files use the ';' character to begin
  * comments, key files use the '#' character.
  * </p>
- * </li>
- * <li>
+ * </li> <li>
  * <p>
  * Key files do not allow for ungrouped keys meaning only comments can precede
  * the first group.
  * </p>
- * </li>
- * <li>
+ * </li> <li>
  * <p>
  * Key files are always encoded in UTF-8.
  * </p>
@@ -104,12 +90,11 @@ import java.util.Map.Entry;
  * 
  * <li>
  * <p>
- * Key and Group names are case-sensitive, for example a group called
- * <code class="literal">[GROUP]</code> is a different group from
- * <code class="literal">[group]</code>.
+ * Key and Group names are case-sensitive, for example a group called <code
+ * class="literal">[GROUP]</code> is a different group from <code
+ * class="literal">[group]</code>.
  * </p>
- * </li>
- * <li>
+ * </li> <li>
  * <p>
  * <code class="filename">.ini</code> files don't have a strongly typed boolean
  * entry type, they only have <code class="literal">GetProfileInt</code>. In
@@ -118,9 +103,7 @@ import java.util.Map.Entry;
  * <code class="literal">true</code> and <code class="literal">false</code> (in
  * lower case) are allowed.
  * </p>
- * </li>
- * </ul>
- * </div>
+ * </li> </ul> </div>
  * <p>
  * </p>
  * <p>
@@ -150,6 +133,10 @@ public class GKeyFile {
 		if (gkeyfile.exists()) {
 			load();
 		}
+	}
+
+	public File getGkeyfile() {
+		return gkeyfile;
 	}
 
 	public void load() throws IOException {
@@ -328,15 +315,21 @@ public class GKeyFile {
 		}
 
 		public Integer getInteger(String key) {
-			return Integer.valueOf(backingMap.get(key));
+			return valueOf(Integer.class, backingMap.get(key), key);
 		}
 
+		/**
+		 * If no entry is found, it's returned {@code false}.
+		 *  
+		 * @param key
+		 * @return
+		 */
 		public Boolean getBoolean(String key) {
-			return Boolean.valueOf(backingMap.get(key));
+			return valueOf(Boolean.class, backingMap.get(key), key);
 		}
 
 		public Double getDouble(String key) {
-			return Double.valueOf(backingMap.get(key));
+			return valueOf(Double.class, backingMap.get(key), key);
 		}
 
 		public List<String> getStringList(String key) {
@@ -369,20 +362,24 @@ public class GKeyFile {
 					// The escape sequences \, and \; are supported meaning
 					// comma and semicomma respectively.
 					list.add(valueOf(cls, value.substring(beginIndex, endIndex).replace(
-							"\\", "").trim()));
+							"\\", "").trim(), key));
 					beginIndex = endIndex + 1;
 				}
 			}
 
 			// Last entry
 			list.add(valueOf(cls, value.substring(beginIndex, len).replace("\\", "")
-					.trim()));
+					.trim(), key));
 
 			return list;
 		}
 
 		@SuppressWarnings("unchecked")
-		private <T> T valueOf(Class<T> cls, String value) {
+		private <T> T valueOf(Class<T> cls, String value, String key) {
+			if (value == null) {
+				return (T) (cls.equals(Boolean.class) ? Boolean.FALSE : null);
+			}
+
 			if (cls.equals(String.class)) {
 				return (T) value;
 			}
@@ -391,12 +388,10 @@ public class GKeyFile {
 				Method method = cls.getMethod("valueOf", String.class);
 				T ret = (T) method.invoke(null, value);
 				return ret;
-			} catch (NoSuchMethodException e) {
-				throw new NoSuchMethodError(e.getMessage());
-			} catch (IllegalAccessException e) {
-				throw new IllegalAccessError(e.getMessage());
-			} catch (InvocationTargetException e) {
-				throw new IllegalArgumentException(e);
+			} catch (Exception e) {
+				throw new IllegalArgumentException("ValueOf exception for class '"
+						+ cls.getName() + "' key '" + key + "' and value <" + value
+						+ ">.", e);
 			}
 		}
 
