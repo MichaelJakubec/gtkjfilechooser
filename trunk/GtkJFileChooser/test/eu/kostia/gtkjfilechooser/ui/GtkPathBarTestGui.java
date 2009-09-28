@@ -13,20 +13,20 @@ import javax.swing.UIManager;
 
 import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
 
-import eu.kostia.gtkjfilechooser.ui.GtkButtonsCombo;
+import eu.kostia.gtkjfilechooser.ui.GtkPathBar;
 
 
 
-public class GtkButtonsComboTestGui {
+public class GtkPathBarTestGui {
 	public static void main(String[] args) throws Exception {
 		UIManager.setLookAndFeel(GTKLookAndFeel.class.getName());
 
 		File here = new File(".");
-		final GtkButtonsCombo pane = new GtkButtonsCombo(here);
+		final GtkPathBar pane = new GtkPathBar(here);
 		pane.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				GtkButtonsCombo src = (GtkButtonsCombo) e.getSource();
+				GtkPathBar src = (GtkPathBar) e.getSource();
 				System.out.println(src.getCurrentDirectory());				
 			}			
 		});

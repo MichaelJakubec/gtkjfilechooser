@@ -133,9 +133,11 @@ public class FreeDesktopUtil {
 						device.setType(RemovableDeviceType.getType(dev));
 						String name = location.substring("/media/".length());
 						if (Arrays.binarySearch(diskUUIDs, name) >= 0) {
-							// Removable device without name. 
-							//Set a generic name with size
-							name = humanreadble(new File(location).getTotalSpace())	+ " Filesystem";
+							// Removable device without name.
+							// Set a generic name with size
+							name = humanreadble(new File(location).getTotalSpace(),
+									GB / 2)
+									+ " Filesystem";
 							// TODO I18N ?
 						}
 
@@ -162,15 +164,27 @@ public class FreeDesktopUtil {
 	}
 
 	/**
-	 * Make byte human readable
+	 * 
+	 * Format bytes to make them human readable.
+	 * 
+	 * <p>
+	 * For example 1572864 Bytes = 1,5 MB
+	 * </p>
+	 * 
+	 * @param bytes
+	 *            A value in bytes
+	 * @param roundFactor
+	 *            The round factory, for example 1/2 GB.
+	 * @return The converted value (in Bytes, KB, MB or GB)
 	 */
-	private static String humanreadble(long bytes) {
+	public static String humanreadble(long bytes, int roundFactor) {
 		long roundedBytes = bytes;
 
-		// round to 1/2 GB
-		long mod = bytes % (GB / 2);
-		if (mod != 0) {
-			roundedBytes += (GB / 2 - mod);
+		if (roundFactor > 0) {
+			long mod = bytes % roundFactor;
+			if (mod != 0) {
+				roundedBytes += (roundFactor - mod);
+			}
 		}
 
 		if (roundedBytes >= GB) {

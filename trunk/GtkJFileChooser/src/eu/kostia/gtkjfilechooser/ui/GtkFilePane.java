@@ -49,7 +49,6 @@ import javax.swing.InputMap;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JOptionPane;
@@ -63,7 +62,6 @@ import javax.swing.KeyStroke;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
@@ -736,6 +734,10 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	}
 
 	class DetailsTableModel extends AbstractTableModel implements ListDataListener {
+		private static final String FILE_NAME_HEADER = "FileChooser.fileNameHeaderText";
+		private static final String FILE_SIZE_HEADER = "FileChooser.fileSizeHeaderText";
+		private static final String FILE_DATE_HEADER = "FileChooser.fileDateHeaderText";
+
 		JFileChooser chooser;
 		BasicDirectoryModel directoryModel;
 
@@ -766,8 +768,17 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			columnMap = new int[allColumns.length];
 			for (int i = 0; i < allColumns.length; i++) {
 				ShellFolderColumnInfo column = allColumns[i];
-				if (column.isVisible()
-						&& !"FileChooser.fileSizeHeaderText".equals(column.getTitle())) {
+
+				if (FILE_SIZE_HEADER.equals(column.getTitle())){
+					column.setVisible(GtkFileChooserSettings.get().getShowSizeColumn());
+				}
+
+				if (!FILE_NAME_HEADER.equals(column.getTitle())){
+					column.setWidth(100);
+				}
+
+
+				if (column.isVisible()) {
 					columnMap[visibleColumns.size()] = i;
 					visibleColumns.add(column);
 				}
@@ -1116,7 +1127,11 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 				} 
 
 			} else if (value instanceof Date) {
+				// modified date
 				text = df.format((Date) value);
+			} else if (value instanceof Long) {
+				// size
+				text = FreeDesktopUtil.humanreadble((Long) value, 0);
 			} else {
 				text = value.toString();
 			}
@@ -1142,7 +1157,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 		JPanel p = new JPanel(new BorderLayout());
 
-		final JTable detailsTable = new JTable(getDetailsTableModel()) {
+		detailsTable = new JTable(getDetailsTableModel()) {
 
 			// Handle Escape key events here
 			@Override
@@ -1167,6 +1182,8 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			}
 		};
 
+
+
 		detailsTable.setRowSorter(getRowSorter());
 		detailsTable.setAutoCreateColumnsFromModel(false);
 		detailsTable.setComponentOrientation(chooser.getComponentOrientation());
@@ -1174,6 +1191,9 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		detailsTable.setRowSelectionAllowed(true);
 		detailsTable.putClientProperty("JTable.autoStartsEdit", Boolean.FALSE);
 		detailsTable.addKeyListener(detailsKeyListener);
+		//		detailsTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+
+
 
 		if (list == null){
 			//The Details view works only after that the list view was initialized
@@ -1184,9 +1204,8 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		Font font = list.getFont();
 		detailsTable.setFont(font);
 
-		TableCellRenderer headerRenderer = new AlignableTableHeaderRenderer(detailsTable
-				.getTableHeader().getDefaultRenderer());
-		detailsTable.getTableHeader().setDefaultRenderer(headerRenderer);
+		//		TableCellRenderer headerRenderer = new AlignableTableHeaderRenderer(detailsTable.getTableHeader().getDefaultRenderer());
+		//		detailsTable.getTableHeader().setDefaultRenderer(headerRenderer);
 		TableCellRenderer cellRenderer = new DetailsTableCellRenderer(chooser);
 		detailsTable.setDefaultRenderer(Object.class, cellRenderer);
 
@@ -1216,7 +1235,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		detailsTable.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS,
 				null);
 
-		JScrollPane scrollpane = new JScrollPane(detailsTable);
+		final JScrollPane scrollpane = new JScrollPane(detailsTable);
 		scrollpane.setComponentOrientation(chooser.getComponentOrientation());
 
 		// Adjust width of first column so the table fills the viewport when
@@ -1224,9 +1243,8 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		scrollpane.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
-				JScrollPane sp = (JScrollPane) e.getComponent();
-				fixNameColumnWidth(sp.getViewport().getSize().width);
-				sp.removeComponentListener(this);
+				fixNameColumnWidth(scrollpane.getViewport().getSize().width);
+				scrollpane.removeComponentListener(this);
 			}
 		});
 
@@ -1259,40 +1277,19 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		}
 		p.add(scrollpane, BorderLayout.CENTER);
 
+		detailsTableModel.addTableModelListener(new TableModelListener() {
+
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				fixNameColumnWidth(scrollpane.getViewport().getSize().width);
+			}
+		});
+
 		detailsTableModel.fireTableStructureChanged();
 
 		return p;
 	} // createDetailsView
 
-
-
-	private class AlignableTableHeaderRenderer implements TableCellRenderer {
-		TableCellRenderer wrappedRenderer;
-
-		public AlignableTableHeaderRenderer(TableCellRenderer wrappedRenderer) {
-			this.wrappedRenderer = wrappedRenderer;
-		}
-
-		public Component getTableCellRendererComponent(JTable table, Object value,
-				boolean isSelected, boolean hasFocus, int row, int column) {
-
-			Component c = wrappedRenderer.getTableCellRendererComponent(table, value,
-					isSelected, hasFocus, row, column);
-
-			int modelColumn = table.convertColumnIndexToModel(column);
-			ShellFolderColumnInfo columnInfo = detailsTableModel.getColumns()[modelColumn];
-
-			Integer alignment = columnInfo.getAlignment();
-			if (alignment == null) {
-				alignment = SwingConstants.CENTER;
-			}
-			if (c instanceof JLabel) {
-				((JLabel) c).setHorizontalAlignment(alignment);
-			}
-
-			return c;
-		}
-	}
 
 	private void fixNameColumnWidth(int viewWidth) {
 		TableColumn nameCol = detailsTable.getColumnModel().getColumn(COLUMN_FILENAME);
@@ -1811,15 +1808,15 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			if (refreshAction != null) {
 				contextMenu.add(refreshAction);				
 			}
-			
+
 			//TODO leave new folder action?
 			Action newFolderAction = actionMap.get(ACTION_NEW_FOLDER);
 			if (newFolderAction != null) {
 				contextMenu.add(newFolderAction);
 			}
-			
+
 			contextMenu.addSeparator();
-			
+
 			// Add "show hidden files" CheckBoxMenuItem
 			JCheckBoxMenuItem showHiddenCheckBoxItem = new JCheckBoxMenuItem();
 			//TODO I18N
@@ -1835,7 +1832,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 				}				
 			});
 			contextMenu.add(showHiddenCheckBoxItem);
-						
+
 			// Add "show file size column" CheckBoxMenuItem
 			JCheckBoxMenuItem showFileSizeCheckBoxItem = new JCheckBoxMenuItem();
 			//TODO I18N
@@ -1846,8 +1843,9 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 				public void actionPerformed(ActionEvent e) {
 					JCheckBoxMenuItem source = (JCheckBoxMenuItem) e.getSource();
 					boolean showSizeColumn = source.isSelected();
-					//TODO implement view logic
-					GtkFileChooserSettings.get().setShowSizeColumn(showSizeColumn);		
+					GtkFileChooserSettings.get().setShowSizeColumn(showSizeColumn);
+
+					getDetailsTableModel().updateColumnInfo();
 				}				
 			});
 			contextMenu.add(showFileSizeCheckBoxItem);

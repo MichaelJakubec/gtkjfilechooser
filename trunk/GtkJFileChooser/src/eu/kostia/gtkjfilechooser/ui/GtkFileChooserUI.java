@@ -79,10 +79,10 @@ public class GtkFileChooserUI extends BasicFileChooserUI {
 	public GtkFileChooserUI(JFileChooser chooser) {
 		super(chooser);
 		chooser.setFileHidingEnabled(!GtkFileChooserSettings.get().getShowHidden());
-		
+
 	}
-	
-	private GtkButtonsCombo comboButtons;
+
+	private GtkPathBar comboButtons;
 
 	// private FilterComboBoxChangeListener filterComboBoxModel;
 
@@ -276,7 +276,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI {
 		if (currentDirectory == null){
 			currentDirectory = new File(System.getProperty("user.home"));
 		}
-		comboButtons = new GtkButtonsCombo(currentDirectory);
+		comboButtons = new GtkPathBar(currentDirectory);
 		comboButtons.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -542,18 +542,18 @@ public class GtkFileChooserUI extends BasicFileChooserUI {
 		super.installListeners(fc);
 		ActionMap actionMap = getActionMap();
 		SwingUtilities.replaceUIActionMap(fc, actionMap);
-				
+
 		fc.addComponentListener(new ComponentAdapter(){
 			@Override
 			public void componentMoved(ComponentEvent e) {
 				persistBoundaries(e.getComponent().getBounds());
 			}
-			
+
 			@Override
 			public void componentResized(ComponentEvent e) {
 				persistBoundaries(e.getComponent().getBounds());
 			}
-			
+
 			private void persistBoundaries(Rectangle bound){
 				GtkFileChooserSettings.get().setBound(bound);
 			}
@@ -633,7 +633,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI {
 		if (bound != null){
 			return new Dimension(bound.width, bound.height);
 		}
-		
+
 		int prefWidth = PREF_SIZE.width;
 		Dimension d = c.getLayout().preferredLayoutSize(c);
 		if (d != null) {

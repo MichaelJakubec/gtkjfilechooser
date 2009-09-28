@@ -47,15 +47,15 @@ public class GtkFileChooserSettings {
 	private GKeyFile settings;
 
 	private static GtkFileChooserSettings instance;
-	
-	static public GtkFileChooserSettings get(){
-		if (instance == null){
+
+	static public GtkFileChooserSettings get() {
+		if (instance == null) {
 			instance = new GtkFileChooserSettings();
 		}
-		
+
 		return instance;
 	}
-	
+
 	private GtkFileChooserSettings() {
 		try {
 			settings = new GKeyFile(new File(System.getProperty("user.home")
@@ -70,7 +70,7 @@ public class GtkFileChooserSettings {
 		Integer y = settings.getGroup(SETTINGS_GROUP).getInteger(GEOMETRY_Y_KEY);
 		Integer width = settings.getGroup(SETTINGS_GROUP).getInteger(GEOMETRY_WIDTH_KEY);
 		Integer height = settings.getGroup(SETTINGS_GROUP)
-				.getInteger(GEOMETRY_HEIGHT_KEY);
+		.getInteger(GEOMETRY_HEIGHT_KEY);
 
 		if (x == null || y == null || width == null || height == null) {
 			return null;
@@ -123,6 +123,12 @@ public class GtkFileChooserSettings {
 		save(SHOW_HIDDEN_KEY);
 	}
 
+	/**
+	 * Returns if we should shown the Location and File panels in the save mode
+	 * ("Browse for other folders").
+	 * 
+	 * @return if expanding the "Browser for other folders" section (only save mode).
+	 */
 	public Boolean getExpandFolders() {
 		return settings.getGroup(SETTINGS_GROUP).getBoolean(EXPAND_FOLDERS_KEY);
 	}
