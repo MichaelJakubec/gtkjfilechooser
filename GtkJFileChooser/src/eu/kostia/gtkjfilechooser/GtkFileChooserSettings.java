@@ -105,7 +105,7 @@ public class GtkFileChooserSettings {
 
 	public Mode getLocationMode() {
 		return Mode.valueOf(settings.getGroup(SETTINGS_GROUP)
-				.getString(LOCATION_MODE_KEY).toUpperCase());
+				.getString(LOCATION_MODE_KEY).toUpperCase().replace('-', '_'));
 	}
 
 	public void setLocationMode(Mode mode) {
@@ -136,8 +136,8 @@ public class GtkFileChooserSettings {
 		return settings.getGroup(SETTINGS_GROUP).getBoolean(SHOW_SIZE_COLUMN_KEY);
 	}
 
-	public void setShowSizeColumn(boolean expandFolders) {
-		settings.getGroup(SETTINGS_GROUP).setBoolean(SHOW_SIZE_COLUMN_KEY, expandFolders);
+	public void setShowSizeColumn(boolean showSize) {
+		settings.getGroup(SETTINGS_GROUP).setBoolean(SHOW_SIZE_COLUMN_KEY, showSize);
 		save(SHOW_SIZE_COLUMN_KEY);
 	}
 
