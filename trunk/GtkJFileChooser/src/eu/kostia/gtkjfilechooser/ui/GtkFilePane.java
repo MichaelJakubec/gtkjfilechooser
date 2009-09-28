@@ -1817,7 +1817,9 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			if (newFolderAction != null) {
 				contextMenu.add(newFolderAction);
 			}
-						
+			
+			contextMenu.addSeparator();
+			
 			// Add "show hidden files" CheckBoxMenuItem
 			JCheckBoxMenuItem showHiddenCheckBoxItem = new JCheckBoxMenuItem();
 			//TODO I18N
@@ -1833,6 +1835,22 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 				}				
 			});
 			contextMenu.add(showHiddenCheckBoxItem);
+						
+			// Add "show file size column" CheckBoxMenuItem
+			JCheckBoxMenuItem showFileSizeCheckBoxItem = new JCheckBoxMenuItem();
+			//TODO I18N
+			showFileSizeCheckBoxItem.setText("Show size column");
+			showFileSizeCheckBoxItem.setSelected(GtkFileChooserSettings.get().getShowSizeColumn());
+			showFileSizeCheckBoxItem.addActionListener(new ActionListener(){
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					JCheckBoxMenuItem source = (JCheckBoxMenuItem) e.getSource();
+					boolean showSizeColumn = source.isSelected();
+					//TODO implement view logic
+					GtkFileChooserSettings.get().setShowSizeColumn(showSizeColumn);		
+				}				
+			});
+			contextMenu.add(showFileSizeCheckBoxItem);
 		}
 
 		return contextMenu;

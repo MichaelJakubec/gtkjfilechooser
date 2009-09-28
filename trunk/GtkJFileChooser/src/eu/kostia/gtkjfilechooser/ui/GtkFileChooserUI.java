@@ -64,6 +64,7 @@ import sun.swing.FilePane;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
 import eu.kostia.gtkjfilechooser.Path;
+import eu.kostia.gtkjfilechooser.GtkFileChooserSettings.Mode;
 import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
 import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
 
@@ -259,8 +260,15 @@ public class GtkFileChooserUI extends BasicFileChooserUI {
 
 		JPanel topPanel1 = new JPanel(new BorderLayout());
 
-		JToggleButton showPositionButton = new JToggleButton(GtkStockIcon.get("gtk-edit", Size.GTK_ICON_SIZE_BUTTON));
-		showPositionButton.setSelected(true);
+		final JToggleButton showPositionButton = new JToggleButton(GtkStockIcon.get("gtk-edit", Size.GTK_ICON_SIZE_BUTTON));
+		showPositionButton.setSelected(GtkFileChooserSettings.get().getLocationMode() == Mode.FILENAME_ENTRY);
+		showPositionButton.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Mode mode = showPositionButton.isSelected() ? Mode.FILENAME_ENTRY : Mode.PATH_BAR;
+				GtkFileChooserSettings.get().setLocationMode(mode);
+			}			
+		});
 
 
 		// CurrentDir Combo Buttons
@@ -315,6 +323,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI {
 			}
 		});
 		topPanel.add(filenamePanel);
+		filenamePanel.setVisible(showPositionButton.isSelected());
 
 		// Add the top panel to the fileChooser
 		fc.add(topPanel, BorderLayout.NORTH);
