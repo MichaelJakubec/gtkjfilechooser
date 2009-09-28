@@ -31,7 +31,6 @@ import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -82,7 +81,6 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableRowSorter;
 import javax.swing.text.Position;
 
 import sun.awt.shell.ShellFolder;
@@ -132,7 +130,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	private String renameErrorFileExistsText;
 
 	private static final Cursor waitCursor = Cursor
-	.getPredefinedCursor(Cursor.WAIT_CURSOR);
+			.getPredefinedCursor(Cursor.WAIT_CURSOR);
 
 	private final KeyListener detailsKeyListener = new KeyAdapter() {
 		private final long timeFactor;
@@ -166,7 +164,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			}
 
 			InputMap inputMap = detailsTable
-			.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+					.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 			KeyStroke key = KeyStroke.getKeyStrokeForEvent(e);
 
 			if (inputMap != null && inputMap.get(key) != null) {
@@ -488,7 +486,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		viewTypeActionNames[VIEWTYPE_DETAILS] = UIManager.getString(
 				"FileChooser.detailsViewActionLabelText", l);
 
-
 		renameErrorTitleText = UIManager.getString("FileChooser.renameErrorTitleText", l);
 		renameErrorText = UIManager.getString("FileChooser.renameErrorText", l);
 		renameErrorFileExistsText = UIManager.getString(
@@ -609,7 +606,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	}
 
 	public JList createList(final JFileChooser fileChooser) {
-		//--
+		// --
 		final JList list = new JList() {
 			@Override
 			public int getNextMatch(String prefix, int startIndex, Position.Bias bias) {
@@ -672,8 +669,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		list.addListSelectionListener(createListSelectionListener());
 		list.addMouseListener(getMouseHandler());
 
-
-		//--
+		// --
 
 		return list;
 	}
@@ -700,7 +696,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	 * This model allows for sorting JList
 	 */
 	private class SortableListModel extends AbstractListModel implements
-	TableModelListener, RowSorterListener {
+			TableModelListener, RowSorterListener {
 
 		public SortableListModel() {
 			getDetailsTableModel().addTableModelListener(this);
@@ -726,7 +722,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		}
 	}
 
-	private DetailsTableModel getDetailsTableModel() {
+	public DetailsTableModel getDetailsTableModel() {
 		if (detailsTableModel == null) {
 			detailsTableModel = new DetailsTableModel(getFileChooser());
 		}
@@ -769,14 +765,13 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			for (int i = 0; i < allColumns.length; i++) {
 				ShellFolderColumnInfo column = allColumns[i];
 
-				if (FILE_SIZE_HEADER.equals(column.getTitle())){
+				if (FILE_SIZE_HEADER.equals(column.getTitle())) {
 					column.setVisible(GtkFileChooserSettings.get().getShowSizeColumn());
 				}
 
-				if (!FILE_NAME_HEADER.equals(column.getTitle())){
+				if (!FILE_NAME_HEADER.equals(column.getTitle())) {
 					column.setWidth(100);
 				}
-
 
 				if (column.isVisible()) {
 					columnMap[visibleColumns.size()] = i;
@@ -828,7 +823,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			return getFileColumnValue((File) directoryModel.getElementAt(row), col);
 		}
 
-		private Object getFileColumnValue(File f, int col) {
+		public Object getFileColumnValue(File f, int col) {
 			return (col == COLUMN_FILENAME) ? f // always return the file itself
 					// for the 1st column
 					: ShellFolder.getFolderColumnValue(f, columnMap[col]);
@@ -961,93 +956,9 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 	private GtkFilePaneRowSorter getRowSorter() {
 		if (rowSorter == null) {
-			rowSorter = new GtkFilePaneRowSorter();
+			rowSorter = new GtkFilePaneRowSorter(this);
 		}
 		return rowSorter;
-	}
-
-	private class GtkFilePaneRowSorter extends TableRowSorter {
-		public GtkFilePaneRowSorter() {
-			setModelWrapper(new SorterModelWrapper());
-		}
-
-		public void updateComparators(ShellFolderColumnInfo[] columns) {
-			for (int i = 0; i < columns.length; i++) {
-				Comparator c = columns[i].getComparator();
-				if (c != null) {
-					c = new DirectoriesFirstComparatorWrapper(i, c);
-				}
-				setComparator(i, c);
-			}
-		}
-
-		@Override
-		public void modelStructureChanged() {
-			super.modelStructureChanged();
-			updateComparators(detailsTableModel.getColumns());
-		}
-
-		private class SorterModelWrapper extends ModelWrapper {
-			@Override
-			public Object getModel() {
-				return getDetailsTableModel();
-			}
-
-			@Override
-			public int getColumnCount() {
-				return getDetailsTableModel().getColumnCount();
-			}
-
-			@Override
-			public int getRowCount() {
-				return getDetailsTableModel().getRowCount();
-			}
-
-			@Override
-			public Object getValueAt(int row, int column) {
-				return GtkFilePane.this.getModel().getElementAt(row);
-			}
-
-			@Override
-			public Object getIdentifier(int row) {
-				return row;
-			}
-		}
-	}
-
-	/**
-	 * This class sorts directories before files, comparing directory to
-	 * directory and file to file using the wrapped comparator.
-	 */
-	private class DirectoriesFirstComparatorWrapper implements Comparator<File> {
-		private Comparator comparator;
-		private int column;
-
-		public DirectoriesFirstComparatorWrapper(int column, Comparator comparator) {
-			this.column = column;
-			this.comparator = comparator;
-		}
-
-		public int compare(File f1, File f2) {
-			if (f1 != null && f2 != null) {
-				boolean traversable1 = getFileChooser().isTraversable(f1);
-				boolean traversable2 = getFileChooser().isTraversable(f2);
-				// directories go first
-				if (traversable1 && !traversable2) {
-					return -1;
-				}
-				if (!traversable1 && traversable2) {
-					return 1;
-				}
-			}
-			if (detailsTableModel.getColumns()[column].isCompareByColumn()) {
-				return comparator.compare(getDetailsTableModel().getFileColumnValue(f1,
-						column), getDetailsTableModel().getFileColumnValue(f2, column));
-			}
-			// For this column we need to pass the file itself (not a
-			// column value) to the comparator
-			return comparator.compare(f1, f2);
-		}
 	}
 
 	private DetailsTableCellEditor tableCellEditor;
@@ -1095,7 +1006,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		public Component getTableCellRendererComponent(JTable table, Object value,
 				boolean isSelected, boolean hasFocus, int row, int column) {
 
-
 			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
 					column);
 
@@ -1111,20 +1021,24 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 				File file = (File) value;
 				text = chooser.getName(file);
 
-				if (file.isDirectory()){
+				if (file.isDirectory()) {
 					if (System.getProperty("user.home").endsWith(file.getAbsolutePath())) {
 						// home dir ico
-						setIcon(GtkStockIcon.get("places/user-home", Size.GTK_ICON_SIZE_MENU));
-					} else if(FreeDesktopUtil.getWellKnownDirPath(WellKnownDir.DESKTOP).equals(file)) {
+						setIcon(GtkStockIcon.get("places/user-home",
+								Size.GTK_ICON_SIZE_MENU));
+					} else if (FreeDesktopUtil.getWellKnownDirPath(WellKnownDir.DESKTOP)
+							.equals(file)) {
 						// desktop dir icon
-						setIcon(GtkStockIcon.get("places/user-desktop", Size.GTK_ICON_SIZE_MENU));
+						setIcon(GtkStockIcon.get("places/user-desktop",
+								Size.GTK_ICON_SIZE_MENU));
 					} else {
-						setIcon(GtkStockIcon.get("gtk-directory", Size.GTK_ICON_SIZE_MENU));
-					}					
+						setIcon(GtkStockIcon
+								.get("gtk-directory", Size.GTK_ICON_SIZE_MENU));
+					}
 				} else {
 					Icon thumb = GtkStockIcon.get(file, Size.GTK_ICON_SIZE_MENU);
 					setIcon(thumb != null ? thumb : chooser.getIcon(file));
-				} 
+				}
 
 			} else if (value instanceof Date) {
 				// modified date
@@ -1138,19 +1052,19 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 			setText(text);
 
-			if (isSelected){
+			if (isSelected) {
 				setForeground(UIManager.getColor("List.selectionForeground"));
 				setBackground(UIManager.getColor("List.selectionBackground"));
 			} else {
 				setForeground(UIManager.getColor("List.foreground"));
-				Color rowcolor = (row % 2 == 0) ? new Color(238, 238, 238): UIManager.getColor("TextPane.background");
-				setBackground(rowcolor);	
+				Color rowcolor = (row % 2 == 0) ? new Color(238, 238, 238) : UIManager
+						.getColor("TextPane.background");
+				setBackground(rowcolor);
 			}
 
 			return this;
 		}
 	}
-
 
 	public JPanel createDetailsView() {
 		final JFileChooser chooser = getFileChooser();
@@ -1182,8 +1096,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			}
 		};
 
-
-
 		detailsTable.setRowSorter(getRowSorter());
 		detailsTable.setAutoCreateColumnsFromModel(false);
 		detailsTable.setComponentOrientation(chooser.getComponentOrientation());
@@ -1192,10 +1104,9 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		detailsTable.putClientProperty("JTable.autoStartsEdit", Boolean.FALSE);
 		detailsTable.addKeyListener(detailsKeyListener);
 
-
-
-		if (list == null){
-			//The Details view works only after that the list view was initialized
+		if (list == null) {
+			// The Details view works only after that the list view was
+			// initialized
 			setViewType(VIEWTYPE_LIST);
 			list = (JList) findChildComponent(viewPanels[viewType], JList.class);
 		}
@@ -1203,13 +1114,15 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		Font font = list.getFont();
 		detailsTable.setFont(font);
 
-		//		TableCellRenderer headerRenderer = new AlignableTableHeaderRenderer(detailsTable.getTableHeader().getDefaultRenderer());
-		//		detailsTable.getTableHeader().setDefaultRenderer(headerRenderer);
+		// TableCellRenderer headerRenderer = new
+		// AlignableTableHeaderRenderer(detailsTable.getTableHeader().getDefaultRenderer());
+		// detailsTable.getTableHeader().setDefaultRenderer(headerRenderer);
 		TableCellRenderer cellRenderer = new DetailsTableCellRenderer(chooser);
 		detailsTable.setDefaultRenderer(Object.class, cellRenderer);
 
 		// So that drag can be started on a mouse press
-		detailsTable.getColumnModel().getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		detailsTable.getColumnModel().getSelectionModel().setSelectionMode(
+				ListSelectionModel.SINGLE_SELECTION);
 
 		detailsTable.addMouseListener(getMouseHandler());
 		// No need to addListSelectionListener because selections are forwarded
@@ -1268,9 +1181,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			}
 		});
 
-
-
-
 		if (listViewBorder != null) {
 			scrollpane.setBorder(listViewBorder);
 		}
@@ -1288,7 +1198,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 		return p;
 	} // createDetailsView
-
 
 	private void fixNameColumnWidth(int viewWidth) {
 		TableColumn nameCol = detailsTable.getColumnModel().getColumn(COLUMN_FILENAME);
@@ -1555,7 +1464,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 				while (shouldIndex < files.length
 						&& actuallyIndex < selectedObjects.length) {
 					int comparison = files[shouldIndex]
-					                       .compareTo((File) selectedObjects[actuallyIndex]);
+							.compareTo((File) selectedObjects[actuallyIndex]);
 					if (comparison < 0) {
 						doSelectFile(files[shouldIndex++]);
 					} else if (comparison > 0) {
@@ -1579,7 +1488,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 				// restore the anchor and lead
 				if (listSelectionModel instanceof DefaultListSelectionModel) {
 					((DefaultListSelectionModel) listSelectionModel)
-					.moveLeadSelectionIndex(lead);
+							.moveLeadSelectionIndex(lead);
 					listSelectionModel.setAnchorSelectionIndex(anchor);
 				}
 			} finally {
@@ -1640,7 +1549,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		if (files != null
 				&& files.length > 0
 				&& (files.length > 1 || fc.isDirectorySelectionEnabled() || !files[0]
-				                                                                   .isDirectory())) {
+						.isDirectory())) {
 			setFileSelected();
 		}
 	}
@@ -1682,7 +1591,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	private void doMultiSelectionChanged(PropertyChangeEvent e) {
 		if (getFileChooser().isMultiSelectionEnabled()) {
 			listSelectionModel
-			.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+					.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		} else {
 			listSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			clearSelection();
@@ -1757,7 +1666,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			listSelectionModel.clearSelection();
 			if (listSelectionModel instanceof DefaultListSelectionModel) {
 				((DefaultListSelectionModel) listSelectionModel)
-				.moveLeadSelectionIndex(0);
+						.moveLeadSelectionIndex(0);
 				listSelectionModel.setAnchorSelectionIndex(0);
 			}
 		}
@@ -1805,10 +1714,10 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			ActionMap actionMap = getActionMap();
 			Action refreshAction = actionMap.get(ACTION_REFRESH);
 			if (refreshAction != null) {
-				contextMenu.add(refreshAction);				
+				contextMenu.add(refreshAction);
 			}
 
-			//TODO leave new folder action?
+			// TODO leave new folder action?
 			Action newFolderAction = actionMap.get(ACTION_NEW_FOLDER);
 			if (newFolderAction != null) {
 				contextMenu.add(newFolderAction);
@@ -1818,26 +1727,28 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 			// Add "show hidden files" CheckBoxMenuItem
 			JCheckBoxMenuItem showHiddenCheckBoxItem = new JCheckBoxMenuItem();
-			//TODO I18N
+			// TODO I18N
 			showHiddenCheckBoxItem.setText("Show hidden files");
-			showHiddenCheckBoxItem.setSelected(GtkFileChooserSettings.get().getShowHidden());
-			showHiddenCheckBoxItem.addActionListener(new ActionListener(){
+			showHiddenCheckBoxItem.setSelected(GtkFileChooserSettings.get()
+					.getShowHidden());
+			showHiddenCheckBoxItem.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					JCheckBoxMenuItem source = (JCheckBoxMenuItem) e.getSource();
 					boolean showHidden = source.isSelected();
 					getFileChooser().setFileHidingEnabled(!showHidden);
-					GtkFileChooserSettings.get().setShowHidden(showHidden);					
-				}				
+					GtkFileChooserSettings.get().setShowHidden(showHidden);
+				}
 			});
 			contextMenu.add(showHiddenCheckBoxItem);
 
 			// Add "show file size column" CheckBoxMenuItem
 			JCheckBoxMenuItem showFileSizeCheckBoxItem = new JCheckBoxMenuItem();
-			//TODO I18N
+			// TODO I18N
 			showFileSizeCheckBoxItem.setText("Show size column");
-			showFileSizeCheckBoxItem.setSelected(GtkFileChooserSettings.get().getShowSizeColumn());
-			showFileSizeCheckBoxItem.addActionListener(new ActionListener(){
+			showFileSizeCheckBoxItem.setSelected(GtkFileChooserSettings.get()
+					.getShowSizeColumn());
+			showFileSizeCheckBoxItem.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					JCheckBoxMenuItem source = (JCheckBoxMenuItem) e.getSource();
@@ -1845,7 +1756,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 					GtkFileChooserSettings.get().setShowSizeColumn(showSizeColumn);
 
 					getDetailsTableModel().updateColumnInfo();
-				}				
+				}
 			});
 			contextMenu.add(showFileSizeCheckBoxItem);
 		}
@@ -1884,17 +1795,16 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			int index = getRowIndex(evt);
 
 			// Translate point from table to list
-			if (index >= 0 && list != null && listSelectionModel.isSelectedIndex(index) ) {
+			if (index >= 0 && list != null && listSelectionModel.isSelectedIndex(index)) {
 
 				// Make a new event with the list as source, placing the
 				// click in the corresponding list cell.
 				Rectangle r = list.getCellBounds(index, index);
-				evt = new MouseEvent(list, evt.getID(), evt.getWhen(), evt
-						.getModifiers(), r.x + 1, r.y + r.height / 2, evt
-						.getXOnScreen(), evt.getYOnScreen(), evt.getClickCount(), evt
-						.isPopupTrigger(), evt.getButton());
+				evt = new MouseEvent(list, evt.getID(), evt.getWhen(),
+						evt.getModifiers(), r.x + 1, r.y + r.height / 2, evt
+								.getXOnScreen(), evt.getYOnScreen(), evt.getClickCount(),
+						evt.isPopupTrigger(), evt.getButton());
 			}
-
 
 			if (index >= 0 && SwingUtilities.isLeftMouseButton(evt)) {
 				JFileChooser fc = getFileChooser();
@@ -1951,12 +1861,12 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		}
 
 		public void mouseExited(MouseEvent evt) {
-			//			if (evt.getSource() instanceof JList) {
-			//				// Forward event to Basic
-			//				if (getDoubleClickListener() != null) {
-			//					getDoubleClickListener().mouseExited(evt);
-			//				}
-			//			}
+			// if (evt.getSource() instanceof JList) {
+			// // Forward event to Basic
+			// if (getDoubleClickListener() != null) {
+			// getDoubleClickListener().mouseExited(evt);
+			// }
+			// }
 		}
 
 		public void mousePressed(MouseEvent evt) {
@@ -1977,7 +1887,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			// Lazy creation of Basic's listener
 			if (doubleClickListener == null && list != null) {
 				doubleClickListener = fileChooserUIAccessor
-				.createDoubleClickListener(list);
+						.createDoubleClickListener(list);
 			}
 			return doubleClickListener;
 		}
