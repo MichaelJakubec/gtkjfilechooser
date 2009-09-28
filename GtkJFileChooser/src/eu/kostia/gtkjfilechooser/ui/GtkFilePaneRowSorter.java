@@ -9,7 +9,7 @@ import sun.awt.shell.ShellFolderColumnInfo;
 
 @SuppressWarnings("unchecked")
 public class GtkFilePaneRowSorter extends TableRowSorter {
-	private GtkFilePane filepane;
+	private final GtkFilePane filepane;
 
 	public GtkFilePaneRowSorter(GtkFilePane filepane) {
 		this.filepane = filepane;
@@ -84,10 +84,14 @@ public class GtkFilePaneRowSorter extends TableRowSorter {
 					return 1;
 				}
 			}
-			if (filepane.getDetailsTableModel().getColumns()[column].isCompareByColumn()) {
-				return comparator.compare(filepane.getDetailsTableModel().getFileColumnValue(f1,
-						column), filepane.getDetailsTableModel().getFileColumnValue(f2, column));
+			boolean compareByColumn = filepane.getDetailsTableModel().getColumns()[column].isCompareByColumn();
+			if (compareByColumn) {
+				Object fileColumnValue1 = filepane.getDetailsTableModel().getFileColumnValue(f1, column);
+				Object fileColumnValue2 = filepane.getDetailsTableModel().getFileColumnValue(f2, column);
+
+				return comparator.compare(fileColumnValue1, fileColumnValue2);
 			}
+
 			// For this column we need to pass the file itself (not a
 			// column value) to the comparator
 			return comparator.compare(f1, f2);
