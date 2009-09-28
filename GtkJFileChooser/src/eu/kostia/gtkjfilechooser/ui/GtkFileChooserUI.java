@@ -18,8 +18,11 @@ import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.LayoutManager;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
@@ -58,6 +61,7 @@ import javax.swing.plaf.basic.BasicDirectoryModel;
 import javax.swing.plaf.basic.BasicFileChooserUI;
 
 import sun.swing.FilePane;
+import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
 import eu.kostia.gtkjfilechooser.Path;
 import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
@@ -71,11 +75,12 @@ import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
  */
 public class GtkFileChooserUI extends BasicFileChooserUI {
 
-	public GtkFileChooserUI(JFileChooser b) {
-		super(b);
+	public GtkFileChooserUI(JFileChooser chooser) {
+		super(chooser);
+		chooser.setFileHidingEnabled(!GtkFileChooserSettings.get().getShowHidden());
+		
 	}
-
-
+	
 	private GtkButtonsCombo comboButtons;
 
 	// private FilterComboBoxChangeListener filterComboBoxModel;
@@ -528,6 +533,22 @@ public class GtkFileChooserUI extends BasicFileChooserUI {
 		super.installListeners(fc);
 		ActionMap actionMap = getActionMap();
 		SwingUtilities.replaceUIActionMap(fc, actionMap);
+				
+		fc.addComponentListener(new ComponentAdapter(){
+			@Override
+			public void componentMoved(ComponentEvent e) {
+				persistBoundaries(e.getComponent().getBounds());
+			}
+			
+			@Override
+			public void componentResized(ComponentEvent e) {
+				persistBoundaries(e.getComponent().getBounds());
+			}
+			
+			private void persistBoundaries(Rectangle bound){
+				GtkFileChooserSettings.get().setBound(bound);
+			}
+		});
 	}
 
 	protected ActionMap getActionMap() {
@@ -599,6 +620,11 @@ public class GtkFileChooserUI extends BasicFileChooserUI {
 	 */
 	@Override
 	public Dimension getPreferredSize(JComponent c) {
+		Rectangle bound = GtkFileChooserSettings.get().getBound();
+		if (bound != null){
+			return new Dimension(bound.width, bound.height);
+		}
+		
 		int prefWidth = PREF_SIZE.width;
 		Dimension d = c.getLayout().preferredLayoutSize(c);
 		if (d != null) {
