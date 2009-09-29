@@ -50,6 +50,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -1781,7 +1782,23 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			if (newFolderAction != null) {
 				contextMenu.add(newFolderAction);
 			}
-
+			
+			JMenuItem addToBookmarkMenuItem = new JMenuItem();
+			// TODO I18N
+			addToBookmarkMenuItem.setText("Add to Bookmark");
+			addToBookmarkMenuItem.setIcon(GtkStockIcon.get("gtk-add", Size.GTK_ICON_SIZE_MENU));
+			addToBookmarkMenuItem.addActionListener(new ActionListener(){
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					int selectedRow = detailsTable.getSelectedRow();					
+					Object selectedValue = detailsTableModel.getValueAt(selectedRow, 0);
+					//TODO implement logic
+					System.out.println(selectedValue);
+				}
+				
+			});
+			contextMenu.add(addToBookmarkMenuItem);
+			
 			contextMenu.addSeparator();
 
 			// Add "show hidden files" CheckBoxMenuItem
