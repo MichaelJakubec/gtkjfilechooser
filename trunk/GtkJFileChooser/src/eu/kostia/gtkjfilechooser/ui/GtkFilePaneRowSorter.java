@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.event.RowSorterEvent;
 import javax.swing.event.RowSorterListener;
@@ -19,6 +18,7 @@ import eu.kostia.gtkjfilechooser.GtkFileChooserSettings.Column;
 public class GtkFilePaneRowSorter extends TableRowSorter implements RowSorterListener {
 
 	private final GtkFilePane filepane;
+	private SortKey oldSortKey;
 
 	public GtkFilePaneRowSorter(GtkFilePane filepane) {
 		this.filepane = filepane;
@@ -33,14 +33,21 @@ public class GtkFilePaneRowSorter extends TableRowSorter implements RowSorterLis
 			return;
 		}
 
-		RowSorter source = e.getSource();
-		List<SortKey> keys = source.getSortKeys();
 		
+		
+		List<SortKey> keys = e.getSource().getSortKeys();
+		SortKey sortKey = keys.get(0);
+		if(sortKey.equals(oldSortKey)) {
+			// do nothing if the sortKey hasn't changed.
+			return;
+		}
+		oldSortKey = sortKey;
+				
 		Column[] columns = filepane.getDetailsTable().getColumnCount() == 2 ? 
 				new Column[] { Column.NAME, Column.MODIFIED }	: 
 				new Column[] { Column.NAME, Column.SIZE, Column.MODIFIED };
 		// The first column in the list is always that one that was sorted.
-		SortKey sortKey = keys.get(0);
+		
 		int columnIndex = sortKey.getColumn();
 
 		SortOrder order = sortKey.getSortOrder();
