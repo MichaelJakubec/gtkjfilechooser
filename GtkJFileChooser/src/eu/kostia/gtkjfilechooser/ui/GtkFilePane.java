@@ -8,7 +8,6 @@ import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.KeyboardFocusManager;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -64,7 +63,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
-import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 import javax.swing.RowSorter.SortKey;
 import javax.swing.border.Border;
@@ -88,7 +86,6 @@ import javax.swing.text.Position;
 
 import sun.awt.shell.ShellFolder;
 import sun.awt.shell.ShellFolderColumnInfo;
-import sun.swing.SwingUtilities2;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
@@ -313,7 +310,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	private boolean readOnly;
 
 	private ListSelectionModel listSelectionModel;
-	private JList list;
+	private JList filesList;
 	private JTable detailsTable;
 
 	private static final int COLUMN_FILENAME = 0;
@@ -347,11 +344,11 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	}
 
 	protected JFileChooser getFileChooser() {
-		return fileChooserUIAccessor.getFileChooser();
+		return getFileChooserUIAccessor().getFileChooser();
 	}
 
 	protected BasicDirectoryModel getModel() {
-		return fileChooserUIAccessor.getModel();
+		return getFileChooserUIAccessor().getModel();
 	}
 
 	public int getViewType() {
@@ -368,18 +365,18 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		switch (viewType) {
 		case VIEWTYPE_LIST:
 			if (viewPanels[viewType] == null) {
-				JPanel p = fileChooserUIAccessor.createList();
+				JPanel p = getFileChooserUIAccessor().createList();
 				if (p == null) {
 					p = createList();
 				}
 				setViewPanel(viewType, p);
 			}
-			list.setLayoutOrientation(JList.VERTICAL_WRAP);
+			getFilesList().setLayoutOrientation(JList.VERTICAL_WRAP);
 			break;
 
 		case VIEWTYPE_DETAILS:
 			if (viewPanels[viewType] == null) {
-				JPanel p = fileChooserUIAccessor.createDetailsView();
+				JPanel p = getFileChooserUIAccessor().createDetailsView();
 				if (p == null) {
 					p = createDetailsView();
 				}
@@ -450,14 +447,14 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 		switch (viewType) {
 		case VIEWTYPE_LIST:
-			list = (JList) findChildComponent(viewPanels[viewType], JList.class);
-			if (listSelectionModel == null) {
-				listSelectionModel = list.getSelectionModel();
+			setFilesList((JList) findChildComponent(viewPanels[viewType], JList.class));
+			if (getListSelectionModel() == null) {
+				setListSelectionModel(getFilesList().getSelectionModel());
 				if (detailsTable != null) {
-					detailsTable.setSelectionModel(listSelectionModel);
+					detailsTable.setSelectionModel(getListSelectionModel());
 				}
 			} else {
-				list.setSelectionModel(listSelectionModel);
+				getFilesList().setSelectionModel(getListSelectionModel());
 			}
 			break;
 
@@ -465,8 +462,8 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			detailsTable = (JTable) findChildComponent(viewPanels[viewType], JTable.class);
 			detailsTable.setRowHeight(Math.max(detailsTable.getFont().getSize() + 4,
 					16 + 1));
-			if (listSelectionModel != null) {
-				detailsTable.setSelectionModel(listSelectionModel);
+			if (getListSelectionModel() != null) {
+				detailsTable.setSelectionModel(getListSelectionModel());
 			}
 			break;
 		}
@@ -510,10 +507,10 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	}
 
 	/**
-	 * Fetches the command list for the FilePane. These commands are useful for
+	 * Fetches the command filesList for the FilePane. These commands are useful for
 	 * binding to events, such as in a keymap.
 	 * 
-	 * @return the command list
+	 * @return the command filesList
 	 */
 	public Action[] getActions() {
 		if (actions == null) {
@@ -534,16 +531,16 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 					String cmd = (String) getValue(Action.ACTION_COMMAND_KEY);
 
 					if (cmd == ACTION_CANCEL) {
-						if (editFile != null) {
+						if (getEditFile() != null) {
 							cancelEdit();
 						} else {
 							getFileChooser().cancelSelection();
 						}
 					} else if (cmd == ACTION_EDIT_FILE_NAME) {
 						JFileChooser fc = getFileChooser();
-						int index = listSelectionModel.getMinSelectionIndex();
+						int index = getListSelectionModel().getMinSelectionIndex();
 						if (index >= 0
-								&& editFile == null
+								&& getEditFile() == null
 								&& (!fc.isMultiSelectionEnabled() || fc
 										.getSelectedFiles().length <= 1)) {
 
@@ -574,11 +571,11 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			actionList.add(new FilePaneAction(ACTION_EDIT_FILE_NAME));
 			actionList.add(new FilePaneAction(refreshActionLabelText, ACTION_REFRESH));
 
-			action = fileChooserUIAccessor.getApproveSelectionAction();
+			action = getFileChooserUIAccessor().getApproveSelectionAction();
 			if (action != null) {
 				actionList.add(action);
 			}
-			action = fileChooserUIAccessor.getChangeToParentDirectoryAction();
+			action = getFileChooserUIAccessor().getChangeToParentDirectoryAction();
 			if (action != null) {
 				actionList.add(action);
 			}
@@ -653,7 +650,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		list.setCellRenderer(new FileRenderer());
 		list.setLayoutOrientation(JList.VERTICAL_WRAP);
 
-		// 4835633 : tell BasicListUI that this is a file list
+		// 4835633 : tell BasicListUI that this is a file filesList
 		list.putClientProperty("List.isFileList", Boolean.TRUE);
 
 		if (listViewWindowsStyle) {
@@ -733,7 +730,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 		public Object getElementAt(int index) {
 			// JList doesn't support RowSorter so far, 
-			// so we put it into the list model
+			// so we put it into the filesList model
 			return getModel().getElementAt(getRowSorter().convertRowIndexToModel(index));
 		}
 
@@ -773,7 +770,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 		private void updateColumnInfo() {
 			File dir = chooser.getCurrentDirectory();
-			if (dir != null && fileChooserUIAccessor.usesShellFolder()) {
+			if (dir != null && getFileChooserUIAccessor().usesShellFolder()) {
 				try {
 					dir = ShellFolder.getShellFolder(dir);
 				} catch (FileNotFoundException e) {
@@ -1172,14 +1169,14 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		detailsTable.putClientProperty("JTable.autoStartsEdit", Boolean.FALSE);
 		detailsTable.addKeyListener(detailsKeyListener);
 
-		if (list == null) {
-			// The Details view works only after that the list view was
+		if (getFilesList() == null) {
+			// The Details view works only after that the filesList view was
 			// initialized
 			setViewType(VIEWTYPE_LIST);
-			list = (JList) findChildComponent(viewPanels[viewType], JList.class);
+			setFilesList((JList) findChildComponent(viewPanels[viewType], JList.class));
 		}
 
-		Font font = list.getFont();
+		Font font = getFilesList().getFont();
 		detailsTable.setFont(font);
 
 		// TableCellRenderer headerRenderer = new
@@ -1196,7 +1193,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		// No need to addListSelectionListener because selections are forwarded
 		// to our JList.
 
-		// 4835633 : tell BasicTableUI that this is a file list
+		// 4835633 : tell BasicTableUI that this is a file filesList
 		detailsTable.putClientProperty("Table.isFileList", Boolean.TRUE);
 
 		if (listViewWindowsStyle) {
@@ -1296,33 +1293,25 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	}
 
 	/**
-	 * Creates a selection listener for the list of files and directories.
+	 * Creates a selection listener for the filesList of files and directories.
 	 * 
 	 * @return a <code>ListSelectionListener</code>
 	 */
 	public ListSelectionListener createListSelectionListener() {
-		return fileChooserUIAccessor.createListSelectionListener();
+		return getFileChooserUIAccessor().createListSelectionListener();
 	}
 
 	int lastIndex = -1;
-	File editFile = null;
+	private File editFile = null;
 
-	private int getEditIndex() {
-		return lastIndex;
-	}
-
-	private void setEditIndex(int i) {
-		lastIndex = i;
-	}
-
-	private void resetEditIndex() {
+	void resetEditIndex() {
 		lastIndex = -1;
 	}
 
 	private void cancelEdit() {
-		if (editFile != null) {
-			editFile = null;
-			list.remove(editCell);
+		if (getEditFile() != null) {
+			setEditFile(null);
+			getFilesList().remove(editCell);
 			repaint();
 		} else if (detailsTable != null && detailsTable.isEditing()) {
 			detailsTable.getCellEditor().cancelCellEditing();
@@ -1346,20 +1335,20 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		ensureIndexIsVisible(index);
 		switch (viewType) {
 		case VIEWTYPE_LIST:
-			editFile = (File) getModel().getElementAt(
-					getRowSorter().convertRowIndexToModel(index));
-			Rectangle r = list.getCellBounds(index, index);
+			setEditFile((File) getModel().getElementAt(
+					getRowSorter().convertRowIndexToModel(index)));
+			Rectangle r = getFilesList().getCellBounds(index, index);
 			if (editCell == null) {
 				editCell = new JTextField();
 				editCell.addActionListener(new EditActionListener());
 				editCell.addFocusListener(editorFocusListener);
 			}
-			list.add(editCell);
-			editCell.setText(chooser.getName(editFile));
-			ComponentOrientation orientation = list.getComponentOrientation();
+			getFilesList().add(editCell);
+			editCell.setText(chooser.getName(getEditFile()));
+			ComponentOrientation orientation = getFilesList().getComponentOrientation();
 			editCell.setComponentOrientation(orientation);
 
-			Icon icon = chooser.getIcon(editFile);
+			Icon icon = chooser.getIcon(getEditFile());
 
 			// PENDING - grab padding (4) below from defaults table.
 			int editX = icon == null ? 20 : icon.getIconWidth() + 4;
@@ -1386,10 +1375,10 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	}
 
 	private void applyEdit() {
-		if (editFile != null && editFile.exists()) {
+		if (getEditFile() != null && getEditFile().exists()) {
 			JFileChooser chooser = getFileChooser();
-			String oldDisplayName = chooser.getName(editFile);
-			String oldFileName = editFile.getName();
+			String oldDisplayName = chooser.getName(getEditFile());
+			String oldFileName = getEditFile().getName();
 			String newDisplayName = editCell.getText().trim();
 			String newFileName;
 
@@ -1404,13 +1393,13 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 				// rename
 				FileSystemView fsv = chooser.getFileSystemView();
-				File f2 = fsv.createFileObject(editFile.getParentFile(), newFileName);
+				File f2 = fsv.createFileObject(getEditFile().getParentFile(), newFileName);
 				if (f2.exists()) {
 					JOptionPane.showMessageDialog(chooser, MessageFormat.format(
 							renameErrorFileExistsText, oldFileName),
 							renameErrorTitleText, JOptionPane.ERROR_MESSAGE);
 				} else {
-					if (getModel().renameFile(editFile, f2)) {
+					if (getModel().renameFile(getEditFile(), f2)) {
 						if (fsv.isParent(chooser.getCurrentDirectory(), f2)) {
 							if (chooser.isMultiSelectionEnabled()) {
 								chooser.setSelectedFiles(new File[] { f2 });
@@ -1458,7 +1447,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 				public void actionPerformed(ActionEvent ev) {
 					if (basicNewFolderAction == null) {
-						basicNewFolderAction = fileChooserUIAccessor.getNewFolderAction();
+						basicNewFolderAction = getFileChooserUIAccessor().getNewFolderAction();
 					}
 					JFileChooser fc = getFileChooser();
 					File oldFile = fc.getSelectedFile();
@@ -1510,13 +1499,13 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		if (getFileChooser().isMultiSelectionEnabled() && !isDirectorySelected()) {
 			File[] files = getFileChooser().getSelectedFiles(); // Should be
 			// selected
-			Object[] selectedObjects = list.getSelectedValues(); // Are actually
+			Object[] selectedObjects = getFilesList().getSelectedValues(); // Are actually
 			// selected
 
-			listSelectionModel.setValueIsAdjusting(true);
+			getListSelectionModel().setValueIsAdjusting(true);
 			try {
-				int lead = listSelectionModel.getLeadSelectionIndex();
-				int anchor = listSelectionModel.getAnchorSelectionIndex();
+				int lead = getListSelectionModel().getLeadSelectionIndex();
+				int anchor = getListSelectionModel().getAnchorSelectionIndex();
 
 				Arrays.sort(files);
 				Arrays.sort(selectedObjects);
@@ -1552,13 +1541,13 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 				}
 
 				// restore the anchor and lead
-				if (listSelectionModel instanceof DefaultListSelectionModel) {
-					((DefaultListSelectionModel) listSelectionModel)
+				if (getListSelectionModel() instanceof DefaultListSelectionModel) {
+					((DefaultListSelectionModel) getListSelectionModel())
 					.moveLeadSelectionIndex(lead);
-					listSelectionModel.setAnchorSelectionIndex(anchor);
+					getListSelectionModel().setAnchorSelectionIndex(anchor);
 				}
 			} finally {
-				listSelectionModel.setValueIsAdjusting(false);
+				getListSelectionModel().setValueIsAdjusting(false);
 			}
 		} else {
 			JFileChooser chooser = getFileChooser();
@@ -1571,7 +1560,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			int i;
 			if (f != null && (i = getModel().indexOf(f)) >= 0) {
 				int viewIndex = getRowSorter().convertRowIndexToView(i);
-				listSelectionModel.setSelectionInterval(viewIndex, viewIndex);
+				getListSelectionModel().setSelectionInterval(viewIndex, viewIndex);
 				ensureIndexIsVisible(viewIndex);
 			} else {
 				clearSelection();
@@ -1584,14 +1573,14 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		// could be missed in the current directory if it changed
 		if (index >= 0) {
 			index = getRowSorter().convertRowIndexToView(index);
-			listSelectionModel.addSelectionInterval(index, index);
+			getListSelectionModel().addSelectionInterval(index, index);
 		}
 	}
 
 	private void doDeselectFile(Object fileToDeselect) {
 		int index = getRowSorter().convertRowIndexToView(
 				getModel().indexOf(fileToDeselect));
-		listSelectionModel.removeSelectionInterval(index, index);
+		getListSelectionModel().removeSelectionInterval(index, index);
 	}
 
 	/* The following methods are used by the PropertyChange Listener */
@@ -1634,11 +1623,11 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			if (!readOnly) {
 				getNewFolderAction().setEnabled(canWrite(currentDirectory));
 			}
-			fileChooserUIAccessor.getChangeToParentDirectoryAction().setEnabled(
+			getFileChooserUIAccessor().getChangeToParentDirectoryAction().setEnabled(
 					!fsv.isRoot(currentDirectory));
 		}
-		if (list != null) {
-			list.clearSelection();
+		if (getFilesList() != null) {
+			getFilesList().clearSelection();
 		}
 	}
 
@@ -1656,10 +1645,10 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 	private void doMultiSelectionChanged(PropertyChangeEvent e) {
 		if (getFileChooser().isMultiSelectionEnabled()) {
-			listSelectionModel
+			getListSelectionModel()
 			.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		} else {
-			listSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			getListSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			clearSelection();
 			getFileChooser().setSelectedFiles(null);
 		}
@@ -1706,8 +1695,8 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 	private void ensureIndexIsVisible(int i) {
 		if (i >= 0) {
-			if (list != null) {
-				list.ensureIndexIsVisible(i);
+			if (getFilesList() != null) {
+				getFilesList().ensureIndexIsVisible(i);
 			}
 			if (detailsTable != null) {
 				detailsTable.scrollRectToVisible(detailsTable.getCellRect(i,
@@ -1728,12 +1717,12 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	}
 
 	public void clearSelection() {
-		if (listSelectionModel != null) {
-			listSelectionModel.clearSelection();
-			if (listSelectionModel instanceof DefaultListSelectionModel) {
-				((DefaultListSelectionModel) listSelectionModel)
+		if (getListSelectionModel() != null) {
+			getListSelectionModel().clearSelection();
+			if (getListSelectionModel() instanceof DefaultListSelectionModel) {
+				((DefaultListSelectionModel) getListSelectionModel())
 				.moveLeadSelectionIndex(0);
-				listSelectionModel.setAnchorSelectionIndex(0);
+				getListSelectionModel().setAnchorSelectionIndex(0);
 			}
 		}
 	}
@@ -1852,134 +1841,16 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		return contextMenu;
 	}
 
-	private Handler handler;
+	private MouseListener handler;
 
-	protected Handler getMouseHandler() {
+	protected MouseListener getMouseHandler() {
 		if (handler == null) {
-			handler = new Handler();
+			handler = new GtkFilePaneMouseListener(this);
 		}
 		return handler;
 	}
 
-	private class Handler implements MouseListener {
-		private MouseListener doubleClickListener;
 
-		private int getRowIndex(MouseEvent evt) {
-			JComponent source = (JComponent) evt.getSource();
-
-			if (source instanceof JList) {
-				return SwingUtilities2.loc2IndexFileList(list, evt.getPoint());
-			} else if (source instanceof JTable) {
-				JTable table = (JTable) source;
-				Point p = evt.getPoint();
-				return table.rowAtPoint(p);
-			}
-
-			return -1;
-		}
-
-		public void mouseClicked(MouseEvent evt) {
-			JComponent source = (JComponent) evt.getSource();
-			int index = getRowIndex(evt);
-
-			// Translate point from table to list
-			if (index >= 0 && list != null && listSelectionModel.isSelectedIndex(index)) {
-
-				// Make a new event with the list as source, placing the
-				// click in the corresponding list cell.
-				Rectangle r = list.getCellBounds(index, index);
-				evt = new MouseEvent(list, evt.getID(), evt.getWhen(),
-						evt.getModifiers(), r.x + 1, r.y + r.height / 2, evt
-						.getXOnScreen(), evt.getYOnScreen(), evt.getClickCount(),
-						evt.isPopupTrigger(), evt.getButton());
-			}
-
-			if (index >= 0 && SwingUtilities.isLeftMouseButton(evt)) {
-				JFileChooser fc = getFileChooser();
-
-				// For single click, we handle editing file name
-				if (evt.getClickCount() == 1 && source instanceof JList) {
-					if ((!fc.isMultiSelectionEnabled() || fc.getSelectedFiles().length <= 1)
-							&& index >= 0
-							&& listSelectionModel.isSelectedIndex(index)
-							&& getEditIndex() == index && editFile == null) {
-
-						editFileName(index);
-					} else {
-						if (index >= 0) {
-							setEditIndex(index);
-						} else {
-							resetEditIndex();
-						}
-					}
-				} else if (evt.getClickCount() == 2) {
-					// on double click (open or drill down one directory) be
-					// sure to clear the edit index
-					resetEditIndex();
-				}
-			}
-
-			// Forward event to Basic
-			if (getDoubleClickListener() != null) {
-				getDoubleClickListener().mouseClicked(evt);
-			}
-		}
-
-		public void mouseEntered(MouseEvent evt) {
-			JComponent source = (JComponent) evt.getSource();
-			if (source instanceof JTable) {
-				JTable table = (JTable) evt.getSource();
-
-				TransferHandler th1 = getFileChooser().getTransferHandler();
-				TransferHandler th2 = table.getTransferHandler();
-				if (th1 != th2) {
-					table.setTransferHandler(th1);
-				}
-
-				boolean dragEnabled = getFileChooser().getDragEnabled();
-				if (dragEnabled != table.getDragEnabled()) {
-					table.setDragEnabled(dragEnabled);
-				}
-			} else if (source instanceof JList) {
-				// Forward event to Basic
-				if (getDoubleClickListener() != null) {
-					getDoubleClickListener().mouseEntered(evt);
-				}
-			}
-		}
-
-		public void mouseExited(MouseEvent evt) {
-			// if (evt.getSource() instanceof JList) {
-			// // Forward event to Basic
-			// if (getDoubleClickListener() != null) {
-			// getDoubleClickListener().mouseExited(evt);
-			// }
-			// }
-		}
-
-		public void mousePressed(MouseEvent evt) {
-			int index = getRowIndex(evt);
-			listSelectionModel.setSelectionInterval(index, index);
-		}
-
-		public void mouseReleased(MouseEvent evt) {
-			if (evt.getSource() instanceof JList) {
-				// Forward event to Basic
-				if (getDoubleClickListener() != null) {
-					getDoubleClickListener().mouseReleased(evt);
-				}
-			}
-		}
-
-		private MouseListener getDoubleClickListener() {
-			// Lazy creation of Basic's listener
-			if (doubleClickListener == null && list != null) {
-				doubleClickListener = fileChooserUIAccessor
-				.createDoubleClickListener(list);
-			}
-			return doubleClickListener;
-		}
-	}
 
 	/**
 	 * Property to remember whether a directory is currently selected in the UI.
@@ -1987,7 +1858,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	 * @return <code>true</code> iff a directory is currently selected.
 	 */
 	protected boolean isDirectorySelected() {
-		return fileChooserUIAccessor.isDirectorySelected();
+		return getFileChooserUIAccessor().isDirectorySelected();
 	}
 
 	/**
@@ -1997,7 +1868,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	 * @see javax.swing.plaf.basic.BasicFileChooserUI#setDirectory
 	 */
 	protected File getDirectory() {
-		return fileChooserUIAccessor.getDirectory();
+		return getFileChooserUIAccessor().getDirectory();
 	}
 
 	private Component findChildComponent(Container container, Class cls) {
@@ -2025,7 +1896,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		if (f instanceof ShellFolder) {
 			return ((ShellFolder) f).isFileSystem();
 		} else {
-			if (fileChooserUIAccessor.usesShellFolder()) {
+			if (getFileChooserUIAccessor().usesShellFolder()) {
 				try {
 					return ShellFolder.getShellFolder(f).isFileSystem();
 				} catch (FileNotFoundException ex) {
@@ -2037,6 +1908,36 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 				return true;
 			}
 		}
+	}
+
+	private void setListSelectionModel(ListSelectionModel listSelectionModel) {
+		this.listSelectionModel = listSelectionModel;
+	}
+
+	ListSelectionModel getListSelectionModel() {
+		return listSelectionModel;
+	}
+
+
+
+	FileChooserUIAccessor getFileChooserUIAccessor() {
+		return fileChooserUIAccessor;
+	}
+
+	void setFilesList(JList filesList) {
+		this.filesList = filesList;
+	}
+
+	JList getFilesList() {
+		return filesList;
+	}
+
+	void setEditFile(File editFile) {
+		this.editFile = editFile;
+	}
+
+	File getEditFile() {
+		return editFile;
 	}
 
 	// This interface is used to access methods in the FileChooserUI

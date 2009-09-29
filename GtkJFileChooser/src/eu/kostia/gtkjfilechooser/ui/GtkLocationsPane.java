@@ -94,6 +94,7 @@ public class GtkLocationsPane extends JPanel {
 				JTable table = (JTable) evt.getSource();
 				Point p = evt.getPoint();
 				int rowIndex = table.rowAtPoint(p);
+				table.setRowSelectionInterval(rowIndex, rowIndex);
 				Object valueAt = table.getModel().getValueAt(rowIndex, 0);
 				path = (Path) valueAt;
 				for (ActionListener listener : actionListeners) {
