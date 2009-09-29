@@ -97,10 +97,11 @@ import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
 
 @SuppressWarnings("unchecked")
 public class GtkFilePane extends JPanel implements PropertyChangeListener {
+	private static final long serialVersionUID = 10L;
+	
 	// Constants for actions. These are used for the actions' ACTION_COMMAND_KEY
 	// and as keys in the action maps for FilePane and the corresponding UI
 	// classes
-
 	public final static String ACTION_APPROVE_SELECTION = "approveSelection";
 	public final static String ACTION_CANCEL = "cancelSelection";
 	public final static String ACTION_EDIT_FILE_NAME = "editFileName";
@@ -110,9 +111,9 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	public final static String ACTION_VIEW_LIST = "viewTypeList";
 	public final static String ACTION_VIEW_DETAILS = "viewTypeDetails";
 
-	private static final String FILE_NAME_HEADER = "FileChooser.fileNameHeaderText";
-	private static final String FILE_SIZE_HEADER = "FileChooser.fileSizeHeaderText";
-	private static final String FILE_DATE_HEADER = "FileChooser.fileDateHeaderText";
+	public static final String FILE_NAME_HEADER = "FileChooser.fileNameHeaderText";
+	public static final String FILE_SIZE_HEADER = "FileChooser.fileSizeHeaderText";
+	public static final String FILE_DATE_HEADER = "FileChooser.fileDateHeaderText";
 
 	private Action[] actions;
 
@@ -400,6 +401,9 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	}
 
 	class ViewTypeAction extends AbstractAction {
+		
+		private static final long serialVersionUID = GtkFilePane.serialVersionUID;
+		
 		private int viewType;
 
 		ViewTypeAction(int viewType) {
@@ -513,6 +517,9 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	public Action[] getActions() {
 		if (actions == null) {
 			class FilePaneAction extends AbstractAction {
+				
+				private static final long serialVersionUID = GtkFilePane.serialVersionUID;
+
 				FilePaneAction(String name) {
 					this(name, name);
 				}
@@ -620,6 +627,8 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	public JList createList(final JFileChooser fileChooser) {
 		// --
 		final JList list = new JList() {
+			private static final long serialVersionUID = GtkFilePane.serialVersionUID;
+
 			@Override
 			public int getNextMatch(String prefix, int startIndex, Position.Bias bias) {
 				ListModel model = getModel();
@@ -709,6 +718,8 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	 */
 	private class SortableListModel extends AbstractListModel implements
 			TableModelListener, RowSorterListener {
+		
+		private static final long serialVersionUID = GtkFilePane.serialVersionUID;
 
 		public SortableListModel() {
 			getDetailsTableModel().addTableModelListener(this);
@@ -720,8 +731,8 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		}
 
 		public Object getElementAt(int index) {
-			// JList doesn't support RowSorter so far, so we put it into the
-			// list model
+			// JList doesn't support RowSorter so far, 
+			// so we put it into the list model
 			return getModel().getElementAt(getRowSorter().convertRowIndexToModel(index));
 		}
 
@@ -742,14 +753,16 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	}
 
 	class DetailsTableModel extends AbstractTableModel implements ListDataListener {
+		
+		private static final long serialVersionUID = GtkFilePane.serialVersionUID;
 
-		JFileChooser chooser;
-		BasicDirectoryModel directoryModel;
+		private JFileChooser chooser;
+		private BasicDirectoryModel directoryModel;
 
-		ShellFolderColumnInfo[] columns;
-		int[] columnMap;
+		private ShellFolderColumnInfo[] columns;
+		private int[] columnMap;
 
-		DetailsTableModel(JFileChooser fc) {
+		private DetailsTableModel(JFileChooser fc) {
 			this.chooser = fc;
 			directoryModel = getModel();
 			directoryModel.addListDataListener(this);
@@ -757,7 +770,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			updateColumnInfo();
 		}
 
-		void updateColumnInfo() {
+		private void updateColumnInfo() {
 			File dir = chooser.getCurrentDirectory();
 			if (dir != null && fileChooserUIAccessor.usesShellFolder()) {
 				try {
@@ -1009,6 +1022,9 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	}
 
 	private class DetailsTableCellEditor extends DefaultCellEditor {
+
+		private static final long serialVersionUID = GtkFilePane.serialVersionUID;
+
 		private final JTextField tf;
 
 		public DetailsTableCellEditor(JTextField tf) {
@@ -1031,10 +1047,13 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	}
 
 	class DetailsTableCellRenderer extends DefaultTableCellRenderer {
-		JFileChooser chooser;
-		DateFormat df;
 
-		DetailsTableCellRenderer(JFileChooser chooser) {
+		private static final long serialVersionUID = GtkFilePane.serialVersionUID;
+
+		private JFileChooser chooser;
+		private DateFormat df;
+
+		private DetailsTableCellRenderer(JFileChooser chooser) {
 			this.chooser = chooser;
 			df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT,
 					chooser.getLocale());
@@ -1110,6 +1129,8 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		JPanel p = new JPanel(new BorderLayout());
 
 		detailsTable = new JTable(getDetailsTableModel()) {
+
+			private static final long serialVersionUID = GtkFilePane.serialVersionUID;
 
 			// Handle Escape key events here
 			@Override
@@ -1325,7 +1346,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 				editCell = new JTextField();
 				editCell.addActionListener(new EditActionListener());
 				editCell.addFocusListener(editorFocusListener);
-				editCell.setNextFocusableComponent(list);
 			}
 			list.add(editCell);
 			editCell.setText(chooser.getName(editFile));
@@ -1414,6 +1434,9 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	public Action getNewFolderAction() {
 		if (!readOnly && newFolderAction == null) {
 			newFolderAction = new AbstractAction(newFolderActionLabelText) {
+				
+				private static final long serialVersionUID = GtkFilePane.serialVersionUID;
+				
 				private Action basicNewFolderAction;
 
 				// Initializer
@@ -1445,6 +1468,8 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	}
 
 	protected class FileRenderer extends DefaultListCellRenderer {
+
+		private static final long serialVersionUID = GtkFilePane.serialVersionUID;
 
 		@Override
 		public Component getListCellRendererComponent(JList list, Object value,
