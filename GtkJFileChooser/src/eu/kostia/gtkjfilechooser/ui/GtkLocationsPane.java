@@ -56,6 +56,7 @@ public class GtkLocationsPane extends JPanel {
 		setLayout(new BorderLayout());
 
 		bookmarksTable = new JTable();
+		bookmarksTable.setRowHeight(22);
 		bookmarksTable.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 		bookmarksTable.setModel(new GtkBookmarksTableModel(manager.getAll()));
 
