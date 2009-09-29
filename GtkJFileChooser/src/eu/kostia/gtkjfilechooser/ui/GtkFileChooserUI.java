@@ -25,6 +25,7 @@ import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.Serializable;
 import java.util.Locale;
 
 import javax.accessibility.AccessibleContext;
@@ -69,7 +70,9 @@ import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
  * @version 1.95 10/02/08
  * @author Costantino Cerbo, Jeff Dinkins
  */
-public class GtkFileChooserUI extends BasicFileChooserUI {
+public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable {
+	
+	private static final long serialVersionUID = 10L;
 
 	public GtkFileChooserUI(JFileChooser chooser) {
 		super(chooser);
@@ -111,15 +114,9 @@ public class GtkFileChooserUI extends BasicFileChooserUI {
 	private static Dimension LIST_PREF_SIZE = new Dimension(LIST_PREF_WIDTH,
 			LIST_PREF_HEIGHT);
 
-	// Labels, mnemonics, and tooltips (oh my!)
-	private int lookInLabelMnemonic = 0;
-	private String lookInLabelText = null;
-	private String saveInLabelText = null;
-
 	private int fileNameLabelMnemonic = 0;
 	private String fileNameLabelText = null;
 
-	private int filesOfTypeLabelMnemonic = 0;
 	private String filesOfTypeLabelText = null;
 
 	private String newFolderToolTipText = null;
@@ -206,6 +203,8 @@ public class GtkFileChooserUI extends BasicFileChooserUI {
 		fileNamePanel.add(fileNameLabel);
 
 		fileNameTextField = new JTextField(35) {
+			private static final long serialVersionUID = GtkFileChooserUI.serialVersionUID;
+
 			@Override
 			public Dimension getMaximumSize() {
 				return new Dimension(Short.MAX_VALUE, super.getPreferredSize().height);
@@ -232,8 +231,6 @@ public class GtkFileChooserUI extends BasicFileChooserUI {
 
 	@Override
 	public void installComponents(final JFileChooser fc) {
-		FileSystemView fsv = fc.getFileSystemView();
-
 		fc.setBorder(new EmptyBorder(12, 12, 11, 11));
 		fc.setLayout(new BorderLayout(0, 11));
 
@@ -509,26 +506,18 @@ public class GtkFileChooserUI extends BasicFileChooserUI {
 
 		Locale l = fc.getLocale();
 
-		lookInLabelMnemonic = UIManager.getInt("FileChooser.lookInLabelMnemonic");
-		lookInLabelText = UIManager.getString("FileChooser.lookInLabelText", l);
-		saveInLabelText = UIManager.getString("FileChooser.saveInLabelText", l);
-
 		fileNameLabelMnemonic = UIManager.getInt("FileChooser.fileNameLabelMnemonic");
 		fileNameLabelText = UIManager.getString("FileChooser.fileNameLabelText", l);
-
-		filesOfTypeLabelMnemonic = UIManager
-		.getInt("FileChooser.filesOfTypeLabelMnemonic");
 		filesOfTypeLabelText = UIManager.getString("FileChooser.filesOfTypeLabelText", l);
-
 		newFolderToolTipText = UIManager.getString("FileChooser.newFolderToolTipText", l);
-		newFolderAccessibleName = UIManager.getString(
-				"FileChooser.newFolderAccessibleName", l);
+		newFolderAccessibleName = UIManager.getString("FileChooser.newFolderAccessibleName", l);
 	}
 
 	@Override
 	protected void installListeners(JFileChooser fc) {
 		super.installListeners(fc);
-		ActionMap actionMap = getActionMap();
+		ActionMap actionMap = new ActionMapUIResource();
+		FilePane.addActionsToMap(actionMap, fileBrowserPane.getActions());
 		SwingUtilities.replaceUIActionMap(fc, actionMap);
 
 		fc.addComponentListener(new ComponentAdapter(){
@@ -546,16 +535,6 @@ public class GtkFileChooserUI extends BasicFileChooserUI {
 				GtkFileChooserSettings.get().setBound(bound);
 			}
 		});
-	}
-
-	protected ActionMap getActionMap() {
-		return createActionMap();
-	}
-
-	protected ActionMap createActionMap() {
-		ActionMap map = new ActionMapUIResource();
-		FilePane.addActionsToMap(map, fileBrowserPane.getActions());
-		return map;
 	}
 
 	protected JPanel createList(JFileChooser fc) {
@@ -988,37 +967,4 @@ public class GtkFileChooserUI extends BasicFileChooserUI {
 		}
 	}
 
-	private class AlignedLabel extends JLabel {
-		private AlignedLabel[] group;
-		private int maxWidth = 0;
-
-		AlignedLabel(String text) {
-			super(text);
-			setAlignmentX(JComponent.LEFT_ALIGNMENT);
-		}
-
-		@Override
-		public Dimension getPreferredSize() {
-			Dimension d = super.getPreferredSize();
-			// Align the width with all other labels in group.
-			return new Dimension(getMaxWidth() + 11, d.height);
-		}
-
-		private int getMaxWidth() {
-			if (maxWidth == 0 && group != null) {
-				int max = 0;
-				for (int i = 0; i < group.length; i++) {
-					max = Math.max(group[i].getSuperPreferredWidth(), max);
-				}
-				for (int i = 0; i < group.length; i++) {
-					group[i].maxWidth = max;
-				}
-			}
-			return maxWidth;
-		}
-
-		private int getSuperPreferredWidth() {
-			return super.getPreferredSize().width;
-		}
-	}
 }
