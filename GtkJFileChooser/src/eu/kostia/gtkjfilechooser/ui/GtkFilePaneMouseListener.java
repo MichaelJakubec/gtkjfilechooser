@@ -8,6 +8,7 @@ import java.awt.event.MouseListener;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
+import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
@@ -105,18 +106,20 @@ public class GtkFilePaneMouseListener implements MouseListener {
 		}
 	}
 
-	public void mouseExited(MouseEvent evt) {
-		// if (evt.getSource() instanceof JList) {
-		// // Forward event to Basic
-		// if (getDoubleClickListener() != null) {
-		// getDoubleClickListener().mouseExited(evt);
-		// }
-		// }
-	}
+
 
 	public void mousePressed(MouseEvent evt) {
 		int index = getRowIndex(evt);
 		getListSelectionModel().setSelectionInterval(index, index);
+
+		if (SwingUtilities.isRightMouseButton(evt)) {
+			onRightMouseButtonClick(evt);
+		}
+	}
+
+	private void onRightMouseButtonClick(MouseEvent evt) {
+		JPopupMenu popupMenu = filepane.createContextMenu();
+		popupMenu.show(evt.getComponent(), evt.getX(), evt.getY());
 	}
 
 	public void mouseReleased(MouseEvent evt) {
@@ -134,5 +137,10 @@ public class GtkFilePaneMouseListener implements MouseListener {
 			doubleClickListener = filepane.getFileChooserUIAccessor().createDoubleClickListener(getFilesList());
 		}
 		return doubleClickListener;
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// do nothing		
 	}
 }

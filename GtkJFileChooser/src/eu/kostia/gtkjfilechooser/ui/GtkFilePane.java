@@ -125,7 +125,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	private JPanel currentViewPanel;
 	private String[] viewTypeActionNames;
 
-	private JPopupMenu contextMenu;
 	private JMenu viewMenu;
 
 	private String viewMenuLabelText;
@@ -507,8 +506,8 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	}
 
 	/**
-	 * Fetches the command filesList for the FilePane. These commands are useful for
-	 * binding to events, such as in a keymap.
+	 * Fetches the command filesList for the FilePane. These commands are useful
+	 * for binding to events, such as in a keymap.
 	 * 
 	 * @return the command filesList
 	 */
@@ -729,7 +728,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		}
 
 		public Object getElementAt(int index) {
-			// JList doesn't support RowSorter so far, 
+			// JList doesn't support RowSorter so far,
 			// so we put it into the filesList model
 			return getModel().getElementAt(getRowSorter().convertRowIndexToModel(index));
 		}
@@ -809,21 +808,21 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		}
 
 		private List<RowSorter.SortKey> getSortKeys() {
-			if (rowSorter == null){
+			if (rowSorter == null) {
 				return null;
 			}
 
-
-			if (rowSorter.getSortKeys().isEmpty()){
+			if (rowSorter.getSortKeys().isEmpty()) {
 				Column column = GtkFileChooserSettings.get().getSortColumn();
 				if (column != null) {
 					SortOrder sortOrder = GtkFileChooserSettings.get().getSortOrder();
 					int columnIndex = column.ordinal();
-					if (getColumnCount() == 2 && columnIndex == 2){
+					if (getColumnCount() == 2 && columnIndex == 2) {
 						columnIndex = 1;
-					}					
+					}
 
-					RowSorter.SortKey sortKey = new RowSorter.SortKey(columnIndex, sortOrder); 
+					RowSorter.SortKey sortKey = new RowSorter.SortKey(columnIndex,
+							sortOrder);
 					List<RowSorter.SortKey> list = new ArrayList<RowSorter.SortKey>();
 					list.add(sortKey);
 					rowSorter.setSortKeys(list);
@@ -1154,7 +1153,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 			@Override
 			public int getRowHeight() {
-				//gnome rows are a taller
+				// gnome rows are a taller
 				return 22;
 			}
 		};
@@ -1393,7 +1392,8 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 				// rename
 				FileSystemView fsv = chooser.getFileSystemView();
-				File f2 = fsv.createFileObject(getEditFile().getParentFile(), newFileName);
+				File f2 = fsv
+				.createFileObject(getEditFile().getParentFile(), newFileName);
 				if (f2.exists()) {
 					JOptionPane.showMessageDialog(chooser, MessageFormat.format(
 							renameErrorFileExistsText, oldFileName),
@@ -1447,7 +1447,8 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 				public void actionPerformed(ActionEvent ev) {
 					if (basicNewFolderAction == null) {
-						basicNewFolderAction = getFileChooserUIAccessor().getNewFolderAction();
+						basicNewFolderAction = getFileChooserUIAccessor()
+						.getNewFolderAction();
 					}
 					JFileChooser fc = getFileChooser();
 					File oldFile = fc.getSelectedFile();
@@ -1499,7 +1500,8 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		if (getFileChooser().isMultiSelectionEnabled() && !isDirectorySelected()) {
 			File[] files = getFileChooser().getSelectedFiles(); // Should be
 			// selected
-			Object[] selectedObjects = getFilesList().getSelectedValues(); // Are actually
+			Object[] selectedObjects = getFilesList().getSelectedValues(); // Are
+			// actually
 			// selected
 
 			getListSelectionModel().setValueIsAdjusting(true);
@@ -1645,8 +1647,8 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 	private void doMultiSelectionChanged(PropertyChangeEvent e) {
 		if (getFileChooser().isMultiSelectionEnabled()) {
-			getListSelectionModel()
-			.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			getListSelectionModel().setSelectionMode(
+					ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		} else {
 			getListSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			clearSelection();
@@ -1756,87 +1758,84 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		}
 	}
 
-	@Override
-	public JPopupMenu getComponentPopupMenu() {
-		JPopupMenu popupMenu = getFileChooser().getComponentPopupMenu();
-		if (popupMenu != null) {
-			return popupMenu;
+	/**
+	 * Create a popup menu on right click.
+	 * Features: Refresh (?), Rename (?), Add to Bookmark, Show hidden files, Show size column
+	 */
+	public JPopupMenu createContextMenu() {
+		JPopupMenu contextMenu = new JPopupMenu();
+
+		ActionMap actionMap = getActionMap();
+		Action refreshAction = actionMap.get(ACTION_REFRESH);
+		if (refreshAction != null) {
+			contextMenu.add(refreshAction);
 		}
 
-		if (contextMenu == null) {
-			contextMenu = new JPopupMenu();
-
-			ActionMap actionMap = getActionMap();
-			Action refreshAction = actionMap.get(ACTION_REFRESH);
-			if (refreshAction != null) {
-				contextMenu.add(refreshAction);
-			}
-
-			// TODO leave new folder action?
-			Action newFolderAction = actionMap.get(ACTION_NEW_FOLDER);
-			if (newFolderAction != null) {
-				contextMenu.add(newFolderAction);
-			}
-
-			JMenuItem addToBookmarkMenuItem = new JMenuItem();
-			// TODO I18N
-			addToBookmarkMenuItem.setText("Add to Bookmark");
-			addToBookmarkMenuItem.setIcon(GtkStockIcon.get("gtk-add", Size.GTK_ICON_SIZE_MENU));
-			addToBookmarkMenuItem.addActionListener(new ActionListener(){
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					int selectedRow = detailsTable.getSelectedRow();					
-					Object selectedValue = detailsTableModel.getValueAt(selectedRow, 0);
-					//TODO implement logic
-					System.out.println(selectedValue);
-				}
-
-			});
-			contextMenu.add(addToBookmarkMenuItem);
-
-			contextMenu.addSeparator();
-
-			// Add "show hidden files" CheckBoxMenuItem
-			JCheckBoxMenuItem showHiddenCheckBoxItem = new JCheckBoxMenuItem();
-			// TODO I18N
-			showHiddenCheckBoxItem.setText("Show hidden files");
-			showHiddenCheckBoxItem.setSelected(GtkFileChooserSettings.get()
-					.getShowHidden());
-			showHiddenCheckBoxItem.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					JCheckBoxMenuItem source = (JCheckBoxMenuItem) e.getSource();
-					boolean showHidden = source.isSelected();
-					getFileChooser().setFileHidingEnabled(!showHidden);
-					GtkFileChooserSettings.get().setShowHidden(showHidden);
-				}
-			});
-			contextMenu.add(showHiddenCheckBoxItem);
-
-			// Add "show file size column" CheckBoxMenuItem
-			JCheckBoxMenuItem showFileSizeCheckBoxItem = new JCheckBoxMenuItem();
-			// TODO I18N
-			showFileSizeCheckBoxItem.setText("Show size column");
-			showFileSizeCheckBoxItem.setSelected(GtkFileChooserSettings.get()
-					.getShowSizeColumn());
-			showFileSizeCheckBoxItem.addActionListener(new ActionListener() {				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					JCheckBoxMenuItem source = (JCheckBoxMenuItem) e.getSource();
-					boolean showSizeColumn = source.isSelected();
-					GtkFileChooserSettings.get().setShowSizeColumn(showSizeColumn);
-
-					List<SortKey> sortKeys = new ArrayList<SortKey>();
-					SortKey sortKey = new RowSorter.SortKey(COLUMN_FILENAME, SortOrder.ASCENDING);
-					sortKeys.add(sortKey);
-					//Reset sorting settings
-					rowSorter.setSortKeys(sortKeys);
-
-					getDetailsTableModel().updateColumnInfo();
-				}
-			});
-			contextMenu.add(showFileSizeCheckBoxItem);
+		// TODO leave new folder action?
+		Action newFolderAction = actionMap.get(ACTION_NEW_FOLDER);
+		if (newFolderAction != null) {
+			contextMenu.add(newFolderAction);
 		}
+
+		JMenuItem addToBookmarkMenuItem = new JMenuItem();
+		// TODO I18N
+		addToBookmarkMenuItem.setText("Add to Bookmark");
+		addToBookmarkMenuItem.setIcon(GtkStockIcon
+				.get("gtk-add", Size.GTK_ICON_SIZE_MENU));
+		addToBookmarkMenuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int selectedRow = detailsTable.getSelectedRow();
+				Object selectedValue = detailsTableModel.getValueAt(selectedRow, 0);
+				// TODO implement logic
+				System.out.println(selectedValue);
+			}
+
+		});
+		contextMenu.add(addToBookmarkMenuItem);
+
+		contextMenu.addSeparator();
+
+		// Add "show hidden files" CheckBoxMenuItem
+		JCheckBoxMenuItem showHiddenCheckBoxItem = new JCheckBoxMenuItem();
+		// TODO I18N
+		showHiddenCheckBoxItem.setText("Show hidden files");
+		showHiddenCheckBoxItem.setSelected(GtkFileChooserSettings.get().getShowHidden());
+		showHiddenCheckBoxItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JCheckBoxMenuItem source = (JCheckBoxMenuItem) e.getSource();
+				boolean showHidden = source.isSelected();
+				getFileChooser().setFileHidingEnabled(!showHidden);
+				GtkFileChooserSettings.get().setShowHidden(showHidden);
+			}
+		});
+		contextMenu.add(showHiddenCheckBoxItem);
+
+		// Add "show file size column" CheckBoxMenuItem
+		JCheckBoxMenuItem showFileSizeCheckBoxItem = new JCheckBoxMenuItem();
+		// TODO I18N
+		showFileSizeCheckBoxItem.setText("Show size column");
+		showFileSizeCheckBoxItem.setSelected(GtkFileChooserSettings.get()
+				.getShowSizeColumn());
+		showFileSizeCheckBoxItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JCheckBoxMenuItem source = (JCheckBoxMenuItem) e.getSource();
+				boolean showSizeColumn = source.isSelected();
+				GtkFileChooserSettings.get().setShowSizeColumn(showSizeColumn);
+
+				List<SortKey> sortKeys = new ArrayList<SortKey>();
+				SortKey sortKey = new RowSorter.SortKey(COLUMN_FILENAME,
+						SortOrder.ASCENDING);
+				sortKeys.add(sortKey);
+				// Reset sorting settings
+				rowSorter.setSortKeys(sortKeys);
+
+				getDetailsTableModel().updateColumnInfo();
+			}
+		});
+		contextMenu.add(showFileSizeCheckBoxItem);
 
 		return contextMenu;
 	}
@@ -1849,8 +1848,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		}
 		return handler;
 	}
-
-
 
 	/**
 	 * Property to remember whether a directory is currently selected in the UI.
@@ -1917,8 +1914,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	ListSelectionModel getListSelectionModel() {
 		return listSelectionModel;
 	}
-
-
 
 	FileChooserUIAccessor getFileChooserUIAccessor() {
 		return fileChooserUIAccessor;
