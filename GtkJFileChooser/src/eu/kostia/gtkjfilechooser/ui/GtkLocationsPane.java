@@ -68,7 +68,11 @@ public class GtkLocationsPane extends JPanel {
 		GtkBookmarksTableCellEditor defaultCellEditor = new GtkBookmarksTableCellEditor(
 				bookmarksTable);
 
+		// Necessary to avoid the exception: java.lang.ClassCastException:
+		// eu.kostia.gtkjfilechooser.ui.GtkLocationsPane$2 cannot be cast to
+		// eu.kostia.gtkjfilechooser.ui.GtkLocationsPane
 		final GtkLocationsPane thisPane = this;
+
 		defaultCellEditor.addCellEditorListener(new CellEditorListener() {
 
 			@Override
@@ -212,10 +216,10 @@ public class GtkLocationsPane extends JPanel {
 				setBackground(UIManager.getColor("TextPane.background"));
 			}
 
-			if ((row + 1) < table.getRowCount()){ //if has next row
-				Object nextValue = table.getValueAt(row+1, 0);
+			if ((row + 1) < table.getRowCount()) { // if has next row
+				Object nextValue = table.getValueAt(row + 1, 0);
 				if (!(value instanceof GtkBookmark) && nextValue instanceof GtkBookmark) {
-					//last NOT GtkBookmark row
+					// last NOT GtkBookmark row
 					setBorder(new LowerBorder(Color.GRAY, 1));
 				}
 			}
@@ -301,7 +305,7 @@ public class GtkLocationsPane extends JPanel {
 
 			locations.addAll(FreeDesktopUtil.getBasicLocations());
 			locations.addAll(FreeDesktopUtil.getRemovableDevices());
-			locations.addAll(bookmarks);			
+			locations.addAll(bookmarks);
 		}
 
 		@Override

@@ -86,12 +86,14 @@ import javax.swing.text.Position;
 
 import sun.awt.shell.ShellFolder;
 import sun.awt.shell.ShellFolderColumnInfo;
+import eu.kostia.gtkjfilechooser.BookmarkManager;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil.WellKnownDir;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings.Column;
 import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
+import eu.kostia.gtkjfilechooser.ui.GtkFileChooserUI.MyGTKFileChooserUIAccessor;
 
 @SuppressWarnings("unchecked")
 public class GtkFilePane extends JPanel implements PropertyChangeListener {
@@ -1786,9 +1788,9 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int selectedRow = detailsTable.getSelectedRow();
-				Object selectedValue = detailsTableModel.getValueAt(selectedRow, 0);
-				// TODO implement logic
-				System.out.println(selectedValue);
+				String path = detailsTableModel.getValueAt(selectedRow, 0).toString();
+				new BookmarkManager().add(new File(path), null);
+				getFileChooserUIAccessor().getLocationsPane().refreshBookmarks();
 			}
 
 		});
@@ -1915,8 +1917,8 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		return listSelectionModel;
 	}
 
-	FileChooserUIAccessor getFileChooserUIAccessor() {
-		return fileChooserUIAccessor;
+	MyGTKFileChooserUIAccessor getFileChooserUIAccessor() {
+		return (MyGTKFileChooserUIAccessor) fileChooserUIAccessor;
 	}
 
 	void setFilesList(JList filesList) {
