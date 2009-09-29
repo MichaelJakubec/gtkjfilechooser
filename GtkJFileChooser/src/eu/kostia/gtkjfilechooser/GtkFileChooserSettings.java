@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.SortOrder;
+
 public class GtkFileChooserSettings {
 	static private final Logger LOG = Logger.getLogger(GtkFileChooserSettings.class
 			.getName());
@@ -23,11 +25,7 @@ public class GtkFileChooserSettings {
 	static private final String SORT_ORDER_KEY = "SortOrder";
 
 	public enum Column {
-		NAME, MODIFIED, SIZE
-	};
-
-	public enum Order {
-		ASCENDING, DESCENDING
+		NAME, SIZE, MODIFIED
 	};
 
 	public enum Mode {
@@ -147,15 +145,25 @@ public class GtkFileChooserSettings {
 		save(SHOW_SIZE_COLUMN_KEY);
 	}
 
-	public String getSortColumn() {
-		return settings.getGroup(SETTINGS_GROUP).getString(SORT_COLUMN_KEY);
+	public Column getSortColumn() {
+		String value = settings.getGroup(SETTINGS_GROUP).getString(SORT_COLUMN_KEY);
+		if (value == null) {
+			return null;
+		}
+		
+		return Column.valueOf(value.toUpperCase());
 	}
 
-	public String getSortSortOrder() {
-		return settings.getGroup(SETTINGS_GROUP).getString(SORT_ORDER_KEY);
+	public SortOrder getSortOrder() {
+		String value = settings.getGroup(SETTINGS_GROUP).getString(SORT_ORDER_KEY);
+		if (value == null) {
+			return SortOrder.UNSORTED;
+		}
+		
+		return SortOrder.valueOf(value.toUpperCase());
 	}
 
-	public void setSortBy(Column column, Order order) {
+	public void setSortBy(Column column, SortOrder order) {
 		settings.getGroup(SETTINGS_GROUP).setString(SORT_COLUMN_KEY,
 				column.toString().toLowerCase());
 		settings.getGroup(SETTINGS_GROUP).setString(SORT_ORDER_KEY,

@@ -1,11 +1,6 @@
 package eu.kostia.gtkjfilechooser.ui;
 
-/*
- * @(#)GtkFileChooserUI.java	1.42 07/09/05
- *
- * Copyright 2006 Sun Microsystems, Inc. All rights reserved.
- * SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
- */
+
 
 import static eu.kostia.gtkjfilechooser.ui.JPanelUtil.createPanel;
 

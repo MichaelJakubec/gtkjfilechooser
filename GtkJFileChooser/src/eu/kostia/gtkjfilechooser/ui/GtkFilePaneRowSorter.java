@@ -2,18 +2,54 @@ package eu.kostia.gtkjfilechooser.ui;
 
 import java.io.File;
 import java.util.Comparator;
+import java.util.List;
 
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
+import javax.swing.event.RowSorterEvent;
+import javax.swing.event.RowSorterListener;
+import javax.swing.event.RowSorterEvent.Type;
 import javax.swing.table.TableRowSorter;
 
 import sun.awt.shell.ShellFolderColumnInfo;
+import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
+import eu.kostia.gtkjfilechooser.GtkFileChooserSettings.Column;
 
 @SuppressWarnings("unchecked")
-public class GtkFilePaneRowSorter extends TableRowSorter {
+public class GtkFilePaneRowSorter extends TableRowSorter implements RowSorterListener {
+
 	private final GtkFilePane filepane;
 
 	public GtkFilePaneRowSorter(GtkFilePane filepane) {
 		this.filepane = filepane;
 		setModelWrapper(new SorterModelWrapper());
+		addRowSorterListener(this);
+	}
+
+	@Override
+	public void sorterChanged(RowSorterEvent e) {
+		if (e.getType() != Type.SORTED) {
+			// do nothing if the contents wasn't transformed in some way.
+			return;
+		}
+
+		RowSorter source = e.getSource();
+		List<SortKey> keys = source.getSortKeys();
+		
+		Column[] columns = filepane.getDetailsTable().getColumnCount() == 2 ? 
+				new Column[] { Column.NAME, Column.MODIFIED }	: 
+				new Column[] { Column.NAME, Column.SIZE, Column.MODIFIED };
+		// The first column in the list is always that one that was sorted.
+		SortKey sortKey = keys.get(0);
+		int columnIndex = sortKey.getColumn();
+
+		SortOrder order = sortKey.getSortOrder();
+
+		if (order != SortOrder.UNSORTED) {
+			// Store sort settings
+			GtkFileChooserSettings.get().setSortBy(columns[columnIndex], order );
+		}
+
 	}
 
 	public void updateComparators(ShellFolderColumnInfo[] columns) {
@@ -84,10 +120,13 @@ public class GtkFilePaneRowSorter extends TableRowSorter {
 					return 1;
 				}
 			}
-			boolean compareByColumn = filepane.getDetailsTableModel().getColumns()[column].isCompareByColumn();
+			boolean compareByColumn = filepane.getDetailsTableModel().getColumns()[column]
+					.isCompareByColumn();
 			if (compareByColumn) {
-				Object fileColumnValue1 = filepane.getDetailsTableModel().getFileColumnValue(f1, column);
-				Object fileColumnValue2 = filepane.getDetailsTableModel().getFileColumnValue(f2, column);
+				Object fileColumnValue1 = filepane.getDetailsTableModel()
+						.getFileColumnValue(f1, column);
+				Object fileColumnValue2 = filepane.getDetailsTableModel()
+						.getFileColumnValue(f2, column);
 
 				return comparator.compare(fileColumnValue1, fileColumnValue2);
 			}
@@ -97,4 +136,5 @@ public class GtkFilePaneRowSorter extends TableRowSorter {
 			return comparator.compare(f1, f2);
 		}
 	}
+
 }
