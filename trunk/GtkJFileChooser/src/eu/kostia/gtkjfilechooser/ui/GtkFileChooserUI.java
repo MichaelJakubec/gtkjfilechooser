@@ -71,13 +71,12 @@ import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
  * @author Costantino Cerbo, Jeff Dinkins
  */
 public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable {
-	
+
 	private static final long serialVersionUID = 10L;
 
 	public GtkFileChooserUI(JFileChooser chooser) {
 		super(chooser);
 		chooser.setFileHidingEnabled(!GtkFileChooserSettings.get().getShowHidden());
-
 	}
 
 	private GtkPathBar comboButtons;
@@ -85,6 +84,11 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 	// private FilterComboBoxChangeListener filterComboBoxModel;
 
 	private JTextField fileNameTextField;
+
+	/**
+	 * The panel on the left with locations and bookmarks
+	 */
+	private GtkLocationsPane locationsPane;
 
 	private GtkFilePane fileBrowserPane;
 
@@ -127,7 +131,6 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 	//
 	public static ComponentUI createUI(JComponent c) {
 		GtkFileChooserUI ui = new GtkFileChooserUI((JFileChooser) c);
-		// ui.filePane.setViewType(FilePane.VIEWTYPE_DETAILS);
 		return ui;
 	}
 
@@ -142,7 +145,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		buttonPanel = null;
 	}
 
-	private class MyGTKFileChooserUIAccessor implements GtkFilePane.FileChooserUIAccessor {
+	class MyGTKFileChooserUIAccessor implements GtkFilePane.FileChooserUIAccessor {
 		public JFileChooser getFileChooser() {
 			return GtkFileChooserUI.this.getFileChooser();
 		}
@@ -190,6 +193,10 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 
 		public boolean usesShellFolder() {
 			return useShellFolder;
+		}
+
+		public GtkLocationsPane getLocationsPane(){
+			return GtkFileChooserUI.this.locationsPane;
 		}
 	}
 
@@ -385,8 +392,8 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 				removeBookmarkButton);
 
 
-		GtkLocationsPane boomarkPane = new GtkLocationsPane();
-		boomarkPane.addActionListener(new ActionListener() {
+		locationsPane = new GtkLocationsPane();
+		locationsPane.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -396,7 +403,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		});
 
 		mainPanel.add(JPanelUtil.createPanel(
-				new PanelElement(boomarkPane, BorderLayout.CENTER),
+				new PanelElement(locationsPane, BorderLayout.CENTER),
 				new PanelElement(buttonPanel, BorderLayout.PAGE_END)
 		));
 
@@ -421,6 +428,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		//ad to the file chooser
 		fc.add(mainPanel, BorderLayout.CENTER);
 	}
+
 
 	@Override
 	public String getApproveButtonText(JFileChooser fc) {
