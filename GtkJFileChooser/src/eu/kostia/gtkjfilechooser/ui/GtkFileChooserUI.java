@@ -95,13 +95,6 @@ public class GtkFileChooserUI extends BasicFileChooserUI {
 	private JButton addBookmarkButton;
 	private JButton removeBookmarkButton;
 
-	// private JComboBox filterComboBox;
-
-	// private static final Dimension hstrut5 = new Dimension(5, 1);
-	// private static final Dimension hstrut11 = new Dimension(11, 1);
-
-	private static final Dimension vstrut5 = new Dimension(1, 5);
-
 	private static final Insets shrinkwrap = new Insets(0, 0, 0, 0);
 
 	// Preferred and Minimum sizes for the dialog box
