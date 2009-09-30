@@ -21,6 +21,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -39,7 +40,6 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
@@ -60,6 +60,7 @@ import sun.swing.FilePane;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
 import eu.kostia.gtkjfilechooser.Path;
+import eu.kostia.gtkjfilechooser.BookmarkManager.GtkBookmark;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings.Mode;
 import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
 import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
@@ -372,19 +373,20 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		addBookmarkButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(null, "Not yet implemented!");
-
+				File path = fileBrowserPane.getSelectedPath();
+				locationsPane.addBookmark(path);
 			}			
 		});
 
 		removeBookmarkButton = new JButton("Remove"); // TODO I18N
+		// it will be enabled, when we select a bookmark.
+		removeBookmarkButton.setEnabled(false);
 		removeBookmarkButton.setIcon(GtkStockIcon.get("gtk-remove",
 				Size.GTK_ICON_SIZE_BUTTON));
 		removeBookmarkButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(null, "Not yet implemented!");
-
+				locationsPane.removeSelectedBookmark();
 			}			
 		});
 
@@ -398,7 +400,9 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Path bookmark = ((GtkLocationsPane) e.getSource()).getCurrentPath();
-				fc.setCurrentDirectory(new File(bookmark.getLocation()));
+				if (bookmark != null) {
+					fc.setCurrentDirectory(new File(bookmark.getLocation()));
+				}				
 			}
 		});
 
@@ -425,10 +429,47 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 				new PanelElement(JPanelUtil.createPanel(new GridLayout(1,3), new JLabel(), new JLabel(), filterComboBox), BorderLayout.PAGE_END)
 		));
 
+		installListenersForBookmarksButtons();
+		
 		//ad to the file chooser
 		fc.add(mainPanel, BorderLayout.CENTER);
 	}
 
+
+	/**
+	 * Listeners for enable/disable the buttons "Add" and "Remove" below the LocationsPane.
+	 */
+	private void installListenersForBookmarksButtons() {
+		//Behavior for the "Remove" button
+		locationsPane.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Path path = locationsPane.getCurrentPath();
+				// Enable only if a bookmark is selected.
+				removeBookmarkButton.setEnabled(path instanceof GtkBookmark);
+			}			
+		});
+		
+		
+		fileBrowserPane.getDetailsTable().addPropertyChangeListener(new PropertyChangeListener(){
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				
+				addBookmarkButton.setEnabled(fileBrowserPane.getSelectedPath() != null && fileBrowserPane.getSelectedPath().isDirectory());			
+			}			
+		});
+		
+		fileBrowserPane.getDetailsTable().addMouseListener(new MouseAdapter(){
+			@Override
+			public void mousePressed(MouseEvent e) {
+				enableAddButton();	
+			}
+			
+			private void enableAddButton() {
+				addBookmarkButton.setEnabled(fileBrowserPane.getSelectedPath() != null && fileBrowserPane.getSelectedPath().isDirectory());
+			}
+		});
+	}
 
 	@Override
 	public String getApproveButtonText(JFileChooser fc) {

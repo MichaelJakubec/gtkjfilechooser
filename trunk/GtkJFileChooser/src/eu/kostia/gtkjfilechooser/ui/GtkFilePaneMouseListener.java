@@ -108,7 +108,7 @@ public class GtkFilePaneMouseListener implements MouseListener {
 
 
 
-	public void mousePressed(MouseEvent evt) {
+	public void mousePressed(MouseEvent evt) {		
 		int index = getRowIndex(evt);
 		getListSelectionModel().setSelectionInterval(index, index);
 

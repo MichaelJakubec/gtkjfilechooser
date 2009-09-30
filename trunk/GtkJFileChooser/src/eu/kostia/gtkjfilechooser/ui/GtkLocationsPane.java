@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
@@ -40,7 +41,11 @@ public class GtkLocationsPane extends JPanel {
 
 	private final BookmarkManager manager;
 	private JTable bookmarksTable;
-	private Path path;
+//	private Path path;
+	// Necessary to avoid the exception: java.lang.ClassCastException:
+	// eu.kostia.gtkjfilechooser.ui.GtkLocationsPane$2 cannot be cast to
+	// eu.kostia.gtkjfilechooser.ui.GtkLocationsPane
+	private final GtkLocationsPane thisPane;
 
 	private List<ActionListener> actionListeners = new ArrayList<ActionListener>();
 
@@ -52,6 +57,7 @@ public class GtkLocationsPane extends JPanel {
 		}
 
 		this.manager = new BookmarkManager();
+		this.thisPane = this;
 
 		setLayout(new BorderLayout());
 
@@ -68,10 +74,7 @@ public class GtkLocationsPane extends JPanel {
 		GtkBookmarksTableCellEditor defaultCellEditor = new GtkBookmarksTableCellEditor(
 				bookmarksTable);
 
-		// Necessary to avoid the exception: java.lang.ClassCastException:
-		// eu.kostia.gtkjfilechooser.ui.GtkLocationsPane$2 cannot be cast to
-		// eu.kostia.gtkjfilechooser.ui.GtkLocationsPane
-		final GtkLocationsPane thisPane = this;
+		
 
 		defaultCellEditor.addCellEditorListener(new CellEditorListener() {
 
@@ -99,13 +102,9 @@ public class GtkLocationsPane extends JPanel {
 				Point p = evt.getPoint();
 				int rowIndex = table.rowAtPoint(p);
 				table.setRowSelectionInterval(rowIndex, rowIndex);
-				Object valueAt = table.getModel().getValueAt(rowIndex, 0);
-				path = (Path) valueAt;
-				for (ActionListener listener : actionListeners) {
-					ActionEvent actionEvent = new ActionEvent(thisPane, 1,
-					"location_selected");
-					listener.actionPerformed(actionEvent);
-				}
+				Path path = (Path) table.getModel().getValueAt(rowIndex, 0);
+				ActionEvent actionEvent = new ActionEvent(thisPane, 1, "location_selected");
+				fireActionPerformed(actionEvent);
 				if (SwingUtilities.isRightMouseButton(evt)) {
 					onRightMouseButtonClick(evt, path);
 				}
@@ -128,13 +127,24 @@ public class GtkLocationsPane extends JPanel {
 	public void removeActionListener(ActionListener l) {
 		actionListeners.remove(l);
 	}
+	
+	public Object getCurrentSelection(){
+		int row = bookmarksTable.getSelectedRow();
+		return row != -1 ? bookmarksTable.getValueAt(row, 0) : null;
+	}
 
 	public void refreshBookmarks() {
-		Dimension size = bookmarksTable.getSize();
+		//store size and selection before the refresh
+		Dimension previousSize = bookmarksTable.getSize();
+		
+		// refresh loading the current data
 		bookmarksTable.setModel(new GtkBookmarksTableModel(manager.getAll()));
 
-		// Workaround to maintain the same size before the refreshing
-		bookmarksTable.setPreferredSize(size);
+		// Workaround to maintain same size and selection before the refreshing
+		bookmarksTable.setPreferredSize(previousSize);
+		
+		ActionEvent actionEvent = new ActionEvent(thisPane, 1, "refresh");
+		fireActionPerformed(actionEvent);
 	}
 
 	/**
@@ -143,7 +153,9 @@ public class GtkLocationsPane extends JPanel {
 	 * @return the current selected bookmarks
 	 */
 	public Path getCurrentPath() {
-		return path;
+		int row = bookmarksTable.getSelectedRow();
+				
+		return row != -1 ? (Path) bookmarksTable.getValueAt(row, 0) : null;
 	}
 
 	protected void onRightMouseButtonClick(MouseEvent evt, Path path) {
@@ -161,8 +173,7 @@ public class GtkLocationsPane extends JPanel {
 		removeItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				manager.delete(bookmark.getName());
-				refreshBookmarks();
+				remove(bookmark);
 			}
 		});
 		removeItem.setIcon(GtkStockIcon.get("gtk-remove", Size.GTK_ICON_SIZE_MENU));
@@ -183,7 +194,49 @@ public class GtkLocationsPane extends JPanel {
 
 		return popup;
 	}
+	
+	/**
+	 * Delete a Bookmark
+	 * @param bookmark
+	 */
+	public void remove(GtkBookmark bookmark) {
+		manager.delete(bookmark.getName());
+		refreshBookmarks();
+	}
+	
+	/**
+	 * Add a Bookmark
+	 * @param bookmark
+	 */
+	public void addBookmark(File dir) {		
+		GtkBookmark newBookmark = manager.add(dir, null);
+		GtkBookmarksTableModel model = (GtkBookmarksTableModel)bookmarksTable.getModel();
+		model.addBookmark(newBookmark);
+		bookmarksTable.setModel(new GtkBookmarksTableModel(model));
+		
+		ActionEvent actionEvent = new ActionEvent(thisPane, 2, "bookmark_added");
+		fireActionPerformed(actionEvent);		
+	}
 
+	/**
+	 * Remove the currently selected bookmark.
+	 */
+	public void removeSelectedBookmark(){
+		Object selection = getCurrentSelection();
+		if (selection instanceof GtkBookmark) {
+			GtkBookmark bookmark = (GtkBookmark) selection;
+			remove(bookmark);
+			ActionEvent actionEvent = new ActionEvent(thisPane, 2, "bookmark_removed");
+			fireActionPerformed(actionEvent);	
+		}
+	}
+	
+	private void fireActionPerformed(ActionEvent actionEvent) {
+		for (ActionListener listener : actionListeners) {			
+			listener.actionPerformed(actionEvent);
+		}
+	}
+	
 	/**
 	 * GtkBookmarksTableCellRenderer
 	 * 
@@ -306,6 +359,19 @@ public class GtkLocationsPane extends JPanel {
 			locations.addAll(FreeDesktopUtil.getBasicLocations());
 			locations.addAll(FreeDesktopUtil.getRemovableDevices());
 			locations.addAll(bookmarks);
+		}
+		
+		/**
+		 * Wrapper Constructor
+		 * @param model
+		 */
+		public GtkBookmarksTableModel(GtkBookmarksTableModel model){
+			this.locations = model.locations;
+			this.tableModelListeners = model.tableModelListeners;
+		}
+		
+		private void addBookmark(GtkBookmark bookmark){
+			locations.add(bookmark);
 		}
 
 		@Override

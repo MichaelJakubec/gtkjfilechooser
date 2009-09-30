@@ -86,7 +86,6 @@ import javax.swing.text.Position;
 
 import sun.awt.shell.ShellFolder;
 import sun.awt.shell.ShellFolderColumnInfo;
-import eu.kostia.gtkjfilechooser.BookmarkManager;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
@@ -1782,18 +1781,16 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		JMenuItem addToBookmarkMenuItem = new JMenuItem();
 		// TODO I18N
 		addToBookmarkMenuItem.setText("Add to Bookmark");
-		addToBookmarkMenuItem.setIcon(GtkStockIcon
-				.get("gtk-add", Size.GTK_ICON_SIZE_MENU));
+		addToBookmarkMenuItem.setIcon(GtkStockIcon.get("gtk-add", Size.GTK_ICON_SIZE_MENU));
+		final File path = getSelectedPath();		
 		addToBookmarkMenuItem.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				int selectedRow = detailsTable.getSelectedRow();
-				String path = detailsTableModel.getValueAt(selectedRow, 0).toString();
-				new BookmarkManager().add(new File(path), null);
-				getFileChooserUIAccessor().getLocationsPane().refreshBookmarks();
+			public void actionPerformed(ActionEvent e) {				
+				getFileChooserUIAccessor().getLocationsPane().addBookmark(path);
 			}
 
 		});
+		addToBookmarkMenuItem.setEnabled(path != null && path.isDirectory());
 		contextMenu.add(addToBookmarkMenuItem);
 
 		contextMenu.addSeparator();
@@ -1935,6 +1932,11 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 	File getEditFile() {
 		return editFile;
+	}
+
+	public File getSelectedPath() {
+		int row = detailsTable.getSelectedRow();
+		return row != -1 ? new File(detailsTableModel.getValueAt(row, 0).toString()) : null;
 	}
 
 	// This interface is used to access methods in the FileChooserUI
