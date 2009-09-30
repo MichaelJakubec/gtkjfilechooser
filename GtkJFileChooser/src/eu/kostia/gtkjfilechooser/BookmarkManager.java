@@ -40,9 +40,13 @@ public class BookmarkManager implements Serializable {
 	 *            the name of the bookmark. If {@code null}, the name is the
 	 *            simple directory name.
 	 */
-	public void add(File dir, String name) {
+	public GtkBookmark add(File dir, String name) {
 		if (!dir.exists()) {
 			throw new IllegalArgumentException(dir + " doesn't exist.");
+		}
+		
+		if (!dir.isDirectory()) {
+			throw new IllegalArgumentException(dir + " isn't a directory.");
 		}
 
 		if (name == null) {
@@ -52,7 +56,9 @@ public class BookmarkManager implements Serializable {
 		PrintWriter pw = null;
 		try {
 			pw = new PrintWriter(new FileWriter(bookmarkfile, true));
-			pw.println(new GtkBookmark(name, dir).toGtkString());
+			GtkBookmark gtkBookmark = new GtkBookmark(name, dir);
+			pw.println(gtkBookmark.toGtkString());
+			return gtkBookmark;
 		} catch (IOException e) {
 			throw new IOError(e);
 		} finally {
