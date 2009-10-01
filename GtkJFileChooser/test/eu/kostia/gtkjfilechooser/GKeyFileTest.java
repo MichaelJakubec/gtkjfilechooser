@@ -11,16 +11,18 @@ import java.util.Locale;
 
 import org.junit.Test;
 
-import eu.kostia.gtkjfilechooser.GKeyFile;
 import eu.kostia.gtkjfilechooser.GKeyFile.Group;
 
 public class GKeyFileTest  {
 	private GKeyFile settings;
 
+	private File fileini;
+
 	public GKeyFileTest() throws Exception{
-		File file = new File(getClass().getResource("/eu/kostia/gtkfilechooser/example.ini").getFile());
-		assertTrue(file.exists());
-		settings = new GKeyFile(file);
+		String path = "/" + this.getClass().getPackage().getName().replace('.', '/');
+		fileini = new File(getClass().getResource(path + "/example.ini").getFile());
+		assertTrue(fileini.exists());
+		settings = new GKeyFile(fileini);
 	}
 
 	@Test
@@ -187,9 +189,8 @@ public class GKeyFileTest  {
 
 	@Test
 	public void testSave1() throws Exception {
-		File file = new File(getClass().getResource("/eu/kostia/gtkfilechooser/example.ini").getFile());
-		assertTrue(file.exists());
-		GKeyFile gKeyFile = new GKeyFile(file);
+		assertTrue(fileini.exists());
+		GKeyFile gKeyFile = new GKeyFile(fileini);
 		gKeyFile.getGroup("First Group").setString("Welcome", "Benvenuto");
 		StringWriter w = new StringWriter();
 		gKeyFile.save(w);
@@ -225,9 +226,8 @@ public class GKeyFileTest  {
 
 	@Test
 	public void testSave2() throws Exception {
-		File file = new File(getClass().getResource("/eu/kostia/gtkfilechooser/example.ini").getFile());
-		assertTrue(file.exists());
-		GKeyFile gKeyFile = new GKeyFile(file);
+		assertTrue(fileini.exists());
+		GKeyFile gKeyFile = new GKeyFile(fileini);
 		List<String> list = gKeyFile.getGroup("Another Group").getStringList("list1");
 		assertEquals("x,y", list.get(3));
 		list.set(3, "z");
@@ -266,9 +266,8 @@ public class GKeyFileTest  {
 
 	@Test
 	public void testSave3() throws Exception {
-		File file = new File(getClass().getResource("/eu/kostia/gtkfilechooser/example.ini").getFile());
-		assertTrue(file.exists());
-		GKeyFile gKeyFile = new GKeyFile(file);
+		assertTrue(fileini.exists());
+		GKeyFile gKeyFile = new GKeyFile(fileini);
 		List<String> list = gKeyFile.getGroup("Another Group").getStringList("list1");
 		assertEquals("x,y", list.get(3));
 		list.set(3, "z,k");
@@ -307,9 +306,8 @@ public class GKeyFileTest  {
 
 	@Test
 	public void testNewGroup() throws Exception {
-		File file = new File(getClass().getResource("/eu/kostia/gtkfilechooser/example.ini").getFile());
-		assertTrue(file.exists());
-		GKeyFile gKeyFile = new GKeyFile(file);
+		assertTrue(fileini.exists());
+		GKeyFile gKeyFile = new GKeyFile(fileini);
 		gKeyFile.createGroup("New Group");
 		gKeyFile.getGroup("New Group").setStringList("newlist", createList("hello", "world", "everyone"));
 		gKeyFile.getGroup("New Group").setInteger("newint", 99);
