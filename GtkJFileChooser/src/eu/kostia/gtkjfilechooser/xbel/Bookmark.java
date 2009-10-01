@@ -1,5 +1,7 @@
 package eu.kostia.gtkjfilechooser.xbel;
 
+import java.util.Date;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -37,8 +39,8 @@ public class Bookmark {
 	@XmlJavaTypeAdapter(NormalizedStringAdapter.class)
 	protected String visited;
 	@XmlAttribute
-	@XmlJavaTypeAdapter(NormalizedStringAdapter.class)
-	protected String modified;
+	@XmlJavaTypeAdapter(ISO8601XmlAdapter.class)
+	protected Date modified;
 	protected String title;
 	protected Info info;
 	protected String desc;
@@ -147,7 +149,7 @@ public class Bookmark {
 	 *     {@link String }
 	 *     
 	 */
-	public String getModified() {
+	public Date getModified() {
 		return modified;
 	}
 
@@ -159,7 +161,7 @@ public class Bookmark {
 	 *     {@link String }
 	 *     
 	 */
-	public void setModified(String value) {
+	public void setModified(Date value) {
 		this.modified = value;
 	}
 
