@@ -26,7 +26,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -86,6 +85,7 @@ import javax.swing.text.Position;
 
 import sun.awt.shell.ShellFolder;
 import sun.awt.shell.ShellFolderColumnInfo;
+import eu.kostia.gtkjfilechooser.DateUtil;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
@@ -112,7 +112,9 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 	public static final String FILE_NAME_HEADER = "FileChooser.fileNameHeaderText";
 	public static final String FILE_SIZE_HEADER = "FileChooser.fileSizeHeaderText";
+	private static final int FILE_SIZE_COLUMN_WIDTH = 100;
 	public static final String FILE_DATE_HEADER = "FileChooser.fileDateHeaderText";
+	private static final int FILE_DATE_COLUMN_WIDTH = 125;
 
 	private Action[] actions;
 
@@ -752,6 +754,8 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 	class DetailsTableModel extends AbstractTableModel implements ListDataListener {
 
+
+
 		private static final long serialVersionUID = GtkFilePane.serialVersionUID;
 
 		private JFileChooser chooser;
@@ -789,8 +793,12 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 					column.setVisible(GtkFileChooserSettings.get().getShowSizeColumn());
 				}
 
-				if (!FILE_NAME_HEADER.equals(column.getTitle())) {
-					column.setWidth(100);
+				if (FILE_SIZE_HEADER.equals(column.getTitle())) {
+					column.setWidth(FILE_SIZE_COLUMN_WIDTH);
+				}
+				
+				if (FILE_DATE_HEADER.equals(column.getTitle())) {
+					column.setWidth(FILE_DATE_COLUMN_WIDTH);
 				}
 
 				if (column.isVisible()) {
@@ -1049,12 +1057,9 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		private static final long serialVersionUID = GtkFilePane.serialVersionUID;
 
 		private JFileChooser chooser;
-		private DateFormat df;
 
 		private DetailsTableCellRenderer(JFileChooser chooser) {
 			this.chooser = chooser;
-			df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT,
-					chooser.getLocale());
 		}
 
 		@Override
@@ -1097,7 +1102,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 			} else if (value instanceof Date) {
 				// modified date
-				text = df.format((Date) value);
+				text = DateUtil.toPrettyFormat((Date) value);
 			} else if (value instanceof Long) {
 				// size
 				text = FreeDesktopUtil.humanreadble((Long) value, 0);
