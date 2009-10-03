@@ -1,14 +1,14 @@
 package eu.kostia.gtkjfilechooser;
 
+import static eu.kostia.gtkjfilechooser.UrlUtil.decode;
+import static eu.kostia.gtkjfilechooser.UrlUtil.encode;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOError;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -205,69 +205,7 @@ public class BookmarkManager implements Serializable {
 
 		return bookmarks;
 	}
-	private String decode(String str) {
-		try {
-			return URLDecoder.decode(str, Charset.defaultCharset().toString());
-		} catch (UnsupportedEncodingException e) {
-			throw new IllegalStateException(e);
-		}
-	}
 
-	private String encode(String str) {
-		StringBuilder sb = new StringBuilder();
-
-		for (int i = 0; i < str.length(); i++) {
-			char ch = str.charAt(i);
-			int dec = ch;
-
-			// ASCII Control characters
-			if (dec >= 0 && dec <= 31) {
-				sb.append("%").append(Integer.toHexString(dec));
-				continue;
-			}
-
-			// Non-ASCII characters
-			if (dec >= 127) {
-				sb.append("%").append(Integer.toHexString(dec));
-				continue;
-			}
-
-			// Reserved and unsafe characters
-			switch (dec) {
-			case '$':
-			case '&':
-			case '+':
-			case ',':
-			case ':':
-			case ';':
-			case '=':
-			case '?':
-			case '@':
-			case ' ':
-			case 34: // Quotation marks
-			case '<':
-			case '>':
-			case '#':
-			case '%':
-			case '{':
-			case '}':
-			case '|':
-			case 92: // Backslash
-			case '^':
-			case '~':
-			case '[':
-			case ']':
-			case '`':
-				sb.append("%").append(Integer.toHexString(dec));
-				continue;
-			}
-
-			// Append the char as it is
-			sb.append(ch);
-		}
-
-		return sb.toString();
-	}
 
 	/**
 	 * Inner Class
