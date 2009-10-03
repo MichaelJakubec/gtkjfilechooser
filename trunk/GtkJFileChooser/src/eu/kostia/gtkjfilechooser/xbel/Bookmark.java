@@ -8,8 +8,6 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
-import javax.xml.bind.annotation.adapters.NormalizedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 
@@ -26,23 +24,29 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 public class Bookmark {
 
 	@XmlAttribute
-	@XmlJavaTypeAdapter(CollapsedStringAdapter.class)
 	@XmlID
 	protected String id;
+	
 	@XmlAttribute
-	@XmlJavaTypeAdapter(NormalizedStringAdapter.class)
-	protected String added;
+	@XmlJavaTypeAdapter(ISO8601XmlAdapter.class)
+	protected Date added;
+	
 	@XmlAttribute(required = true)
-	@XmlJavaTypeAdapter(NormalizedStringAdapter.class)
+	@XmlJavaTypeAdapter(UrlAdapter.class)
 	protected String href;
+	
 	@XmlAttribute
-	@XmlJavaTypeAdapter(NormalizedStringAdapter.class)
-	protected String visited;
+	@XmlJavaTypeAdapter(ISO8601XmlAdapter.class)
+	protected Date visited;
+	
 	@XmlAttribute
 	@XmlJavaTypeAdapter(ISO8601XmlAdapter.class)
 	protected Date modified;
+	
 	protected String title;
+	
 	protected Info info;
+	
 	protected String desc;
 
 	/**
@@ -77,7 +81,7 @@ public class Bookmark {
 	 *     {@link String }
 	 *     
 	 */
-	public String getAdded() {
+	public Date getAdded() {
 		return added;
 	}
 
@@ -89,7 +93,7 @@ public class Bookmark {
 	 *     {@link String }
 	 *     
 	 */
-	public void setAdded(String value) {
+	public void setAdded(Date value) {
 		this.added = value;
 	}
 
@@ -125,7 +129,7 @@ public class Bookmark {
 	 *     {@link String }
 	 *     
 	 */
-	public String getVisited() {
+	public Date getVisited() {
 		return visited;
 	}
 
@@ -137,7 +141,7 @@ public class Bookmark {
 	 *     {@link String }
 	 *     
 	 */
-	public void setVisited(String value) {
+	public void setVisited(Date value) {
 		this.visited = value;
 	}
 
