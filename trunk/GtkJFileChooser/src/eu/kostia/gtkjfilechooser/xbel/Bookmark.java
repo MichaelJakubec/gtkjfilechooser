@@ -26,27 +26,27 @@ public class Bookmark {
 	@XmlAttribute
 	@XmlID
 	protected String id;
-	
+
 	@XmlAttribute
 	@XmlJavaTypeAdapter(ISO8601XmlAdapter.class)
 	protected Date added;
-	
+
 	@XmlAttribute(required = true)
 	@XmlJavaTypeAdapter(UrlAdapter.class)
 	protected String href;
-	
+
 	@XmlAttribute
 	@XmlJavaTypeAdapter(ISO8601XmlAdapter.class)
 	protected Date visited;
-	
+
 	@XmlAttribute
 	@XmlJavaTypeAdapter(ISO8601XmlAdapter.class)
 	protected Date modified;
-	
+
 	protected String title;
-	
+
 	protected Info info;
-	
+
 	protected String desc;
 
 	/**
@@ -239,6 +239,17 @@ public class Bookmark {
 	 */
 	public void setDesc(String value) {
 		this.desc = value;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Bookmark [href=");
+		builder.append(href);
+		builder.append(", modified=");
+		builder.append(modified);
+		builder.append("]");
+		return builder.toString();
 	}
 
 }

@@ -23,7 +23,7 @@ public class DateUtil {
 	public static String toPrettyFormat(Date date) {
 		return toPrettyFormat(date, new Date());
 	}
-	
+
 	/**
 	 * Package visibility for testing
 	 */
@@ -46,7 +46,7 @@ public class DateUtil {
 		}
 
 		// Any other date
-		return DateFormat.getDateInstance().format(d);
+		return DateFormat.getDateInstance(DateFormat.SHORT).format(d);
 	}
 
 	/**
@@ -66,7 +66,7 @@ public class DateUtil {
 		int D = cal.get(Calendar.DAY_OF_MONTH);
 
 		return (1461 * (Y + 4800 + (M - 14) / 12)) / 4
-				+ (367 * (M - 2 - 12 * ((M - 14) / 12))) / 12
-				- (3 * ((Y + 4900 + (M - 14) / 12) / 100)) / 4 + D - 32075;
+		+ (367 * (M - 2 - 12 * ((M - 14) / 12))) / 12
+		- (3 * ((Y + 4900 + (M - 14) / 12) / 100)) / 4 + D - 32075;
 	}
 }
