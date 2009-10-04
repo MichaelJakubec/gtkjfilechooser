@@ -2,6 +2,8 @@ package eu.kostia.gtkjfilechooser.xbel;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
@@ -16,6 +18,7 @@ import javax.xml.bind.Unmarshaller;
  */
 public class RecentlyUsedManager {
 
+	private static final String FILE_PROTOCOL = "file://";
 	private File recentlyUsedfile;
 
 	public RecentlyUsedManager() {
@@ -37,7 +40,7 @@ public class RecentlyUsedManager {
 			throw new IllegalStateException(e);
 		}
 	}
-	
+
 	/**
 	 * Returns the desired number of bookmarks sorted by modified date.
 	 * 
@@ -46,20 +49,29 @@ public class RecentlyUsedManager {
 	 */
 	public List<Bookmark> readBookmarks(int n) {
 		List<Bookmark> allBookmarks = readXbel().getBookmarks();
-		
-		int lastIndex = allBookmarks.size() - 1;
-		int limit = n <= lastIndex ? lastIndex - n + 1 : 0;
-		
+		Collections.sort(allBookmarks, new Comparator<Bookmark>() {
+			@Override
+			public int compare(Bookmark o1, Bookmark o2) {
+				return o2.getModified().compareTo(o1.getModified());
+			}
+		});
+
 		List<Bookmark> bookmarks = new ArrayList<Bookmark>();
-		for (int i = lastIndex; i >= limit; i--) {
-			if (!allBookmarks.get(i).getHref().startsWith("file://")) {
-				i++;
+		for (Bookmark bookmark : allBookmarks) {
+			String href = bookmark.getHref();
+			if (!href.startsWith(FILE_PROTOCOL)) {
 				continue;
 			}
-			
-			bookmarks.add(allBookmarks.get(i));
+
+			if (new File(href.substring(FILE_PROTOCOL.length())).exists()){
+				bookmarks.add(bookmark);
+			}
+
+			if (bookmarks.size() == n) {
+				break;
+			}
 		}
-		
+
 		return bookmarks;
 	}
 
