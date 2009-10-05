@@ -2,8 +2,13 @@ package eu.kostia.gtkjfilechooser;
 
 import java.io.File;
 
+import org.junit.Ignore;
+import org.junit.Test;
+
 public class FileSearchTest {
 	
+	@Test
+	@Ignore("Test started with main")
 	public void testStart() throws Exception {
 		FileSearch search = new FileSearch(System.getProperty("user.home"), "test", new FileSearch.FileSearchHandler(){
 			@Override
