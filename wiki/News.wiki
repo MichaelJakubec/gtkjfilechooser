@@ -2,6 +2,6 @@
 
 = Latest News =
 
-== Added Recently Used files support ==
+=== 05.10.2009  Added Recently Used files support ===
 See the screenshot:
 [http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/Recently_Used.png]
