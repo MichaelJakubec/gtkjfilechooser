@@ -89,7 +89,6 @@ import eu.kostia.gtkjfilechooser.DateUtil;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
-import eu.kostia.gtkjfilechooser.FreeDesktopUtil.WellKnownDir;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings.Column;
 import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
 import eu.kostia.gtkjfilechooser.ui.GtkFileChooserUI.MyGTKFileChooserUIAccessor;
@@ -1080,25 +1079,9 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			} else if (value instanceof File) {
 				File file = (File) value;
 				text = chooser.getName(file);
-
-				if (file.isDirectory()) {
-					if (System.getProperty("user.home").endsWith(file.getAbsolutePath())) {
-						// home dir ico
-						setIcon(GtkStockIcon.get("places/user-home",
-								Size.GTK_ICON_SIZE_MENU));
-					} else if (FreeDesktopUtil.getWellKnownDirPath(WellKnownDir.DESKTOP)
-							.equals(file)) {
-						// desktop dir icon
-						setIcon(GtkStockIcon.get("places/user-desktop",
-								Size.GTK_ICON_SIZE_MENU));
-					} else {
-						setIcon(GtkStockIcon
-								.get("gtk-directory", Size.GTK_ICON_SIZE_MENU));
-					}
-				} else {
-					Icon thumb = GtkStockIcon.get(file, Size.GTK_ICON_SIZE_MENU);
-					setIcon(thumb != null ? thumb : chooser.getIcon(file));
-				}
+				
+				Icon thumb = GtkStockIcon.get(file, Size.GTK_ICON_SIZE_MENU);
+				setIcon(thumb != null ? thumb : chooser.getIcon(file));
 
 			} else if (value instanceof Date) {
 				// modified date
