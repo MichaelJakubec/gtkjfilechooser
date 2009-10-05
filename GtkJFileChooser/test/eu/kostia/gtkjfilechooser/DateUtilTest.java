@@ -15,7 +15,7 @@ import org.junit.Test;
 public class DateUtilTest {
 	static private final Locale SYSTEM_DEFAULT = Locale.getDefault();
 	static private final Date TODAY = new GregorianCalendar(2009, OCTOBER, 20, 00, 01, 30)
-			.getTime();
+	.getTime();
 
 	@BeforeClass
 	static public void beforeClass() {
@@ -60,7 +60,7 @@ public class DateUtilTest {
 	@Test
 	public void testToPrettyFormatSevenDaysAgo() throws Exception {
 		Date sevenDaysAgo = new GregorianCalendar(2009, OCTOBER, 13, 23, 30).getTime();
-		assertEquals("Oct 13, 2009", DateUtil.toPrettyFormat(sevenDaysAgo, TODAY));
+		assertEquals("10/13/09", DateUtil.toPrettyFormat(sevenDaysAgo, TODAY));
 	}
 
 }

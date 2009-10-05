@@ -26,6 +26,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Locale;
 
 import javax.accessibility.AccessibleContext;
@@ -57,6 +58,7 @@ import javax.swing.plaf.basic.BasicFileChooserUI;
 
 import sun.swing.FilePane;
 import eu.kostia.gtkjfilechooser.ActionPath;
+import eu.kostia.gtkjfilechooser.FileEntry;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
 import eu.kostia.gtkjfilechooser.Path;
@@ -64,6 +66,7 @@ import eu.kostia.gtkjfilechooser.BookmarkManager.GtkBookmark;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings.Mode;
 import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
 import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
+import eu.kostia.gtkjfilechooser.xbel.RecentlyUsedManager;
 
 /**
  * GtkFileChooserUI basen on the Metal L&F implementation of a FileChooser.
@@ -72,6 +75,8 @@ import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
  * @author Costantino Cerbo, Jeff Dinkins
  */
 public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable {
+
+	private static final int NUMBER_OF_RECENT_FILES = 30;
 
 	private static final long serialVersionUID = 10L;
 
@@ -115,7 +120,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 	 */
 	private GtkFilePane fileBrowserPane;
 
-	private RecentlyUsedPane recentlyUsedPane;
+	private FilesListPane recentlyUsedPane;
 
 	private boolean useShellFolder;
 
@@ -209,7 +214,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 
 		public MouseListener createDoubleClickListener(JList list) {
 			return GtkFileChooserUI.this
-					.createDoubleClickListener(getFileChooser(), list);
+			.createDoubleClickListener(getFileChooser(), list);
 		}
 
 		public ListSelectionListener createListSelectionListener() {
@@ -280,7 +285,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		final JToggleButton showPositionButton = new JToggleButton(GtkStockIcon.get(
 				"gtk-edit", Size.GTK_ICON_SIZE_BUTTON));
 		showPositionButton
-				.setSelected(GtkFileChooserSettings.get().getLocationMode() == Mode.FILENAME_ENTRY);
+		.setSelected(GtkFileChooserSettings.get().getLocationMode() == Mode.FILENAME_ENTRY);
 		showPositionButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -306,7 +311,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 
 		topPanel1.add(createPanel(new PanelElement(createPanel(showPositionButton),
 				BorderLayout.LINE_START), new PanelElement(comboButtons,
-				BorderLayout.CENTER)), BorderLayout.CENTER);
+						BorderLayout.CENTER)), BorderLayout.CENTER);
 
 		if (fc.getDialogType() == JFileChooser.SAVE_DIALOG) {
 			// New Directory Button
@@ -369,10 +374,10 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		approveButton = new JButton(getApproveButtonText(fc));
 		if (fc.getDialogType() == JFileChooser.OPEN_DIALOG) {
 			approveButton
-					.setIcon(GtkStockIcon.get("gtk-open", Size.GTK_ICON_SIZE_BUTTON));
+			.setIcon(GtkStockIcon.get("gtk-open", Size.GTK_ICON_SIZE_BUTTON));
 		} else if (fc.getDialogType() == JFileChooser.SAVE_DIALOG) {
 			approveButton
-					.setIcon(GtkStockIcon.get("gtk-save", Size.GTK_ICON_SIZE_BUTTON));
+			.setIcon(GtkStockIcon.get("gtk-save", Size.GTK_ICON_SIZE_BUTTON));
 		}
 
 		approveButton.addActionListener(getApproveSelectionAction());
@@ -467,7 +472,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 
 		filterComboBox.setPreferredSize(new Dimension(150, (int) removeBookmarkButton
 				.getPreferredSize().getHeight()));
-		
+
 		JPanel fileBrowserSubPanel = JPanelUtil.createPanel(new PanelElement(component,
 				BorderLayout.CENTER), new PanelElement(JPanelUtil.createPanel(
 						new GridLayout(1, 3), new JLabel(), new JLabel(), filterComboBox),
@@ -475,10 +480,10 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		return fileBrowserSubPanel;
 	}
 
-	private void showOnRightPanel(String key) {		
+	private void showOnRightPanel(String key) {
 		// hide the top panel, if not a file browser view
 		topPanel.setVisible(FILEBROWSER_PANEL.equals(key));
-		
+
 		CardLayout cl = (CardLayout) rightPanel.getLayout();
 		cl.show(rightPanel, key);
 	}
@@ -487,10 +492,12 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		String action = actionPath.getAction();
 		if (ActionPath.RECENTLY_USED.getAction().equals(action)) {
 			if (recentlyUsedPane == null) {
-				createRecentlyUsedPane();		
-			} else {
-				recentlyUsedPane.updateModel();
-			}			
+				createRecentlyUsedPane();
+			}
+
+			List<FileEntry> fileEntries = new RecentlyUsedManager().readRecentFiles(NUMBER_OF_RECENT_FILES);
+			recentlyUsedPane.updateModel(fileEntries);
+
 			showOnRightPanel(RECENTLY_USED_PANEL);
 		} else if (ActionPath.SEARCH.getAction().equals(action)) {
 
@@ -498,21 +505,20 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 	}
 
 	private void createRecentlyUsedPane() {
-		recentlyUsedPane = new RecentlyUsedPane();
-		
-		recentlyUsedPane.addActionListeners(new ActionListener(){
+		recentlyUsedPane = new FilesListPane();
+		recentlyUsedPane.addActionListeners(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				File file = recentlyUsedPane.getSelectedFile();
 				getFileChooser().setSelectedFile(file);
-				
-				if (RecentlyUsedPane.DOUBLE_CLICK_ID == e.getID()) {
+
+				if (FilesListPane.DOUBLE_CLICK_ID == e.getID()) {
 					// On double click on a recent file, close the file chooser.
 					getFileChooser().approveSelection();
-				} 		
-			}			
+				}
+			}
 		});
-		
+
 		rightPanel.add(addFilterCombobox(recentlyUsedPane), RECENTLY_USED_PANEL);
 	}
 
@@ -537,9 +543,9 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 					public void propertyChange(PropertyChangeEvent evt) {
 
 						addBookmarkButton
-								.setEnabled(fileBrowserPane.getSelectedPath() != null
-										&& fileBrowserPane.getSelectedPath()
-												.isDirectory());
+						.setEnabled(fileBrowserPane.getSelectedPath() != null
+								&& fileBrowserPane.getSelectedPath()
+								.isDirectory());
 					}
 				});
 
@@ -823,7 +829,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		if (files != null
 				&& files.length > 0
 				&& (files.length > 1 || fc.isDirectorySelectionEnabled() || !files[0]
-						.isDirectory())) {
+				                                                                   .isDirectory())) {
 			setFileName(fileNameString(files));
 		}
 	}
@@ -917,7 +923,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 					doAccessoryChanged(e);
 				} else if (s.equals(JFileChooser.APPROVE_BUTTON_TEXT_CHANGED_PROPERTY)
 						|| s
-								.equals(JFileChooser.APPROVE_BUTTON_TOOL_TIP_TEXT_CHANGED_PROPERTY)) {
+						.equals(JFileChooser.APPROVE_BUTTON_TOOL_TIP_TEXT_CHANGED_PROPERTY)) {
 					doApproveButtonTextChanged(e);
 				} else if (s.equals(JFileChooser.DIALOG_TYPE_CHANGED_PROPERTY)) {
 					doDialogTypeChanged(e);
