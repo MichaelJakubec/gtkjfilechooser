@@ -6,6 +6,8 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
+import eu.kostia.gtkjfilechooser.FileEntry;
+
 public class RecentlyUsedManagerTest {
 
 	@Test
@@ -19,16 +21,10 @@ public class RecentlyUsedManagerTest {
 
 
 		int count = 1;
-		List<Bookmark> bookmarks = m.readBookmarks(30);
-		Assert.assertEquals(30, bookmarks.size());
-		for (Bookmark bookmark : bookmarks) {			
-			String href = bookmark.getHref();
-			if (!href.startsWith("file://")) {
-				continue;
-			}
-
-			File file = new File(href.substring("file://".length()));
-			System.out.println(count+") "+file.getName() + "\t" + bookmark.getModified());
+		List<FileEntry> fileEntries = m.readRecentFiles(30);
+		Assert.assertEquals(30, fileEntries.size());
+		for (FileEntry fileEntry : fileEntries) {			
+			System.out.println(count+") "+fileEntry.getFile().getName() + "\t" + fileEntry.getModified());
 			count++;
 		}
 	}

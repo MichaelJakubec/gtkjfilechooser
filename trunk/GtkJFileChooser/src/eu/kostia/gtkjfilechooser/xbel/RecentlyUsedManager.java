@@ -10,6 +10,8 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import eu.kostia.gtkjfilechooser.FileEntry;
+
 /**
  * Manager for the recently used files.
  * 
@@ -45,9 +47,9 @@ public class RecentlyUsedManager {
 	 * Returns the desired number of bookmarks sorted by modified date.
 	 * 
 	 * @param n The desired number of bookmarks.
-	 * @return The desired number of bookmarks sorted by modified date.
+	 * @return The desired number of recent file entries sorted by modified date.
 	 */
-	public List<Bookmark> readBookmarks(int n) {
+	public List<FileEntry> readRecentFiles(int n) {
 		List<Bookmark> allBookmarks = readXbel().getBookmarks();
 		Collections.sort(allBookmarks, new Comparator<Bookmark>() {
 			@Override
@@ -56,23 +58,30 @@ public class RecentlyUsedManager {
 			}
 		});
 
-		List<Bookmark> bookmarks = new ArrayList<Bookmark>();
+		List<FileEntry> fileEntries = new ArrayList<FileEntry>();
 		for (Bookmark bookmark : allBookmarks) {
 			String href = bookmark.getHref();
 			if (!href.startsWith(FILE_PROTOCOL)) {
+				// exclude entries that aren't files.
+				continue;
+			}
+
+			if (href.startsWith(FILE_PROTOCOL+System.getProperty("java.io.tmpdir"))) {
+				// exclude temporary files.
 				continue;
 			}
 
 			if (new File(href.substring(FILE_PROTOCOL.length())).exists()){
-				bookmarks.add(bookmark);
+				File file = new File((bookmark.getHref()).substring(FILE_PROTOCOL.length()));
+				fileEntries.add(new FileEntry(file, bookmark.getModified()));
 			}
 
-			if (bookmarks.size() == n) {
+			if (fileEntries.size() == n) {
 				break;
 			}
 		}
 
-		return bookmarks;
+		return fileEntries;
 	}
 
 }

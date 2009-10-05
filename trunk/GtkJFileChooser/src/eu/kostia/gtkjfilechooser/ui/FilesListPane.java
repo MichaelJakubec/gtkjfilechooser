@@ -26,14 +26,13 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
 
 import eu.kostia.gtkjfilechooser.DateUtil;
+import eu.kostia.gtkjfilechooser.FileEntry;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
 import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
-import eu.kostia.gtkjfilechooser.xbel.Bookmark;
-import eu.kostia.gtkjfilechooser.xbel.RecentlyUsedManager;
 
-public class RecentlyUsedPane extends JComponent {	
+public class FilesListPane extends JComponent {
 	private static final String FILE_NAME_COLUMN_ID = "FileChooser.fileNameHeaderText";
 	private static final String FILE_SIZE_COLUMN_ID = "FileChooser.fileSizeHeaderText";
 	private static final int FILE_SIZE_COLUMN_WIDTH = 100;
@@ -48,31 +47,32 @@ public class RecentlyUsedPane extends JComponent {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final int NUMBER_OF_RECENTLY_USED = 30;
-
 	private JTable table;
 
 	private List<ActionListener> actionListeners;
 
-	public RecentlyUsedPane() {
+	public FilesListPane() {
+		this(new ArrayList<FileEntry>());
+	}
+
+	public FilesListPane(List<FileEntry> fileEntries) {
 		setLayout(new BorderLayout());
 
 		table = new JTable();
 		table.setAutoCreateColumnsFromModel(false);
 		actionListeners = new ArrayList<ActionListener>();
-		table.setColumnModel(new RecentlyUsedTableColumnModel());
+		table.setColumnModel(new FilesListTableColumnModel());
 		table.getTableHeader().setReorderingAllowed(false);
-		
-		updateModel();
-		
-		table.setRowSorter(new RecentlyUsedTableRowSorter());
-		table.setDefaultRenderer(Object.class, new RecentlyUsedRenderer());
+
+		updateModel(fileEntries);
+
+		table.setDefaultRenderer(Object.class, new FilesListRenderer());
 		table.setRowSelectionAllowed(true);
 		table.setShowGrid(false);
 		table.getTableHeader().setResizingAllowed(true);
 		// gnome rows are taller
 		table.setRowHeight(22);
-		final RecentlyUsedPane thisPane = this;
+		final FilesListPane thisPane = this;
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
@@ -90,31 +90,42 @@ public class RecentlyUsedPane extends JComponent {
 		createColumnsFromModel(table);
 		add(new JScrollPane(table), BorderLayout.CENTER);
 	}
-	
-	public void updateModel() {
-		List<Bookmark> bookmarks = new RecentlyUsedManager()
-		.readBookmarks(NUMBER_OF_RECENTLY_USED);		
-		RecentlyUsedTableModel dataModel = new RecentlyUsedTableModel(bookmarks);
-		table.setModel(dataModel);
-	}
-	
-    private void createColumnsFromModel(JTable aTable) {
-    	RecentlyUsedTableModel m = (RecentlyUsedTableModel) aTable.getModel();
-        if (m != null) {
-            // Remove any current columns
-            TableColumnModel cm = aTable.getColumnModel();
-            while (cm.getColumnCount() > 0) {
-                cm.removeColumn(cm.getColumn(0));
-	    }
 
-            // Create new columns from the data model info
-            for (int i = 0; i < m.getColumnCount(); i++) {
-                TableColumn newColumn = new TableColumn(i);
-                newColumn.setIdentifier(m.getColumnId(i));
-                aTable.addColumn(newColumn);
-            }
-        }
-    }
+	/**
+	 * Append a new {@link FileEntry} to this table.Notification of the row
+	 * being added will be generated.
+	 * 
+	 * @param entry
+	 *            the {@link FileEntry} to be inserted.
+	 */
+	public void addFileEntry(FileEntry entry) {
+		FilesListTableModel dataModel = (FilesListTableModel) table.getModel();
+		dataModel.addFileEntry(entry);
+	}
+
+	public void updateModel(List<FileEntry> fileEntries) {
+		FilesListTableModel dataModel = new FilesListTableModel(fileEntries);
+		table.setModel(dataModel);
+		table.setRowSorter(new FilesListTableRowSorter(dataModel));
+	}
+
+	private void createColumnsFromModel(JTable aTable) {
+		FilesListTableModel m = (FilesListTableModel) aTable.getModel();
+		if (m != null) {
+			// Remove any current columns
+			TableColumnModel cm = aTable.getColumnModel();
+			while (cm.getColumnCount() > 0) {
+				cm.removeColumn(cm.getColumn(0));
+			}
+
+			// Create new columns from the data model info
+			for (int i = 0; i < m.getColumnCount(); i++) {
+				TableColumn newColumn = new TableColumn(i);
+				newColumn.setIdentifier(m.getColumnId(i));
+				aTable.addColumn(newColumn);
+			}
+		}
+	}
 
 	public File getSelectedFile() {
 		int row = table.getSelectedRow();
@@ -138,7 +149,7 @@ public class RecentlyUsedPane extends JComponent {
 			l.actionPerformed(e);
 		}
 	}
-	
+
 	private Boolean getShowSizeColumn() {
 		return GtkFileChooserSettings.get().getShowSizeColumn();
 	}
@@ -146,12 +157,11 @@ public class RecentlyUsedPane extends JComponent {
 	/**
 	 * Model
 	 */
-	private class RecentlyUsedTableModel extends AbstractTableModel implements
-	Serializable {
+	private class FilesListTableModel extends AbstractTableModel implements Serializable {
 
 		private static final long serialVersionUID = 1L;
 
-		private Object[][] data;
+		private List<Object[]> data;
 
 		private String[] columnNames;
 		private String[] columnIds;
@@ -161,29 +171,48 @@ public class RecentlyUsedPane extends JComponent {
 		 */
 		private boolean[] columnsVisible;
 
-		public RecentlyUsedTableModel(List<Bookmark> bookmarks) {
-			this.columnIds = new String[] { FILE_NAME_COLUMN_ID, FILE_SIZE_COLUMN_ID, FILE_DATE_COLUMN_ID };
+		public FilesListTableModel(List<FileEntry> fileEntries) {
+			this.data = new ArrayList<Object[]>();
+			this.columnIds = new String[] { FILE_NAME_COLUMN_ID, FILE_SIZE_COLUMN_ID,
+					FILE_DATE_COLUMN_ID };
 			this.columnNames = new String[columnIds.length];
 			for (int i = 0; i < columnIds.length; i++) {
 				String columnId = columnIds[i];
-				columnNames[i] = UIManager.getString(columnId);				
+				columnNames[i] = UIManager.getString(columnId);
 			}
-			
+
 			this.columnsVisible = new boolean[columnNames.length];
 			this.columnsVisible[0] = true;
 			this.columnsVisible[1] = getShowSizeColumn();
 			this.columnsVisible[2] = true;
 
-			this.data = new Object[bookmarks.size()][columnNames.length];
-			for (int i = 0; i < bookmarks.size(); i++) {
-				Bookmark bookmark = bookmarks.get(i);
-				File file = new File((bookmark.getHref()).substring("file://".length()));
-				data[i][0] = file;
-				data[i][1] = file.length();
-				data[i][2] = bookmark.getModified();
+
+			for (FileEntry fileEntry : fileEntries) {
+				addFileEntryInternal(fileEntry);
 			}
 		}
 
+		private void addFileEntryInternal(FileEntry fileEntry) {
+			Object[] row = new Object[columnNames.length];
+			row[0] = fileEntry.getFile();
+			row[1] = fileEntry.getFile() != null ? fileEntry.getFile().length()	: 0L;
+			row[2] = fileEntry.getModified();
+
+			data.add(row);
+		}
+
+		/**
+		 * Append a new {@link FileEntry} to this table.Notification of the row
+		 * being added will be generated.
+		 * 
+		 * @param entry
+		 *            the {@link FileEntry} to be inserted.
+		 */
+		public void addFileEntry(FileEntry entry) {
+			addFileEntryInternal(entry);
+			int row = getRowCount() -1;
+			fireTableRowsInserted(row, row);
+		}
 
 		/**
 		 * Maps the index of the column in the table model at the index of the
@@ -219,22 +248,23 @@ public class RecentlyUsedPane extends JComponent {
 		}
 
 		public int getRowCount() {
-			return data.length;
+			return data.size();
 		}
 
 		public Object getValueAt(int row, int col) {
-			return data[row][convertToVisibleColumnIndex(col)];
+			return data.get(row)[convertToVisibleColumnIndex(col)];
 		}
 
 		@Override
 		public String getColumnName(int col) {
 			return columnNames[convertToVisibleColumnIndex(col)];
 		}
-		
+
 		/**
 		 * Return the unmodifiable not localized column identifier.
 		 * 
-		 * @param col The model column index.
+		 * @param col
+		 *            The model column index.
 		 * @return The column identifier.
 		 */
 		public String getColumnId(int col) {
@@ -243,16 +273,18 @@ public class RecentlyUsedPane extends JComponent {
 
 		@Override
 		public Class<?> getColumnClass(int col) {
-			return data[0][convertToVisibleColumnIndex(col)] != null ? data[0][convertToVisibleColumnIndex(col)]
-			                                                                   .getClass()
-			                                                                   : Object.class;
+			if (!data.isEmpty() && data.get(0)[convertToVisibleColumnIndex(col)] != null) {
+				return data.get(0)[convertToVisibleColumnIndex(col)].getClass();
+			}
+
+			return Object.class;
 		}
 	}
 
 	/**
 	 * Cell renderer
 	 */
-	private class RecentlyUsedRenderer extends DefaultTableCellRenderer {
+	private class FilesListRenderer extends DefaultTableCellRenderer {
 
 		private static final long serialVersionUID = 1L;
 
@@ -261,8 +293,8 @@ public class RecentlyUsedPane extends JComponent {
 				boolean isSelected, boolean hasFocus, int row, int column) {
 			// reset the icon for all columns
 			setIcon(null);
-			
-			File file = (File) table.getValueAt(row, 0);
+
+			File file = (File) table.getValueAt(row, 0);			
 			setToolTipText(file.getAbsolutePath());
 
 			if (value instanceof File) {
@@ -294,7 +326,7 @@ public class RecentlyUsedPane extends JComponent {
 
 	}
 
-	private class RecentlyUsedTableColumnModel extends DefaultTableColumnModel {
+	private class FilesListTableColumnModel extends DefaultTableColumnModel {
 		private static final long serialVersionUID = 1L;
 
 		@Override
@@ -308,7 +340,7 @@ public class RecentlyUsedPane extends JComponent {
 			} else {
 				// The filename column fills the remaining space.
 				int offset = FILE_DATE_COLUMN_WIDTH;
-				if(getShowSizeColumn()) {
+				if (getShowSizeColumn()) {
 					offset += FILE_SIZE_COLUMN_WIDTH;
 				}
 				col.setPreferredWidth(getTotalColumnWidth() - offset);
@@ -319,10 +351,9 @@ public class RecentlyUsedPane extends JComponent {
 
 	}
 
-	private class RecentlyUsedTableRowSorter extends
-	TableRowSorter<RecentlyUsedTableModel> {
-		public RecentlyUsedTableRowSorter() {
-			super((RecentlyUsedTableModel) table.getModel());
+	private class FilesListTableRowSorter extends TableRowSorter<FilesListTableModel> {
+		public FilesListTableRowSorter(FilesListTableModel model) {
+			super(model);
 		}
 
 		@SuppressWarnings("unchecked")
