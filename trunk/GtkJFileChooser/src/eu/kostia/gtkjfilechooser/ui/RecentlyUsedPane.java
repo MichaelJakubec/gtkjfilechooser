@@ -3,7 +3,6 @@ package eu.kostia.gtkjfilechooser.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -23,14 +22,23 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
 
 import eu.kostia.gtkjfilechooser.DateUtil;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
+import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
+import eu.kostia.gtkjfilechooser.GtkStockIcon;
+import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
 import eu.kostia.gtkjfilechooser.xbel.Bookmark;
 import eu.kostia.gtkjfilechooser.xbel.RecentlyUsedManager;
 
-public class RecentlyUsedPane extends JComponent {
+public class RecentlyUsedPane extends JComponent {	
+	private static final String FILE_NAME_COLUMN_ID = "FileChooser.fileNameHeaderText";
+	private static final String FILE_SIZE_COLUMN_ID = "FileChooser.fileSizeHeaderText";
+	private static final int FILE_SIZE_COLUMN_WIDTH = 100;
+	private static final String FILE_DATE_COLUMN_ID = "FileChooser.fileDateHeaderText";
+	private static final int FILE_DATE_COLUMN_WIDTH = 125;
 
 	private static final String SELECTED = "selected";
 	private static final int SELECTED_ID = 1;
@@ -40,7 +48,7 @@ public class RecentlyUsedPane extends JComponent {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final int NUMBER_OF_RECENTLY_USED = 10;
+	private static final int NUMBER_OF_RECENTLY_USED = 30;
 
 	private JTable table;
 
@@ -50,6 +58,7 @@ public class RecentlyUsedPane extends JComponent {
 		setLayout(new BorderLayout());
 
 		table = new JTable();
+		table.setAutoCreateColumnsFromModel(false);
 		actionListeners = new ArrayList<ActionListener>();
 		table.setColumnModel(new RecentlyUsedTableColumnModel());
 
@@ -61,9 +70,7 @@ public class RecentlyUsedPane extends JComponent {
 		table.setModel(dataModel);
 		table.setRowSorter(new RecentlyUsedTableRowSorter(dataModel));
 		table.setDefaultRenderer(Object.class, new RecentlyUsedRenderer());
-		table.setAutoscrolls(true);
 		table.setRowSelectionAllowed(true);
-		table.setPreferredSize(new Dimension(400, 400));
 		table.setShowGrid(false);
 		table.getTableHeader().setResizingAllowed(true);
 		// gnome rows are taller
@@ -83,8 +90,27 @@ public class RecentlyUsedPane extends JComponent {
 			}
 		});
 
+		createColumnsFromModel(table);
 		add(new JScrollPane(table), BorderLayout.CENTER);
 	}
+	
+    private void createColumnsFromModel(JTable aTable) {
+    	RecentlyUsedTableModel m = (RecentlyUsedTableModel) aTable.getModel();
+        if (m != null) {
+            // Remove any current columns
+            TableColumnModel cm = aTable.getColumnModel();
+            while (cm.getColumnCount() > 0) {
+                cm.removeColumn(cm.getColumn(0));
+	    }
+
+            // Create new columns from the data model info
+            for (int i = 0; i < m.getColumnCount(); i++) {
+                TableColumn newColumn = new TableColumn(i);
+                newColumn.setIdentifier(m.getColumnId(i));
+                aTable.addColumn(newColumn);
+            }
+        }
+    }
 
 	public File getSelectedFile() {
 		int row = table.getSelectedRow();
@@ -108,6 +134,10 @@ public class RecentlyUsedPane extends JComponent {
 			l.actionPerformed(e);
 		}
 	}
+	
+	private Boolean getShowSizeColumn() {
+		return GtkFileChooserSettings.get().getShowSizeColumn();
+	}
 
 	/**
 	 * Model
@@ -120,6 +150,7 @@ public class RecentlyUsedPane extends JComponent {
 		private Object[][] data;
 
 		private String[] columnNames;
+		private String[] columnIds;
 
 		/**
 		 * Indicates which columns are visible
@@ -127,11 +158,16 @@ public class RecentlyUsedPane extends JComponent {
 		private boolean[] columnsVisible;
 
 		public RecentlyUsedTableModel(List<Bookmark> bookmarks) {
-			// TODO I18N
-			this.columnNames = new String[] { "Name", "Size", "Modified" };
+			this.columnIds = new String[] { FILE_NAME_COLUMN_ID, FILE_SIZE_COLUMN_ID, FILE_DATE_COLUMN_ID };
+			this.columnNames = new String[columnIds.length];
+			for (int i = 0; i < columnIds.length; i++) {
+				String columnId = columnIds[i];
+				columnNames[i] = UIManager.getString(columnId);				
+			}
+			
 			this.columnsVisible = new boolean[columnNames.length];
 			this.columnsVisible[0] = true;
-			this.columnsVisible[1] = true; // GtkFileChooserSettings.get().getShowSizeColumn();
+			this.columnsVisible[1] = getShowSizeColumn();
 			this.columnsVisible[2] = true;
 
 			this.data = new Object[bookmarks.size()][columnNames.length];
@@ -143,6 +179,7 @@ public class RecentlyUsedPane extends JComponent {
 				data[i][2] = bookmark.getModified();
 			}
 		}
+
 
 		/**
 		 * Maps the index of the column in the table model at the index of the
@@ -189,6 +226,16 @@ public class RecentlyUsedPane extends JComponent {
 		public String getColumnName(int col) {
 			return columnNames[convertToVisibleColumnIndex(col)];
 		}
+		
+		/**
+		 * Return the unmodifiable not localized column identifier.
+		 * 
+		 * @param col The model column index.
+		 * @return The column identifier.
+		 */
+		public String getColumnId(int col) {
+			return columnIds[convertToVisibleColumnIndex(col)];
+		}
 
 		@Override
 		public Class<?> getColumnClass(int col) {
@@ -208,13 +255,16 @@ public class RecentlyUsedPane extends JComponent {
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value,
 				boolean isSelected, boolean hasFocus, int row, int column) {
-
+			// reset the icon for all columns
+			setIcon(null);
+			
 			File file = (File) table.getValueAt(row, 0);
 			setToolTipText(file.getAbsolutePath());
 
 			if (value instanceof File) {
 				// filename column
 				setText(file.getName());
+				setIcon(GtkStockIcon.get(file, Size.GTK_ICON_SIZE_MENU));
 			} else if (value instanceof Long) {
 				// size column
 				Long bytes = (Long) value;
@@ -241,21 +291,23 @@ public class RecentlyUsedPane extends JComponent {
 	}
 
 	private class RecentlyUsedTableColumnModel extends DefaultTableColumnModel {
-		/**
-		 * Width of the columns that aren't the file name (size or modified)
-		 */
-		private static final int OTHER_COLUMNS_WIDTH = 125;
-
 		private static final long serialVersionUID = 1L;
 
 		@Override
 		public TableColumn getColumn(int columnIndex) {
 			TableColumn col = super.getColumn(columnIndex);
-
-			if (columnIndex > 0) {
-				col.setPreferredWidth(OTHER_COLUMNS_WIDTH);
+			String columnId = col.getIdentifier().toString();
+			if (FILE_SIZE_COLUMN_ID.equals(columnId)) {
+				col.setPreferredWidth(FILE_SIZE_COLUMN_WIDTH);
+			} else if (FILE_DATE_COLUMN_ID.equals(columnId)) {
+				col.setPreferredWidth(FILE_DATE_COLUMN_WIDTH);
 			} else {
-				col.setPreferredWidth(getTotalColumnWidth() - OTHER_COLUMNS_WIDTH);
+				// The filename column fills the remaining space.
+				int offset = FILE_DATE_COLUMN_WIDTH;
+				if(getShowSizeColumn()) {
+					offset += FILE_SIZE_COLUMN_WIDTH;
+				}
+				col.setPreferredWidth(getTotalColumnWidth() - offset);
 			}
 
 			return col;

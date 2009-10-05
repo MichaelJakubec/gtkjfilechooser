@@ -17,11 +17,14 @@ import java.util.regex.Pattern;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
+import eu.kostia.gtkjfilechooser.FreeDesktopUtil.WellKnownDir;
+
 public class GtkStockIcon {
 
 	static private final String ICONS_FOLDER = "/usr/share/icons/gnome";
 	static private final String ALL_USER_MIME_DIR = "/usr/share/mime";
-	static private final String CURRENT_USER_MIME_DIR = System.getProperty("user.home")	+ "/.local/share/mime";
+	static private final String CURRENT_USER_MIME_DIR = System.getProperty("user.home")
+			+ "/.local/share/mime";
 
 	/**
 	 * These are type-safe versions of the hard-coded numbers in GTKStyle, for
@@ -60,17 +63,18 @@ public class GtkStockIcon {
 		}
 
 		// If not in stock, read from the file system
-		String filename = ICONS_FOLDER + "/" + size.getSize() + "x" + size.getSize()+ "/" + name + ".png";
+		String filename = ICONS_FOLDER + "/" + size.getSize() + "x" + size.getSize()
+				+ "/" + name + ".png";
 		if (!new File(filename).exists()) {
-			throw new IllegalArgumentException("No icon file '"+filename+"'.");
+			throw new IllegalArgumentException("No icon file '" + filename + "'.");
 		}
-		return new ImageIcon(filename);		
+		return new ImageIcon(filename);
 	}
 
 	private static Icon getFromStock(String name, Size size) {
 		try {
 			Class<?> gtkStockIconClass = Class
-			.forName("com.sun.java.swing.plaf.gtk.GTKStyle$GTKStockIcon");
+					.forName("com.sun.java.swing.plaf.gtk.GTKStyle$GTKStockIcon");
 			Constructor<?> constructor = gtkStockIconClass.getDeclaredConstructor(
 					String.class, int.class);
 			constructor.setAccessible(true);
@@ -80,8 +84,30 @@ public class GtkStockIcon {
 		}
 	}
 
+	/**
+	 * Given a file or directory, return the corresponding gtk icon.
+	 * 
+	 * @param file
+	 * @param size
+	 * @return The gtk icon for the given file.
+	 */
 	static public Icon get(File file, Size size) {
 		try {
+
+			if (file.isDirectory()) {
+				if (System.getProperty("user.home").endsWith(file.getAbsolutePath())) {
+					// home dir ico
+					return GtkStockIcon.get("places/user-home", size);
+				} else if (FreeDesktopUtil.getWellKnownDirPath(WellKnownDir.DESKTOP).equals(file)) {
+					// desktop dir icon
+					return GtkStockIcon.get("places/user-desktop", size);
+				} else {
+					// normal dir
+					return GtkStockIcon.get("gtk-directory", size);
+				}
+			}
+
+			
 			File iconFile = lookForThumbs(file);
 			if (iconFile == null) {
 				iconFile = lookForMime(file);
@@ -150,7 +176,7 @@ public class GtkStockIcon {
 	}
 
 	private static boolean isExecScript(File file) throws FileNotFoundException,
-	IOException {
+			IOException {
 		byte[] bytes = new byte[3];
 		InputStream is = null;
 		try {
@@ -241,7 +267,7 @@ public class GtkStockIcon {
 	 * @throws FileNotFoundException
 	 */
 	private static String extractIconName(String parentdir, String mimeType)
-	throws FileNotFoundException {
+			throws FileNotFoundException {
 		Scanner sc = null;
 		try {
 			sc = new Scanner(new File(parentdir + "/generic-icons"));
@@ -267,7 +293,7 @@ public class GtkStockIcon {
 	}
 
 	private static String scanMimeFile(String filename, String parentDir)
-	throws FileNotFoundException {
+			throws FileNotFoundException {
 		Scanner sc = null;
 		try {
 			sc = new Scanner(new File(parentDir + "/globs2"));
