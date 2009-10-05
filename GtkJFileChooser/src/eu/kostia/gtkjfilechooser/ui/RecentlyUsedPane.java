@@ -40,11 +40,11 @@ public class RecentlyUsedPane extends JComponent {
 	private static final String FILE_DATE_COLUMN_ID = "FileChooser.fileDateHeaderText";
 	private static final int FILE_DATE_COLUMN_WIDTH = 125;
 
-	private static final String SELECTED = "selected";
-	private static final int SELECTED_ID = 1;
+	public static final String SELECTED = "selected";
+	public static final int SELECTED_ID = 1;
 
-	private static final String DOUBLE_CLICK = "double_click";
-	private static final int DOUBLE_CLICK_ID = 2;
+	public static final String DOUBLE_CLICK = "double_click";
+	public static final int DOUBLE_CLICK_ID = 2;
 
 	private static final long serialVersionUID = 1L;
 
@@ -61,14 +61,11 @@ public class RecentlyUsedPane extends JComponent {
 		table.setAutoCreateColumnsFromModel(false);
 		actionListeners = new ArrayList<ActionListener>();
 		table.setColumnModel(new RecentlyUsedTableColumnModel());
-
-		List<Bookmark> bookmarks = new RecentlyUsedManager()
-		.readBookmarks(NUMBER_OF_RECENTLY_USED);
-
 		table.getTableHeader().setReorderingAllowed(false);
-		RecentlyUsedTableModel dataModel = new RecentlyUsedTableModel(bookmarks);
-		table.setModel(dataModel);
-		table.setRowSorter(new RecentlyUsedTableRowSorter(dataModel));
+		
+		updateModel();
+		
+		table.setRowSorter(new RecentlyUsedTableRowSorter());
 		table.setDefaultRenderer(Object.class, new RecentlyUsedRenderer());
 		table.setRowSelectionAllowed(true);
 		table.setShowGrid(false);
@@ -92,6 +89,13 @@ public class RecentlyUsedPane extends JComponent {
 
 		createColumnsFromModel(table);
 		add(new JScrollPane(table), BorderLayout.CENTER);
+	}
+	
+	public void updateModel() {
+		List<Bookmark> bookmarks = new RecentlyUsedManager()
+		.readBookmarks(NUMBER_OF_RECENTLY_USED);		
+		RecentlyUsedTableModel dataModel = new RecentlyUsedTableModel(bookmarks);
+		table.setModel(dataModel);
 	}
 	
     private void createColumnsFromModel(JTable aTable) {
@@ -317,8 +321,8 @@ public class RecentlyUsedPane extends JComponent {
 
 	private class RecentlyUsedTableRowSorter extends
 	TableRowSorter<RecentlyUsedTableModel> {
-		public RecentlyUsedTableRowSorter(RecentlyUsedTableModel model) {
-			super(model);
+		public RecentlyUsedTableRowSorter() {
+			super((RecentlyUsedTableModel) table.getModel());
 		}
 
 		@SuppressWarnings("unchecked")

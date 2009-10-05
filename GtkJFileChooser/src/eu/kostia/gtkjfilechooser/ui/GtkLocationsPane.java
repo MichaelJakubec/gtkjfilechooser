@@ -28,6 +28,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableModel;
 
+import eu.kostia.gtkjfilechooser.ActionPath;
+import eu.kostia.gtkjfilechooser.BasicPath;
 import eu.kostia.gtkjfilechooser.BookmarkManager;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
@@ -111,10 +113,7 @@ public class GtkLocationsPane extends JPanel {
 			}
 		});
 
-		// JLabel header = new
-		// JLabel(bookmarksTable.getModel().getColumnName(0));
-		// header.setBorder(BorderFactory.createLineBorder(BORDER_COLOR));
-		// add(header, BorderLayout.PAGE_START);
+	
 		JScrollPane scrollpane = new JScrollPane(bookmarksTable);
 		scrollpane.setPreferredSize(new Dimension(200, 300));
 		add(scrollpane, BorderLayout.CENTER);
@@ -271,8 +270,12 @@ public class GtkLocationsPane extends JPanel {
 
 			if ((row + 1) < table.getRowCount()) { // if has next row
 				Object nextValue = table.getValueAt(row + 1, 0);
+				if (!(value instanceof BasicPath) && nextValue instanceof BasicPath) {
+					// border between Actions and Places
+					setBorder(new LowerBorder(Color.GRAY, 1));
+				}
 				if (!(value instanceof GtkBookmark) && nextValue instanceof GtkBookmark) {
-					// last NOT GtkBookmark row
+					// border between Places and Bookmarks
 					setBorder(new LowerBorder(Color.GRAY, 1));
 				}
 			}
@@ -356,6 +359,12 @@ public class GtkLocationsPane extends JPanel {
 			this.locations = new ArrayList<Path>();
 			this.tableModelListeners = new ArrayList<TableModelListener>();
 
+			//Button Search
+			locations.add(ActionPath.SEARCH); 
+			
+			//Button Recent files
+			locations.add(ActionPath.RECENTLY_USED);
+			
 			locations.addAll(FreeDesktopUtil.getBasicLocations());
 			locations.addAll(FreeDesktopUtil.getRemovableDevices());
 			locations.addAll(bookmarks);
