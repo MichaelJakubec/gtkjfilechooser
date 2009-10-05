@@ -20,7 +20,10 @@ public class GtkFileChooserUITestGui {
 		}		
 
 		JFileChooser fileChooser = new JFileChooser();
-		fileChooser.showOpenDialog(null);
+		int option = fileChooser.showOpenDialog(null);
+		if (JFileChooser.APPROVE_OPTION == option){
+			System.out.println("Selected file: " + fileChooser.getSelectedFile());
+		}
 	}
 
 	public void testLayout() throws Exception {
