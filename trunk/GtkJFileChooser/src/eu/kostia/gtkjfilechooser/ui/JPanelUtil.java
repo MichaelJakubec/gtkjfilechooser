@@ -38,14 +38,18 @@ public class JPanelUtil {
 	 * @param panelElements
 	 * @return The desired panel
 	 */
-	static public JPanel createPanel(PanelElement... panelElements) {
-		JPanel panel = new JPanel(new BorderLayout());
+	static public JPanel createPanel(int hgap, int vgap, PanelElement... panelElements) {
+		JPanel panel = new JPanel(new BorderLayout(hgap, vgap));
 		for (PanelElement elem : panelElements) {
 			panel.add(elem.component, elem.position);
 		}
 
 		return panel;
 	}
+	static public JPanel createPanel(PanelElement... panelElements) {
+		return createPanel(0, 0, panelElements);
+	}
+
 
 	static public class PanelElement {
 		private Component component;
