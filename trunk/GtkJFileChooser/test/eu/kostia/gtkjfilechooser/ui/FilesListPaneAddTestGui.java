@@ -7,13 +7,11 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.Date;
 
 import javax.swing.UIManager;
 
 import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
 
-import eu.kostia.gtkjfilechooser.FileEntry;
 import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
 
 public class FilesListPaneAddTestGui {
@@ -42,10 +40,31 @@ public class FilesListPaneAddTestGui {
 		FilesListPane pane = test.testAddFiles();
 		show(createPanel(new PanelElement(pane, BorderLayout.CENTER)));
 
-		pane.addFileEntry(new FileEntry(new File("Hello"), new Date(1254779700475L)));
+		pane.addFile(new File("Hello"){		
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public long lastModified() {
+				return 1254779700475L;
+			}
+		});
 		Thread.sleep(1000);
-		pane.addFileEntry(new FileEntry(new File("to"), new Date(254779700475L)));
+		pane.addFile(new File("to"){		
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public long lastModified() {
+				return 254779700475L;
+			}
+		});
 		Thread.sleep(1000);
-		pane.addFileEntry(new FileEntry(new File("everyone"), new Date(25779700475L)));
+		pane.addFile(new File("Everyone"){		
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public long lastModified() {
+				return 1254839609487L;
+			}
+		});
 	}
 }

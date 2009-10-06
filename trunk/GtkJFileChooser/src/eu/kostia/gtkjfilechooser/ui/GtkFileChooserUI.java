@@ -58,7 +58,6 @@ import javax.swing.plaf.basic.BasicFileChooserUI;
 
 import sun.swing.FilePane;
 import eu.kostia.gtkjfilechooser.ActionPath;
-import eu.kostia.gtkjfilechooser.FileEntry;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
 import eu.kostia.gtkjfilechooser.Path;
@@ -495,7 +494,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 				createRecentlyUsedPane();
 			}
 
-			List<FileEntry> fileEntries = new RecentlyUsedManager().readRecentFiles(NUMBER_OF_RECENT_FILES);
+			List<File> fileEntries = new RecentlyUsedManager().readRecentFiles(NUMBER_OF_RECENT_FILES);
 			recentlyUsedPane.updateModel(fileEntries);
 
 			showOnRightPanel(RECENTLY_USED_PANEL);

@@ -26,7 +26,6 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
 
 import eu.kostia.gtkjfilechooser.DateUtil;
-import eu.kostia.gtkjfilechooser.FileEntry;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
@@ -52,10 +51,10 @@ public class FilesListPane extends JComponent {
 	private List<ActionListener> actionListeners;
 
 	public FilesListPane() {
-		this(new ArrayList<FileEntry>());
+		this(new ArrayList<File>());
 	}
 
-	public FilesListPane(List<FileEntry> fileEntries) {
+	public FilesListPane(List<File> fileEntries) {
 		setLayout(new BorderLayout());
 
 		table = new JTable();
@@ -92,18 +91,25 @@ public class FilesListPane extends JComponent {
 	}
 
 	/**
-	 * Append a new {@link FileEntry} to this table.Notification of the row
-	 * being added will be generated.
+	 * Append a new {@link File} to this table.Notification of the row being
+	 * added will be generated.
 	 * 
 	 * @param entry
-	 *            the {@link FileEntry} to be inserted.
+	 *            the {@link File} to be inserted.
 	 */
-	public void addFileEntry(FileEntry entry) {
+	public synchronized void addFile(File entry) {
 		FilesListTableModel dataModel = (FilesListTableModel) table.getModel();
-		dataModel.addFileEntry(entry);
+		dataModel.addFile(entry);
 	}
 
-	public void updateModel(List<FileEntry> fileEntries) {
+	/**
+	 * Remove all the rows in this table.
+	 */
+	public void clean() {
+		updateModel(new ArrayList<File>());
+	}
+
+	public void updateModel(List<File> fileEntries) {
 		FilesListTableModel dataModel = new FilesListTableModel(fileEntries);
 		table.setModel(dataModel);
 		table.setRowSorter(new FilesListTableRowSorter(dataModel));
@@ -171,7 +177,7 @@ public class FilesListPane extends JComponent {
 		 */
 		private boolean[] columnsVisible;
 
-		public FilesListTableModel(List<FileEntry> fileEntries) {
+		public FilesListTableModel(List<File> fileEntries) {
 			this.data = new ArrayList<Object[]>();
 			this.columnIds = new String[] { FILE_NAME_COLUMN_ID, FILE_SIZE_COLUMN_ID,
 					FILE_DATE_COLUMN_ID };
@@ -186,31 +192,30 @@ public class FilesListPane extends JComponent {
 			this.columnsVisible[1] = getShowSizeColumn();
 			this.columnsVisible[2] = true;
 
-
-			for (FileEntry fileEntry : fileEntries) {
-				addFileEntryInternal(fileEntry);
+			for (File file : fileEntries) {
+				addFileEntryInternal(file);
 			}
 		}
 
-		private void addFileEntryInternal(FileEntry fileEntry) {
+		private void addFileEntryInternal(File file) {
 			Object[] row = new Object[columnNames.length];
-			row[0] = fileEntry.getFile();
-			row[1] = fileEntry.getFile() != null ? fileEntry.getFile().length()	: 0L;
-			row[2] = fileEntry.getModified();
+			row[0] = file;
+			row[1] = file != null ? file.length() : 0L;
+			row[2] = new Date(file.lastModified());
 
 			data.add(row);
 		}
 
 		/**
-		 * Append a new {@link FileEntry} to this table.Notification of the row
-		 * being added will be generated.
+		 * Append a new {@link File} to this table.Notification of the row being
+		 * added will be generated.
 		 * 
 		 * @param entry
-		 *            the {@link FileEntry} to be inserted.
+		 *            the {@link File} to be inserted.
 		 */
-		public void addFileEntry(FileEntry entry) {
+		public void addFile(File entry) {
 			addFileEntryInternal(entry);
-			int row = getRowCount() -1;
+			int row = getRowCount() - 1;
 			fireTableRowsInserted(row, row);
 		}
 
@@ -294,7 +299,7 @@ public class FilesListPane extends JComponent {
 			// reset the icon for all columns
 			setIcon(null);
 
-			File file = (File) table.getValueAt(row, 0);			
+			File file = (File) table.getValueAt(row, 0);
 			setToolTipText(file.getAbsolutePath());
 
 			if (value instanceof File) {

@@ -1,12 +1,11 @@
 package eu.kostia.gtkjfilechooser.xbel;
 
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import eu.kostia.gtkjfilechooser.FileEntry;
 
 public class RecentlyUsedManagerTest {
 
@@ -21,10 +20,10 @@ public class RecentlyUsedManagerTest {
 
 
 		int count = 1;
-		List<FileEntry> fileEntries = m.readRecentFiles(30);
+		List<File> fileEntries = m.readRecentFiles(30);
 		Assert.assertEquals(30, fileEntries.size());
-		for (FileEntry fileEntry : fileEntries) {			
-			System.out.println(count+") "+fileEntry.getFile().getName() + "\t" + fileEntry.getModified());
+		for (File file : fileEntries) {			
+			System.out.println(count+") "+file.getName() + "\t" + new Date(file.lastModified()));
 			count++;
 		}
 	}
