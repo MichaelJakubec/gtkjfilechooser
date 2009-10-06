@@ -6,13 +6,13 @@ import static eu.kostia.gtkjfilechooser.ui.JPanelUtil.show;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.List;
 
 import javax.swing.UIManager;
 
 import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
 
-import eu.kostia.gtkjfilechooser.FileEntry;
 import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
 import eu.kostia.gtkjfilechooser.xbel.RecentlyUsedManager;
 
@@ -28,7 +28,7 @@ public class FilesListPaneRecentTestGui {
 			}
 		});
 
-		List<FileEntry> fileEntries = new RecentlyUsedManager().readRecentFiles(30);
+		List<File> fileEntries = new RecentlyUsedManager().readRecentFiles(30);
 		pane.updateModel(fileEntries);
 		return pane;
 	}
