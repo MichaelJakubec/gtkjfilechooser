@@ -1,3 +1,5 @@
+#summary The lastest news on the project
+
 = Latest News =
 
 === 05.10.2009  Added Recently Used files support ===
