@@ -63,6 +63,7 @@ public class SearchPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 				filesPane.clean();
+				stopSearch();
 				fileSearch = new FileSearch(System.getProperty("user.home"), searchTextField.getText(), new ThisFileSearchHandler());
 				fileSearch.setSearchHidden(GtkFileChooserSettings.get().getShowHidden());
 				fileSearch.start();					
@@ -77,19 +78,28 @@ public class SearchPanel extends JPanel {
 		stopButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (fileSearch != null) {
-					fileSearch.stop();
-					fileSearch = null;
-				}
+				stopSearch();
 			}			
 		});
 		add(stopButton);
 	}
 
 	@Override
+	public boolean requestFocusInWindow(){
+		return searchTextField.requestFocusInWindow();
+	}
+
+	@Override
 	public void setCursor(Cursor cursor) {
 		super.setCursor(cursor);
 		filesPane.setCursor(cursor);
+	}
+
+	private void stopSearch() {
+		if (fileSearch != null) {
+			fileSearch.stop();
+			fileSearch = null;
+		}
 	}
 
 	private class ThisFileSearchHandler implements FileSearchHandler {

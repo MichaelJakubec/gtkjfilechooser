@@ -542,6 +542,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 			filenamePanel.setVisible(false);
 			topPanel.setVisible(true);
 			top.show(topPanel, TOP_SEARCH_PANEL);
+			searchPanel.requestFocusInWindow();
 		}
 
 		/**
