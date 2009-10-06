@@ -102,6 +102,23 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 	private JPanel topPanel;
 
 	/**
+	 * Panel with the location text field.
+	 */
+	private JPanel filenamePanel;
+
+	/**
+	 * Button to enable/disable the location text field.
+	 */
+	private JToggleButton showPositionButton;
+
+	/**
+	 * Names of the "cards" in the topPanel.
+	 */
+	static private final String TOP_PATHBAR_PANEL = "Path bar panel on the top";
+	static private final String TOP_SEARCH_PANEL = "Search panel on the top";
+
+
+	/**
 	 * Panel mit CardLayout used to show one of the following three panels: the
 	 * File-Browser panel, the Recently-Used panel and the Search panel.
 	 */
@@ -112,14 +129,28 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 	 */
 	static private final String FILEBROWSER_PANEL = "fileBrowserPane";
 	static private final String RECENTLY_USED_PANEL = "recentlyUsedPane";
-	static private final String SEARCH_PANEL = "searchPane";
+	static private final String SEARCH_PANEL = "searchFilesPane";
 
 	/**
 	 * The panel with for the file/directory navigation.
 	 */
 	private GtkFilePane fileBrowserPane;
 
+	/**
+	 * Table to show the recent used files
+	 */
 	private FilesListPane recentlyUsedPane;
+
+	/**
+	 * Table to show the results of a search
+	 */
+	private FilesListPane searchFilesPane;
+
+	/**
+	 * Panel on the top with the text field to do the search.
+	 */
+	private SearchPanel searchPanel;
+
 
 	private boolean useShellFolder;
 
@@ -229,16 +260,16 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		}
 	}
 
-	private JPanel createFilenamePanel(JFileChooser fc) {
+	private void createFilenamePanel(JFileChooser fc) {
 		// FileName label and textfield
-		JPanel fileNamePanel = new JPanel();
-		fileNamePanel.setLayout(new BoxLayout(fileNamePanel, BoxLayout.LINE_AXIS));
+		filenamePanel = new JPanel();
+		filenamePanel.setLayout(new BoxLayout(filenamePanel, BoxLayout.LINE_AXIS));
 
 		JLabel fileNameLabel = new JLabel(fileNameLabelText);
 		fileNameLabel.setDisplayedMnemonic(fileNameLabelMnemonic);
-		fileNamePanel.add(fileNameLabel);
+		filenamePanel.add(fileNameLabel);
 
-		fileNameTextField = new JTextField(35) {
+		fileNameTextField = new JTextField() {
 			private static final long serialVersionUID = GtkFileChooserUI.serialVersionUID;
 
 			@Override
@@ -246,7 +277,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 				return new Dimension(Short.MAX_VALUE, super.getPreferredSize().height);
 			}
 		};
-		fileNamePanel.add(fileNameTextField);
+		filenamePanel.add(fileNameTextField);
 		fileNameLabel.setLabelFor(fileNameTextField);
 		fileNameTextField.addFocusListener(new FocusAdapter() {
 			@Override
@@ -261,8 +292,6 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		} else {
 			setFileName(fileNameString(fc.getSelectedFile()));
 		}
-
-		return fileNamePanel;
 	}
 
 	@Override
@@ -279,9 +308,9 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		// **** Construct the top panel **** //
 		// ********************************* //
 
-		JPanel topPanel1 = new JPanel(new BorderLayout());
 
-		final JToggleButton showPositionButton = new JToggleButton(GtkStockIcon.get(
+
+		showPositionButton = new JToggleButton(GtkStockIcon.get(
 				"gtk-edit", Size.GTK_ICON_SIZE_BUTTON));
 		showPositionButton
 		.setSelected(GtkFileChooserSettings.get().getLocationMode() == Mode.FILENAME_ENTRY);
@@ -308,10 +337,16 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 
 		});
 
-		topPanel1.add(createPanel(new PanelElement(createPanel(showPositionButton),
-				BorderLayout.LINE_START), new PanelElement(comboButtons,
-						BorderLayout.CENTER)), BorderLayout.CENTER);
-
+		/**
+		 * Pathbar
+		 */
+		JPanel pathbar = new JPanel(new BorderLayout());
+		pathbar.add(
+				createPanel(
+						new PanelElement(createPanel(showPositionButton), BorderLayout.LINE_START), 
+						new PanelElement(comboButtons, BorderLayout.CENTER)
+				), 
+				BorderLayout.CENTER);
 		if (fc.getDialogType() == JFileChooser.SAVE_DIALOG) {
 			// New Directory Button
 			JButton newDirButton = new JButton(fileBrowserPane.getNewFolderAction());
@@ -329,21 +364,28 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 			// BorderLayout.LINE_END);
 		}
 
-		topPanel = new JPanel(new BorderLayout());
-		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.PAGE_AXIS));
-		topPanel.add(topPanel1);
-		final JPanel filenamePanel = createFilenamePanel(fc);
-		showPositionButton.addActionListener(new ActionListener() {
 
+		/**
+		 * Filename textfield
+		 */
+		createFilenamePanel(fc);
+		showPositionButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JToggleButton btn = (JToggleButton) e.getSource();
 				filenamePanel.setVisible(btn.isSelected());
 			}
 		});
-		topPanel.add(filenamePanel);
 		filenamePanel.setVisible(showPositionButton.isSelected());
 
+		// First card put in the topPanel
+		JPanel topPanelDefault = new JPanel(new BorderLayout());
+		topPanelDefault.setLayout(new BoxLayout(topPanelDefault, BoxLayout.PAGE_AXIS));
+		topPanelDefault.add(pathbar);
+		topPanelDefault.add(filenamePanel);
+
+		topPanel = new JPanel(new CardLayout());
+		topPanel.add(topPanelDefault, TOP_PATHBAR_PANEL);
 		// Add the top panel to the fileChooser
 		fc.add(topPanel, BorderLayout.NORTH);
 
@@ -431,7 +473,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 					return;
 				}
 
-				showOnRightPanel(FILEBROWSER_PANEL);
+				showOnPanels(FILEBROWSER_PANEL);
 
 				if (entry != null && entry.getLocation() != null) {
 					fc.setCurrentDirectory(new File(entry.getLocation()));
@@ -479,14 +521,40 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		return fileBrowserSubPanel;
 	}
 
-	private void showOnRightPanel(String key) {
-		// hide the top panel, if not a file browser view
-		topPanel.setVisible(FILEBROWSER_PANEL.equals(key));
 
-		CardLayout cl = (CardLayout) rightPanel.getLayout();
-		cl.show(rightPanel, key);
+	/**
+	 * Set what to show on the top and right panel.
+	 * 
+	 * @param key
+	 */
+	private void showOnPanels(String key) {
+		/**
+		 * Top panel
+		 */		
+		CardLayout top = (CardLayout) topPanel.getLayout();
+		if(FILEBROWSER_PANEL.equals(key)){
+			topPanel.setVisible(true);
+			filenamePanel.setVisible(showPositionButton.isSelected());
+			top.show(topPanel, TOP_PATHBAR_PANEL);
+		} else if(RECENTLY_USED_PANEL.equals(key)) {
+			topPanel.setVisible(false);
+		} else if(SEARCH_PANEL.equals(key)) {
+			filenamePanel.setVisible(false);
+			topPanel.setVisible(true);
+			top.show(topPanel, TOP_SEARCH_PANEL);
+		}
+
+		/**
+		 * Right panel
+		 */		
+		CardLayout right = (CardLayout) rightPanel.getLayout();
+		right.show(rightPanel, key);
 	}
 
+	/**
+	 * Handle the action for the link buttons "Recent Files" and "Search" on the top-left.
+	 * @param actionPath
+	 */
 	protected void handleAction(ActionPath actionPath) {
 		String action = actionPath.getAction();
 		if (ActionPath.RECENTLY_USED.getAction().equals(action)) {
@@ -497,10 +565,39 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 			List<File> fileEntries = new RecentlyUsedManager().readRecentFiles(NUMBER_OF_RECENT_FILES);
 			recentlyUsedPane.updateModel(fileEntries);
 
-			showOnRightPanel(RECENTLY_USED_PANEL);
+			showOnPanels(RECENTLY_USED_PANEL);
 		} else if (ActionPath.SEARCH.getAction().equals(action)) {
+			if (searchFilesPane == null) {
+				createSearchPane();
+			}
 
+			showOnPanels(SEARCH_PANEL);
 		}
+	}
+
+	/**
+	 * Create the view for the search, with a text field on the top and a file list 
+	 * table on the center-right.
+	 */
+	private void createSearchPane() {
+		searchFilesPane = new FilesListPane();
+		searchFilesPane.addActionListeners(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				File file = searchFilesPane.getSelectedFile();
+				getFileChooser().setSelectedFile(file);
+
+				if (FilesListPane.DOUBLE_CLICK_ID == e.getID()) {
+					// On double click close the file chooser.
+					getFileChooser().approveSelection();
+				}
+			}
+		});
+
+		searchPanel = new SearchPanel(searchFilesPane);
+
+		topPanel.add(searchPanel, TOP_SEARCH_PANEL);
+		rightPanel.add(addFilterCombobox(searchFilesPane), SEARCH_PANEL);
 	}
 
 	private void createRecentlyUsedPane() {
