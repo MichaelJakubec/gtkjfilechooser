@@ -1,19 +1,22 @@
 package eu.kostia.gtkjfilechooser.xbel;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOError;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -32,34 +35,30 @@ public class RecentlyUsedManager {
 			.getName());
 
 	private static final String FILE_PROTOCOL = "file://";
-	private File recentlyUsedfile;
 
-	public RecentlyUsedManager() {
-		this(new File(System.getProperty("user.home") + File.separator
-				+ ".recently-used.xbel"));
-	}
-
-	RecentlyUsedManager(File recentlyUsed) {
-		this.recentlyUsedfile = recentlyUsed;
-	}
+	private List<File> recentFiles;
 
 	/**
-	 * Returns the desired number of bookmarks sorted by modified date.
+	 * Creates a new recent manager object. Recent manager objects are used to
+	 * handle the list of recently used resources. {@link RecentlyUsedManager}
+	 * objects are expensive: be sure to create them only when needed.
 	 * 
 	 * @param n
 	 *            The desired number of bookmarks.
-	 * @return The desired number of recent file entries sorted by modified
-	 *         date.
+	 * @throws IOError
 	 */
-	public List<File> readRecentFiles(int n) {
+	public RecentlyUsedManager(int n) {
 		try {
+			// Performance note: SAX is here about 2x faster that JAXB.
 			SAXParserFactory factory = SAXParserFactory.newInstance();
 			SAXParser saxParser = factory.newSAXParser();
 			RecentFilesHandler handler = new RecentFilesHandler();
-			saxParser.parse(recentlyUsedfile, handler);
+			InputSource is = new InputSource(new BufferedInputStream(new FileInputStream(
+					getRecentlyUsedFile())));
+			saxParser.parse(is, handler);
 
-			List<File> allRecentFiles = handler.getAllRecentFiles();
-			Collections.sort(allRecentFiles, new Comparator<File>() {
+			recentFiles = handler.getAllRecentFiles();
+			Collections.sort(recentFiles, new Comparator<File>() {
 
 				@Override
 				public int compare(File o1, File o2) {
@@ -70,15 +69,28 @@ public class RecentlyUsedManager {
 
 			});
 
-			if (n >= allRecentFiles.size()) {
-				return allRecentFiles;
-			}
-
-			return allRecentFiles.subList(0, n);
+			if (n < recentFiles.size()) {
+				recentFiles = recentFiles.subList(0, n);
+			}			
 		} catch (Exception e) {
-			LOG.log(Level.WARNING, "Recent Files Parse Error", e);
-			return new ArrayList<File>();
+			throw new IOError(e);
 		}
+	}
+
+	/**
+	 * Returns the desired number of bookmarks sorted by modified date.
+	 * 
+	 * 
+	 * @return The desired number of recent file entries sorted by modified
+	 *         date.
+	 */
+	public List<File> getRecentFiles() {
+		return recentFiles;
+	}
+
+	protected File getRecentlyUsedFile() {
+		return new File(System.getProperty("user.home") + File.separator
+				+ ".recently-used.xbel");
 	}
 
 	private class RecentFilesHandler extends DefaultHandler {
@@ -120,7 +132,8 @@ public class RecentlyUsedManager {
 						return;
 					}
 
-					if (href.startsWith(FILE_PROTOCOL + System.getProperty("java.io.tmpdir"))) {
+					if (href.startsWith(FILE_PROTOCOL
+							+ System.getProperty("java.io.tmpdir"))) {
 						// exclude temporary files.
 						return;
 					}

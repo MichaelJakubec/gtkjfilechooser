@@ -161,6 +161,11 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 	private FilesListPane recentlyUsedPane;
 
 	/**
+	 * Manager for the recent used files. 
+	 */
+	private RecentlyUsedManager recentManager;
+
+	/**
 	 * Table to show the results of a search
 	 */
 	private FilesListPane searchFilesPane;
@@ -590,8 +595,12 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 			// load the recent used files in background with a separate thread.
 			new SwingWorker<Void, Void>(){
 				@Override
-				protected Void doInBackground() throws Exception {					
-					List<File> fileEntries = new RecentlyUsedManager().readRecentFiles(NUMBER_OF_RECENT_FILES);
+				protected Void doInBackground() throws Exception {		
+					if (recentManager == null){
+						// RecentlyUsedManager objects are expensive: create them only when needed.
+						recentManager = new RecentlyUsedManager(NUMBER_OF_RECENT_FILES);
+					}
+					List<File> fileEntries = recentManager.getRecentFiles();
 					recentlyUsedPane.updateModel(fileEntries);		
 					return null;
 				}

@@ -28,7 +28,7 @@ public class FilesListPaneRecentTestGui {
 			}
 		});
 
-		List<File> fileEntries = new RecentlyUsedManager().readRecentFiles(30);
+		List<File> fileEntries = new RecentlyUsedManager(30).getRecentFiles();
 		pane.updateModel(fileEntries);
 		return pane;
 	}
