@@ -7,6 +7,7 @@ import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.ComponentOrientation;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridLayout;
@@ -45,6 +46,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -89,9 +91,9 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 					onClosing();
 				}				
 			}		
-		});
+		});		
 	}
-	
+
 	/**
 	 * Method invoked when the FileChooser is closed.
 	 */
@@ -447,7 +449,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		}
 	}
 
-	
+
 	private void addFileBrowserPane(final JFileChooser fc) {
 		JSplitPane mainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		mainPanel.setContinuousLayout(true);
@@ -577,15 +579,31 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 	protected void handleAction(ActionPath actionPath) {
 		String action = actionPath.getAction();
 		if (ActionPath.RECENTLY_USED.getAction().equals(action)) {
+			// show recent used files panel
 			if (recentlyUsedPane == null) {
 				createRecentlyUsedPane();
 			}
 
-			List<File> fileEntries = new RecentlyUsedManager().readRecentFiles(NUMBER_OF_RECENT_FILES);
-			recentlyUsedPane.updateModel(fileEntries);
-
 			showOnPanels(RECENTLY_USED_PANEL);
+
+			getFileChooser().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			// load the recent used files in background with a separate thread.
+			new SwingWorker<Void, Void>(){
+				@Override
+				protected Void doInBackground() throws Exception {					
+					List<File> fileEntries = new RecentlyUsedManager().readRecentFiles(NUMBER_OF_RECENT_FILES);
+					recentlyUsedPane.updateModel(fileEntries);		
+					return null;
+				}
+
+				@Override
+				protected void done() {
+					getFileChooser().setCursor(Cursor.getDefaultCursor());
+				}
+			}.execute();
+
 		} else if (ActionPath.SEARCH.getAction().equals(action)) {
+			//Show search panel
 			if (searchFilesPane == null) {
 				createSearchPane();
 			}
@@ -618,7 +636,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		topPanel.add(searchPanel, TOP_SEARCH_PANEL);
 		rightPanel.add(addFilterCombobox(searchFilesPane), SEARCH_PANEL);
 	}
-	
+
 
 
 	private void createRecentlyUsedPane() {
