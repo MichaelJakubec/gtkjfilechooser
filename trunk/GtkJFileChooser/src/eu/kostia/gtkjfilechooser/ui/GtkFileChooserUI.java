@@ -82,7 +82,24 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 	public GtkFileChooserUI(JFileChooser chooser) {
 		super(chooser);
 		chooser.setFileHidingEnabled(!GtkFileChooserSettings.get().getShowHidden());
+		chooser.addPropertyChangeListener(new PropertyChangeListener(){
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				if ("JFileChooserDialogIsClosingProperty".equals(evt.getPropertyName())) {
+					onClosing();
+				}				
+			}		
+		});
 	}
+	
+	/**
+	 * Method invoked when the FileChooser is closed.
+	 */
+	private void onClosing() {
+		if (searchPanel != null){
+			searchPanel.stopSearch();
+		}		
+	}	
 
 	private GtkPathBar comboButtons;
 
@@ -202,7 +219,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 	@Override
 	public void uninstallComponents(JFileChooser fc) {
 		fc.removeAll();
-		buttonPanel = null;
+		buttonPanel = null;	
 	}
 
 	class MyGTKFileChooserUIAccessor implements GtkFilePane.FileChooserUIAccessor {
@@ -430,6 +447,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		}
 	}
 
+	
 	private void addFileBrowserPane(final JFileChooser fc) {
 		JSplitPane mainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		mainPanel.setContinuousLayout(true);
@@ -595,11 +613,13 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 			}
 		});
 
-		searchPanel = new SearchPanel(searchFilesPane);
+		searchPanel = new SearchPanel(searchFilesPane);		
 
 		topPanel.add(searchPanel, TOP_SEARCH_PANEL);
 		rightPanel.add(addFilterCombobox(searchFilesPane), SEARCH_PANEL);
 	}
+	
+
 
 	private void createRecentlyUsedPane() {
 		recentlyUsedPane = new FilesListPane();

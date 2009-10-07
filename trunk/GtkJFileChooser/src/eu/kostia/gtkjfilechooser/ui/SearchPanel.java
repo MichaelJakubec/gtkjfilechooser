@@ -95,7 +95,7 @@ public class SearchPanel extends JPanel {
 		filesPane.setCursor(cursor);
 	}
 
-	private void stopSearch() {
+	public void stopSearch() {
 		if (fileSearch != null) {
 			fileSearch.stop();
 			fileSearch = null;
