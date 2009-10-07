@@ -7,11 +7,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -45,18 +43,6 @@ public class RecentlyUsedManager {
 		this.recentlyUsedfile = recentlyUsed;
 	}
 
-	private Xbel readXbel() {
-		try {
-			JAXBContext context = JAXBContext.newInstance(Xbel.class);
-
-			Unmarshaller unm = context.createUnmarshaller();
-
-			return (Xbel) unm.unmarshal(recentlyUsedfile);
-		} catch (JAXBException e) {
-			throw new IllegalStateException(e);
-		}
-	}
-
 	/**
 	 * Returns the desired number of bookmarks sorted by modified date.
 	 * 
@@ -66,78 +52,33 @@ public class RecentlyUsedManager {
 	 *         date.
 	 */
 	public List<File> readRecentFiles(int n) {
-		List<Bookmark> allBookmarks = readXbel().getBookmarks();
-		Collections.sort(allBookmarks, new Comparator<Bookmark>() {
-			@Override
-			public int compare(Bookmark o1, Bookmark o2) {
-				return o2.getModified().compareTo(o1.getModified());
-			}
-		});
+		try {
+			SAXParserFactory factory = SAXParserFactory.newInstance();
+			SAXParser saxParser = factory.newSAXParser();
+			RecentFilesHandler handler = new RecentFilesHandler();
+			saxParser.parse(recentlyUsedfile, handler);
 
-		List<File> fileEntries = new ArrayList<File>();
-		for (final Bookmark bookmark : allBookmarks) {
-			String href = bookmark.getHref();
-			if (!href.startsWith(FILE_PROTOCOL)) {
-				// exclude entries that aren't files.
-				continue;
-			}
+			List<File> allRecentFiles = handler.getAllRecentFiles();
+			Collections.sort(allRecentFiles, new Comparator<File>() {
 
-			if (href.startsWith(FILE_PROTOCOL + System.getProperty("java.io.tmpdir"))) {
-				// exclude temporary files.
-				continue;
-			}
+				@Override
+				public int compare(File o1, File o2) {
+					long date1 = o1.lastModified();
+					long date2 = o2.lastModified();
+					return (date2 < date1 ? -1 : (date2 == date1 ? 0 : 1));
+				}
 
-			if (new File(href.substring(FILE_PROTOCOL.length())).exists()) {
-				File file = new File((bookmark.getHref()).substring(FILE_PROTOCOL
-						.length())) {
+			});
 
-					private static final long serialVersionUID = 1L;
-
-					@Override
-					public long lastModified() {
-						// we override this method to return the "modified date"
-						// stored in
-						// ~/.recently-used.xbel, that may be other than that in
-						// the file system
-						return bookmark.getModified().getTime();
-					}
-				};
-				fileEntries.add(file);
+			if (n >= allRecentFiles.size()) {
+				return allRecentFiles;
 			}
 
-			if (fileEntries.size() == n) {
-				break;
-			}
+			return allRecentFiles.subList(0, n);
+		} catch (Exception e) {
+			LOG.log(Level.WARNING, "Recent Files Parse Error", e);
+			return new ArrayList<File>();
 		}
-
-		return fileEntries;
-	}
-
-	public List<File> readRecentFilesSax(int n) throws Exception {
-
-		SAXParserFactory factory = SAXParserFactory.newInstance();
-		SAXParser saxParser = factory.newSAXParser();
-		RecentFilesHandler handler = new RecentFilesHandler();
-		saxParser.parse(recentlyUsedfile, handler);
-
-		List<File> allRecentFiles = handler.getAllRecentFiles();
-		Collections.sort(allRecentFiles, new Comparator<File>() {
-
-			@Override
-			public int compare(File o1, File o2) {
-				//TODO replace autowrapping
-				Long l1 = o1.lastModified();
-				Long l2 = o2.lastModified();
-				return l2.compareTo(l1);
-			}
-
-		});
-
-		if (n >= allRecentFiles.size()) {
-			return allRecentFiles;
-		}
-
-		return allRecentFiles.subList(0, n);
 	}
 
 	private class RecentFilesHandler extends DefaultHandler {
