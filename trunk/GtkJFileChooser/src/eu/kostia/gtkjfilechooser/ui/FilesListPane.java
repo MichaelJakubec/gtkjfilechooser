@@ -63,7 +63,7 @@ public class FilesListPane extends JComponent {
 		table.setColumnModel(new FilesListTableColumnModel());
 		table.getTableHeader().setReorderingAllowed(false);
 
-		updateModel(fileEntries);
+		setModel(fileEntries);
 
 		table.setDefaultRenderer(Object.class, new FilesListRenderer());
 		table.setRowSelectionAllowed(true);
@@ -97,7 +97,7 @@ public class FilesListPane extends JComponent {
 	 * @param entry
 	 *            the {@link File} to be inserted.
 	 */
-	public synchronized void addFile(File entry) {
+	public void addFile(File entry) {
 		FilesListTableModel dataModel = (FilesListTableModel) table.getModel();
 		dataModel.addFile(entry);
 	}
@@ -106,10 +106,10 @@ public class FilesListPane extends JComponent {
 	 * Remove all the rows in this table.
 	 */
 	public void clean() {
-		updateModel(new ArrayList<File>());
+		setModel(new ArrayList<File>());
 	}
 
-	public void updateModel(List<File> fileEntries) {
+	public void setModel(List<File> fileEntries) {
 		FilesListTableModel dataModel = new FilesListTableModel(fileEntries);
 		table.setModel(dataModel);
 		table.setRowSorter(new FilesListTableRowSorter(dataModel));
@@ -218,6 +218,7 @@ public class FilesListPane extends JComponent {
 			int row = getRowCount() - 1;
 			fireTableRowsInserted(row, row);
 		}
+
 
 		/**
 		 * Maps the index of the column in the table model at the index of the

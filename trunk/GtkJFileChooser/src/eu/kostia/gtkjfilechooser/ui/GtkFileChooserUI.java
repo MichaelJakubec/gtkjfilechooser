@@ -590,27 +590,6 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 			}
 
 			showOnPanels(RECENTLY_USED_PANEL);
-
-			getFileChooser().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			// load the recent used files in background with a separate thread.
-			new SwingWorker<Void, Void>(){
-				@Override
-				protected Void doInBackground() throws Exception {		
-					if (recentManager == null){
-						// RecentlyUsedManager objects are expensive: create them only when needed.
-						recentManager = new RecentlyUsedManager(NUMBER_OF_RECENT_FILES);
-					}
-					List<File> fileEntries = recentManager.getRecentFiles();
-					recentlyUsedPane.updateModel(fileEntries);		
-					return null;
-				}
-
-				@Override
-				protected void done() {
-					getFileChooser().setCursor(Cursor.getDefaultCursor());
-				}
-			}.execute();
-
 		} else if (ActionPath.SEARCH.getAction().equals(action)) {
 			//Show search panel
 			if (searchFilesPane == null) {
@@ -649,6 +628,9 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 
 
 	private void createRecentlyUsedPane() {
+		/**
+		 * Create an empty table
+		 */
 		recentlyUsedPane = new FilesListPane();
 		recentlyUsedPane.addActionListeners(new ActionListener() {
 			@Override
@@ -664,6 +646,34 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		});
 
 		rightPanel.add(addFilterCombobox(recentlyUsedPane), RECENTLY_USED_PANEL);
+
+		/**
+		 * Add the content
+		 */
+		getFileChooser().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+		// load the recent used files in background with a separate thread.
+		new SwingWorker<Void, Void>(){
+			@Override
+			protected Void doInBackground() throws Exception {		
+				if (recentManager == null){
+					// RecentlyUsedManager objects are expensive: create them only when needed.
+					recentManager = new RecentlyUsedManager(NUMBER_OF_RECENT_FILES);
+				}
+				List<File> fileEntries = recentManager.getRecentFiles();
+				// add files in a loop instead of using recentlyUsedPane#setModel: 
+				// the user see the progress and hasn't the impression that the GUI is frozen.
+				for (File file : fileEntries) {
+					recentlyUsedPane.addFile(file);	
+				}
+
+				return null;
+			}
+
+			@Override
+			protected void done() {
+				getFileChooser().setCursor(Cursor.getDefaultCursor());
+			}
+		}.execute();		
 	}
 
 	/**
