@@ -3,6 +3,7 @@ package eu.kostia.gtkjfilechooser.ui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -37,20 +38,16 @@ import javax.swing.text.JTextComponent;
  * @author Costantino Cerbo
  * 
  */
-//TODO separate the handling for other JTextComponent, here process only JTextFiels.
-//TODO All works right for JTextFiels but not yet for the other JTextComponents.
+// TODO separate the handling for other JTextComponent, here process only
+// JTextFiels.
+// TODO All works right for JTextFiels but not yet for the other
+// JTextComponents.
 public abstract class Autocompleter {
 	private JList list;
 	private JPopupMenu popup;
 	private JTextComponent textComp;
 	private static final String AUTOCOMPLETER = "AUTOCOMPLETER"; // NOI18N
 	private Action acceptAction;
-
-	/**
-	 * If true the auto completion is active also on deleting chars and the
-	 * immediately selection of a singular suggestion is disabled.
-	 */
-	private boolean completeOnRemove = false;
 
 	public Autocompleter(JTextComponent comp) {
 		textComp = comp;
@@ -68,7 +65,7 @@ public abstract class Autocompleter {
 			}
 		};
 
-		addListMouseListener();
+		addListListeners();
 		popup = new JPopupMenu();
 		JScrollPane scroll = new JScrollPane(list);
 		scroll
@@ -110,7 +107,7 @@ public abstract class Autocompleter {
 		});
 		list.setRequestFocusEnabled(false);
 
-		registerAcceptAction();
+
 	}
 
 	private void registerAcceptAction() {
@@ -124,7 +121,7 @@ public abstract class Autocompleter {
 				KeyEvent.VK_ENTER, 0), JComponent.WHEN_FOCUSED);
 	}
 
-	private void addListMouseListener() {
+	private void addListListeners() {
 		list.addMouseMotionListener(new MouseMotionAdapter() {
 
 			@Override
@@ -148,12 +145,15 @@ public abstract class Autocompleter {
 
 	private DocumentListener documentListener = new DocumentListener() {
 		public void insertUpdate(DocumentEvent e) {
-			showPopup();
+			showPopup(true);
 		}
 
 		public void removeUpdate(DocumentEvent e) {
-			if (completeOnRemove) {
-				showPopup();
+			if (e.getDocument().getLength() > 0) {
+				// show the popup for the autocompletion only if the text isn't empty.
+				showPopup(false);	
+			} else {
+				popup.setVisible(false);
 			}
 		}
 
@@ -165,18 +165,27 @@ public abstract class Autocompleter {
 		list.setListData(suggestions.toArray(new String[suggestions.size()]));
 	}
 
-	private void showPopup() {
+	/**
+	 * Show the popup with the suggestions.
+	 * 
+	 * @param completeSingle
+	 *            If true a suggestion that consists of a single result will be
+	 *            immediately selected without showing the popup.
+	 */
+	private void showPopup(boolean completeSingle) {
 		popup.setVisible(false);
 		List<String> suggestions = updateSuggestions(textComp.getText());
 		setSuggestions(suggestions);
 		if (textComp.isEnabled() && suggestions != null && suggestions.size() > 0) {
+
+			registerAcceptAction();
 
 			if (!(textComp instanceof JTextField)) {
 				textComp.getDocument().addDocumentListener(documentListener);
 			}
 
 			int size = list.getModel().getSize();
-			if (size == 1 && !completeOnRemove) {
+			if (size == 1 && completeSingle) {
 				list.setSelectedIndex(0);
 				int selectionStart = textComp.getCaretPosition();
 				int selectionEnd = ((String) list.getSelectedValue()).length();
@@ -197,9 +206,12 @@ public abstract class Autocompleter {
 					int x = textComp.getUI().modelToView(textComp, pos).x - offset;
 					popup.show(textComp, x, textComp.getHeight());
 				} else {
-					int pos = Math.min(textComp.getCaret().getDot(), textComp.getCaret().getMark()); 
-					int x = textComp.getUI().modelToView(textComp, pos).x; 
-					popup.show(textComp, x, textComp.getCaret().getMagicCaretPosition().y);
+					int pos = Math.min(textComp.getCaret().getDot(), textComp.getCaret()
+							.getMark());
+					int x = textComp.getUI().modelToView(textComp, pos).x;
+					popup
+					.show(textComp, x, textComp.getCaret()
+							.getMagicCaretPosition().y);
 				}
 			} catch (BadLocationException e) {
 				// this should never happen!!!
@@ -229,7 +241,7 @@ public abstract class Autocompleter {
 				if (completer.popup.isVisible()) {
 					completer.selectNextPossibleValue();
 				} else {
-					completer.showPopup();
+					completer.showPopup(true);
 				}
 			}
 		}
@@ -306,6 +318,15 @@ public abstract class Autocompleter {
 					textComp.getDocument().insertString(caretPosition, append, null);
 				} catch (BadLocationException e) {
 					e.printStackTrace();
+				}
+
+				//fire an action in the underlying text field when a suggestion is accepted
+				if (textComp instanceof JTextField) {
+					JTextField textField = (JTextField) textComp;
+					ActionEvent e = new ActionEvent(textComp, ActionEvent.ACTION_PERFORMED, "action_performed");
+					for (ActionListener l : textField.getActionListeners()) {						
+						l.actionPerformed(e);
+					}
 				}
 			}
 		});
