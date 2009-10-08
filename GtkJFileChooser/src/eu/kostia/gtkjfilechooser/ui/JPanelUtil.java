@@ -2,8 +2,10 @@ package eu.kostia.gtkjfilechooser.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.LayoutManager;
+import java.awt.Toolkit;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -71,8 +73,22 @@ public class JPanelUtil {
 	static public void show(JPanel panel){
 		JFrame f = new JFrame();
 		f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		f.getContentPane().add(panel);
+		f.getContentPane().add(panel);	
 		f.pack();
+
+		centerOnScreen(f);		
 		f.setVisible(true);
+	}
+
+	static public void centerOnScreen(Component comp){
+		Toolkit tk = Toolkit.getDefaultToolkit();
+		Dimension screenSize = tk.getScreenSize();
+		int screenHeight = screenSize.height;
+		int screenWidth = screenSize.width;
+
+		int h = comp.getHeight();
+		int w = comp.getWidth();
+
+		comp.setLocation((screenWidth-w) / 2, (screenHeight-h) / 2);
 	}
 }
