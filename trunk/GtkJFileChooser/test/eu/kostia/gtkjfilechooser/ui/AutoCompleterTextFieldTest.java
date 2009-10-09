@@ -20,7 +20,7 @@ public class AutoCompleterTextFieldTest {
 		UIManager.setLookAndFeel(GTKLookAndFeel.class.getName());
 
 		final JTextField textField = new JTextField(20);
-		new PathAutoCompleter(textField);
+		new PathAutoCompleter(textField).setCurrentPath(System.getProperty("user.home"));
 
 		textField.addActionListener(new ActionListener() {
 			@Override

@@ -1,10 +1,15 @@
 package eu.kostia.gtkjfilechooser.ui;
 
+import java.awt.Component;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JList;
+import javax.swing.ListCellRenderer;
 import javax.swing.text.JTextComponent;
 
 /**
@@ -26,9 +31,10 @@ public class PathAutoCompleter extends Autocompleter {
 	public String getCurrentPath() {
 		return currentPath;
 	}
-	
+
 	/**
 	 * Show hidden files?
+	 * 
 	 * @param showHidden
 	 */
 	public void setShowHidden(boolean showHidden) {
@@ -51,8 +57,8 @@ public class PathAutoCompleter extends Autocompleter {
 				if (!showHidden && pathname.isHidden()) {
 					return false;
 				}
-				
-				String name = pathname.getName();				
+
+				String name = pathname.getName();
 				return name != null ? name.startsWith(prefix) : false;
 			}
 		};
@@ -81,10 +87,31 @@ public class PathAutoCompleter extends Autocompleter {
 			results.add(before + name);
 		}
 
+		Collections.sort(results);
 		return results;
 	}
 
 	private boolean isAbsolute(String value) {
 		return new File(value).isAbsolute();
 	}
+
+	@Override
+	protected ListCellRenderer getCellRenderer() {
+		return new DefaultListCellRenderer(){
+			@Override
+			public Component getListCellRendererComponent(JList list, Object value,
+					int index, boolean isSelected, boolean cellHasFocus) {
+				super.getListCellRendererComponent(list, value, index, isSelected,
+						cellHasFocus);
+
+				String suggestion = (String) value;
+				int lastIndexOf = suggestion.lastIndexOf(File.separatorChar);
+				if (lastIndexOf < suggestion.length() - 1){
+					setText(suggestion.substring(lastIndexOf + 1));
+				}
+				return this;
+			}
+		};
+	}
+
 }

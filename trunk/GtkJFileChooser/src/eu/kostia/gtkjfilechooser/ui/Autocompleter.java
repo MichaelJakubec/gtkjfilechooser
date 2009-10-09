@@ -15,12 +15,14 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.ListCellRenderer;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
@@ -29,6 +31,8 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
+
+import eu.kostia.gtkjfilechooser.Log;
 
 /**
  * Decorator for {@link JTextComponent}s to add auto completion support. Based
@@ -39,19 +43,18 @@ import javax.swing.text.JTextComponent;
  * @author Costantino Cerbo
  * 
  */
-// TODO separate the handling for other JTextComponent, here process only
-// JTextFiels.
 // TODO All works right for JTextFiels but not yet for the other
 // JTextComponents.
 public abstract class Autocompleter {
 	public static final String ACTION_PERFORMED_ACCEPT_SUGGESTION = "accept_suggestion";
-	private JList list;
-	private JPopupMenu popup;
-	private JTextComponent textComp;
 	private static final String AUTOCOMPLETER = "AUTOCOMPLETER"; // NOI18N
-	
+	private DocumentListener documentListener;
+	private JList list;
 	private List<ActionListener> listeners = new ArrayList<ActionListener>();
 
+	private JPopupMenu popup;
+
+	private JTextComponent textComp;
 
 	public Autocompleter(JTextComponent comp) {
 		textComp = comp;
@@ -69,17 +72,19 @@ public abstract class Autocompleter {
 			}
 		};
 
+		list.setCellRenderer(getCellRenderer());
 		addListListeners();
-		popup = new JPopupMenu();
+
 		JScrollPane scroll = new JScrollPane(list);
 		scroll
-				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scroll.setBorder(null);
 
 		list.setFocusable(false);
 		scroll.getVerticalScrollBar().setFocusable(false);
 		scroll.getHorizontalScrollBar().setFocusable(false);
 
+		popup = new JPopupMenu();
 		popup.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		popup.add(scroll);
 
@@ -97,6 +102,38 @@ public abstract class Autocompleter {
 		if (textComp instanceof JTextField) {
 			textComp.registerKeyboardAction(showAction, KeyStroke.getKeyStroke(
 					KeyEvent.VK_DOWN, 0), JComponent.WHEN_FOCUSED);
+
+			documentListener = new DocumentListener() {
+
+				public void changedUpdate(DocumentEvent e) {
+				}
+
+				public void insertUpdate(DocumentEvent e) {
+					// to avoid auto completion when the text is
+					// programmatically set.
+					if (!textComp.hasFocus()) {
+						return;
+					}
+
+					showPopup(true);
+				}
+
+				public void removeUpdate(DocumentEvent e) {
+					// to avoid auto completion when the text is
+					// programmatically set.
+					if (!textComp.hasFocus()) {
+						return;
+					}
+
+					if (e.getDocument().getLength() > 0) {
+						// show the popup for the autocompletion
+						// only if the text isn't empty.
+						showPopup(false);
+					} else {
+						popup.setVisible(false);
+					}
+				}
+			};
 			textComp.getDocument().addDocumentListener(documentListener);
 
 		} else {
@@ -124,7 +161,7 @@ public abstract class Autocompleter {
 		}, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_FOCUSED);
 
 		popup.addPopupMenuListener(new PopupMenuListener() {
-			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+			public void popupMenuCanceled(PopupMenuEvent e) {
 			}
 
 			public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
@@ -132,10 +169,86 @@ public abstract class Autocompleter {
 						KeyEvent.VK_ENTER, 0));
 			}
 
-			public void popupMenuCanceled(PopupMenuEvent e) {
+			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
 			}
 		});
 		list.setRequestFocusEnabled(false);
+	}
+
+	protected ListCellRenderer getCellRenderer() {
+		return new DefaultListCellRenderer();
+	}
+
+	public void addActionListener(ActionListener l) {
+		listeners.add(l);
+	}
+
+	public JTextComponent getTextComponent() {
+		return textComp;
+	}
+
+	public void removeActionListener(ActionListener l) {
+		listeners.remove(l);
+	}
+
+	/**
+	 * Accept the current selected suggestion in the list.
+	 */
+	private void acceptSuggestion() {
+		/**
+		 * Insertion done in a separate thread with SwingUtilities.invokeLater()
+		 * because we need to wait until the AbstractDocument#writeUnlock
+		 * operation has completed. Otherwise AbstractDocument#writeLock throws
+		 * an IllegalStateException ("Attempt to mutate in notification").
+		 * 
+		 */
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				popup.setVisible(false);
+				String selected = (String) list.getSelectedValue();
+				if (selected == null) {
+					return;
+				}
+
+				int caretPosition = textComp.getCaretPosition();
+				if (caretPosition >= selected.length()) {
+					return;
+				}
+				try {
+					String append = completion(selected, caretPosition);
+
+					// remove the document listener before inserting and then
+					// add it again to avoid to fire an undesired
+					// DocumentEvent.EventType.INSERT
+					textComp.getDocument().removeDocumentListener(documentListener);
+					textComp.getDocument().insertString(caretPosition, append, null);
+					textComp.getDocument().addDocumentListener(documentListener);
+				} catch (BadLocationException e) {
+					e.printStackTrace();
+				}
+
+				// fire an action in the underlying text field
+				// when a suggestion is accepted
+				ActionEvent e = new ActionEvent(this, ActionEvent.ACTION_PERFORMED,
+						ACTION_PERFORMED_ACCEPT_SUGGESTION);
+				fireActionEvent(e);
+			}
+		});
+	}
+
+	/**
+	 * Returns the string to append for the completion to the already entered
+	 * text.
+	 * 
+	 * @param selected
+	 *            The selected entry.
+	 * @param caretPosition
+	 *            The position of the cursor in the text field.
+	 * @return
+	 */
+	protected String completion(String selected, int caretPosition) {
+		return selected.substring(caretPosition);
 	}
 
 	private void addListListeners() {
@@ -158,104 +271,6 @@ public abstract class Autocompleter {
 			}
 		});
 
-	}
-
-	private DocumentListener documentListener = new DocumentListener() {
-
-		public void insertUpdate(DocumentEvent e) {
-			showPopup(true);
-		}
-
-		public void removeUpdate(DocumentEvent e) {
-			if (e.getDocument().getLength() > 0) {
-				// show the popup for the autocompletion
-				// only if the text isn't empty.
-				showPopup(false);
-			} else {
-				popup.setVisible(false);
-			}
-		}
-
-		public void changedUpdate(DocumentEvent e) {
-		}
-	};
-
-	private void setSuggestions(List<String> suggestions) {
-		list.setListData(suggestions.toArray(new String[suggestions.size()]));
-	}
-
-	/**
-	 * Show the popup with the suggestions.
-	 * 
-	 * @param completeSingle
-	 *            If true a suggestion that consists of a single result will be
-	 *            immediately selected without showing the popup.
-	 */
-	private void showPopup(boolean completeSingle) {
-		// set always visible false to force repainting and resizing of the combo
-		popup.setVisible(false);
-		List<String> suggestions = updateSuggestions(textComp.getText());
-
-		if (textComp.isEnabled() && suggestions != null && suggestions.size() > 0) {
-			setSuggestions(suggestions);
-
-			// Register accept action
-			Action acceptAction = new AbstractAction() {
-				public void actionPerformed(ActionEvent e) {
-					acceptSuggestion();
-				}
-			};
-			textComp.registerKeyboardAction(acceptAction, KeyStroke.getKeyStroke(
-					KeyEvent.VK_ENTER, 0), JComponent.WHEN_FOCUSED);
-
-			int size = list.getModel().getSize();
-			if (size == 1 && completeSingle) {
-				list.setSelectedIndex(0);
-				int selectionStart = textComp.getCaretPosition();
-				int selectionEnd = ((String) list.getSelectedValue()).length();
-				acceptSuggestion();
-				popup.setVisible(false);
-
-				selectText(selectionStart, selectionEnd);
-
-				return;
-			}
-
-			list.setVisibleRowCount(size < 10 ? size : 10);
-
-			try {
-				if (textComp instanceof JTextField) {
-					int pos = (int) textComp.getAlignmentX();
-					int offset = textComp.getInsets().left;
-					int x = textComp.getUI().modelToView(textComp, pos).x - offset;
-					popup.show(textComp, x, textComp.getHeight());
-				} else {
-					int pos = Math.min(textComp.getCaret().getDot(), textComp.getCaret()
-							.getMark());
-					int x = textComp.getUI().modelToView(textComp, pos).x;
-					popup
-							.show(textComp, x, textComp.getCaret()
-									.getMagicCaretPosition().y);
-				}
-			} catch (BadLocationException e) {
-				// this should never happen!!!
-				e.printStackTrace();
-			}
-
-		} else {
-			popup.setVisible(false);
-		}
-		textComp.requestFocus();
-	}
-
-	private void selectText(final int selectionStart, final int selectionEnd) {
-		// textComp.select(selectionStart, selectionEnd);
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				textComp.select(selectionStart, selectionEnd);
-			}
-		});
 	}
 
 	/**
@@ -284,66 +299,96 @@ public abstract class Autocompleter {
 		}
 	}
 
-	/**
-	 * Accept the current selected suggestion in the list.
-	 */
-	private void acceptSuggestion() {
-		/**
-		 * Insertion done in a separate thread with SwingUtilities.invokeLater()
-		 * because we need to wait until the AbstractDocument#writeUnlock
-		 * operation has completed. Otherwise AbstractDocument#writeLock throws
-		 * an IllegalStateException ("Attempt to mutate in notification").
-		 * 
-		 */
+	private void selectText(final int selectionStart, final int selectionEnd) {
+		// textComp.select(selectionStart, selectionEnd);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				popup.setVisible(false);
-				String selected = (String) list.getSelectedValue();
-				if (selected == null) {
-					return;
-				}
-
-				int caretPosition = textComp.getCaretPosition();
-
-				try {
-					String append = selected.substring(caretPosition);
-
-					// remove the document listener before inserting and then
-					// add it again to avoid to fire an undesired DocumentEvent.EventType.INSERT
-					textComp.getDocument().removeDocumentListener(documentListener);
-					textComp.getDocument().insertString(caretPosition, append, null);
-					textComp.getDocument().addDocumentListener(documentListener);
-				} catch (BadLocationException e) {
-					e.printStackTrace();
-				}
-
-				// fire an action in the underlying text field 
-				// when a suggestion is accepted
-				ActionEvent e = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, ACTION_PERFORMED_ACCEPT_SUGGESTION);
-				fireActionEvent(e);
+				Log.debug("selectText");
+				textComp.select(selectionStart, selectionEnd);
 			}
 		});
 	}
-	
-	public JTextComponent getTextComponent() {
-		return textComp;
+
+	private void setSuggestions(List<String> suggestions) {
+		list.setListData(suggestions.toArray(new String[suggestions.size()]));
 	}
 
-	protected void fireActionEvent(ActionEvent evt){
+	/**
+	 * Show the popup with the suggestions.
+	 * 
+	 * @param completeSingle
+	 *            If true a suggestion that consists of a single result will be
+	 *            immediately selected without showing the popup.
+	 */
+	private void showPopup(boolean completeSingle) {
+		if (!textComp.isShowing()) {
+			return;
+		}
+
+		// set always visible false to force repainting and resizing of the
+		// combo
+		popup.setVisible(false);
+		List<String> suggestions = updateSuggestions(textComp.getText());
+
+		if (textComp.isEnabled() && suggestions != null && suggestions.size() > 0) {
+			setSuggestions(suggestions);
+
+			// Register accept action
+			Action acceptAction = new AbstractAction() {
+				public void actionPerformed(ActionEvent e) {
+					acceptSuggestion();
+				}
+			};
+			textComp.registerKeyboardAction(acceptAction, KeyStroke.getKeyStroke(
+					KeyEvent.VK_ENTER, 0), JComponent.WHEN_FOCUSED);
+
+			int size = list.getModel().getSize();
+			if (size == 1 && completeSingle) {
+				list.setSelectedIndex(0);
+				int selectionStart = textComp.getCaretPosition() + 1;
+				int selectionEnd = ((String) list.getSelectedValue()).length();
+				acceptSuggestion();
+				textComp.unregisterKeyboardAction(KeyStroke.getKeyStroke(
+						KeyEvent.VK_ENTER, 0));
+				selectText(selectionStart, selectionEnd);
+
+				return;
+			}
+
+			list.setVisibleRowCount(size < 10 ? size : 10);
+
+			try {
+				if (textComp instanceof JTextField) {
+					int pos = (int) textComp.getAlignmentX();
+					int offset = textComp.getInsets().left;
+					int x = textComp.getUI().modelToView(textComp, pos).x - offset;
+					popup.show(textComp, x, textComp.getHeight());
+				} else {
+					int pos = Math.min(textComp.getCaret().getDot(), textComp.getCaret()
+							.getMark());
+					int x = textComp.getUI().modelToView(textComp, pos).x;
+					popup
+					.show(textComp, x, textComp.getCaret()
+							.getMagicCaretPosition().y);
+				}
+			} catch (BadLocationException e) {
+				// this should never happen!!!
+				e.printStackTrace();
+			}
+
+		} else {
+			popup.setVisible(false);
+		}
+		textComp.requestFocus();
+	}
+
+	protected void fireActionEvent(ActionEvent evt) {
 		for (ActionListener l : listeners) {
 			l.actionPerformed(evt);
 		}
 	}
-	
-	public void addActionListener(ActionListener l){
-		listeners.add(l);
-	}
-	
-	public void removeActionListener(ActionListener l){
-		listeners.remove(l);
-	}
-	
+
 	/**
 	 * Update the list that contains the auto completion suggestions depending
 	 * on the data in text field.
