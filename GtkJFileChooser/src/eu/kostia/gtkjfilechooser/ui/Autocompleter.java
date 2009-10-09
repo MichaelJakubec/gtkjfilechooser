@@ -9,6 +9,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -43,10 +44,13 @@ import javax.swing.text.JTextComponent;
 // TODO All works right for JTextFiels but not yet for the other
 // JTextComponents.
 public abstract class Autocompleter {
+	public static final String ACTION_PERFORMED_ACCEPT_SUGGESTION = "accept_suggestion";
 	private JList list;
 	private JPopupMenu popup;
 	private JTextComponent textComp;
 	private static final String AUTOCOMPLETER = "AUTOCOMPLETER"; // NOI18N
+	
+	private List<ActionListener> listeners = new ArrayList<ActionListener>();
 
 
 	public Autocompleter(JTextComponent comp) {
@@ -314,20 +318,32 @@ public abstract class Autocompleter {
 					e.printStackTrace();
 				}
 
-				// fire an action in the underlying text field when a suggestion
-				// is accepted
-				if (textComp instanceof JTextField) {
-					JTextField textField = (JTextField) textComp;
-					ActionEvent e = new ActionEvent(textComp,
-							ActionEvent.ACTION_PERFORMED, "action_performed");
-					for (ActionListener l : textField.getActionListeners()) {
-						l.actionPerformed(e);
-					}
-				}
+				// fire an action in the underlying text field 
+				// when a suggestion is accepted
+				ActionEvent e = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, ACTION_PERFORMED_ACCEPT_SUGGESTION);
+				fireActionEvent(e);
 			}
 		});
 	}
+	
+	public JTextComponent getTextComponent() {
+		return textComp;
+	}
 
+	protected void fireActionEvent(ActionEvent evt){
+		for (ActionListener l : listeners) {
+			l.actionPerformed(evt);
+		}
+	}
+	
+	public void addActionListener(ActionListener l){
+		listeners.add(l);
+	}
+	
+	public void removeActionListener(ActionListener l){
+		listeners.remove(l);
+	}
+	
 	/**
 	 * Update the list that contains the auto completion suggestions depending
 	 * on the data in text field.

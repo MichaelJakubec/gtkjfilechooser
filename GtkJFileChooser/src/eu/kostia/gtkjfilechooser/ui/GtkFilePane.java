@@ -1795,6 +1795,9 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 				boolean showHidden = source.isSelected();
 				getFileChooser().setFileHidingEnabled(!showHidden);
 				GtkFileChooserSettings.get().setShowHidden(showHidden);
+				
+				// Update also the decorator for the filenameTextField
+				getFileChooserUIAccessor().showHiddenAutocompletion(showHidden);				
 			}
 		});
 		contextMenu.add(showHiddenCheckBoxItem);
@@ -1953,5 +1956,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		public ListSelectionListener createListSelectionListener();
 
 		public boolean usesShellFolder();
+		
+		public void showHiddenAutocompletion(boolean flag);
 	}
 }
