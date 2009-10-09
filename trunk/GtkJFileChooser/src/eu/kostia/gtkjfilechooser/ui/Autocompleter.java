@@ -47,7 +47,7 @@ public abstract class Autocompleter {
 	private JPopupMenu popup;
 	private JTextComponent textComp;
 	private static final String AUTOCOMPLETER = "AUTOCOMPLETER"; // NOI18N
-	private Action acceptAction;
+
 
 	public Autocompleter(JTextComponent comp) {
 		textComp = comp;
@@ -69,7 +69,7 @@ public abstract class Autocompleter {
 		popup = new JPopupMenu();
 		JScrollPane scroll = new JScrollPane(list);
 		scroll
-		.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scroll.setBorder(null);
 
 		list.setFocusable(false);
@@ -79,19 +79,45 @@ public abstract class Autocompleter {
 		popup.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		popup.add(scroll);
 
+		Action showAction = new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				if (textComp.isEnabled()) {
+					if (popup.isVisible()) {
+						selectNextPossibleValue();
+					} else {
+						showPopup(true);
+					}
+				}
+			}
+		};
 		if (textComp instanceof JTextField) {
 			textComp.registerKeyboardAction(showAction, KeyStroke.getKeyStroke(
 					KeyEvent.VK_DOWN, 0), JComponent.WHEN_FOCUSED);
 			textComp.getDocument().addDocumentListener(documentListener);
+
 		} else {
 			textComp.registerKeyboardAction(showAction, KeyStroke.getKeyStroke(
 					KeyEvent.VK_SPACE, InputEvent.CTRL_MASK), JComponent.WHEN_FOCUSED);
 		}
 
+		Action upAction = new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				if (textComp.isEnabled() && popup.isVisible()) {
+					selectPreviousPossibleValue();
+				}
+			}
+		};
 		textComp.registerKeyboardAction(upAction, KeyStroke.getKeyStroke(KeyEvent.VK_UP,
 				0), JComponent.WHEN_FOCUSED);
-		textComp.registerKeyboardAction(hidePopupAction, KeyStroke.getKeyStroke(
-				KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_FOCUSED);
+
+		// When ESC pressed, hide the popup
+		textComp.registerKeyboardAction(new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				if (textComp.isEnabled()) {
+					popup.setVisible(false);
+				}
+			}
+		}, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_FOCUSED);
 
 		popup.addPopupMenuListener(new PopupMenuListener() {
 			public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
@@ -106,19 +132,6 @@ public abstract class Autocompleter {
 			}
 		});
 		list.setRequestFocusEnabled(false);
-
-
-	}
-
-	private void registerAcceptAction() {
-		acceptAction = new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				acceptSuggestion();
-			}
-		};
-
-		textComp.registerKeyboardAction(acceptAction, KeyStroke.getKeyStroke(
-				KeyEvent.VK_ENTER, 0), JComponent.WHEN_FOCUSED);
 	}
 
 	private void addListListeners() {
@@ -144,14 +157,16 @@ public abstract class Autocompleter {
 	}
 
 	private DocumentListener documentListener = new DocumentListener() {
+
 		public void insertUpdate(DocumentEvent e) {
 			showPopup(true);
 		}
 
 		public void removeUpdate(DocumentEvent e) {
 			if (e.getDocument().getLength() > 0) {
-				// show the popup for the autocompletion only if the text isn't empty.
-				showPopup(false);	
+				// show the popup for the autocompletion
+				// only if the text isn't empty.
+				showPopup(false);
 			} else {
 				popup.setVisible(false);
 			}
@@ -173,16 +188,21 @@ public abstract class Autocompleter {
 	 *            immediately selected without showing the popup.
 	 */
 	private void showPopup(boolean completeSingle) {
+		// set always visible false to force repainting and resizing of the combo
 		popup.setVisible(false);
 		List<String> suggestions = updateSuggestions(textComp.getText());
-		setSuggestions(suggestions);
+
 		if (textComp.isEnabled() && suggestions != null && suggestions.size() > 0) {
+			setSuggestions(suggestions);
 
-			registerAcceptAction();
-
-			if (!(textComp instanceof JTextField)) {
-				textComp.getDocument().addDocumentListener(documentListener);
-			}
+			// Register accept action
+			Action acceptAction = new AbstractAction() {
+				public void actionPerformed(ActionEvent e) {
+					acceptSuggestion();
+				}
+			};
+			textComp.registerKeyboardAction(acceptAction, KeyStroke.getKeyStroke(
+					KeyEvent.VK_ENTER, 0), JComponent.WHEN_FOCUSED);
 
 			int size = list.getModel().getSize();
 			if (size == 1 && completeSingle) {
@@ -210,8 +230,8 @@ public abstract class Autocompleter {
 							.getMark());
 					int x = textComp.getUI().modelToView(textComp, pos).x;
 					popup
-					.show(textComp, x, textComp.getCaret()
-							.getMagicCaretPosition().y);
+							.show(textComp, x, textComp.getCaret()
+									.getMagicCaretPosition().y);
 				}
 			} catch (BadLocationException e) {
 				// this should never happen!!!
@@ -225,6 +245,7 @@ public abstract class Autocompleter {
 	}
 
 	private void selectText(final int selectionStart, final int selectionEnd) {
+		// textComp.select(selectionStart, selectionEnd);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -233,47 +254,11 @@ public abstract class Autocompleter {
 		});
 	}
 
-	static private Action showAction = new AbstractAction() {
-		public void actionPerformed(ActionEvent e) {
-			JComponent tf = (JComponent) e.getSource();
-			Autocompleter completer = (Autocompleter) tf.getClientProperty(AUTOCOMPLETER);
-			if (tf.isEnabled()) {
-				if (completer.popup.isVisible()) {
-					completer.selectNextPossibleValue();
-				} else {
-					completer.showPopup(true);
-				}
-			}
-		}
-	};
-
-	static private Action upAction = new AbstractAction() {
-		public void actionPerformed(ActionEvent e) {
-			JComponent tf = (JComponent) e.getSource();
-			Autocompleter completer = (Autocompleter) tf.getClientProperty(AUTOCOMPLETER);
-			if (tf.isEnabled()) {
-				if (completer.popup.isVisible()) {
-					completer.selectPreviousPossibleValue();
-				}
-			}
-		}
-	};
-
-	static private Action hidePopupAction = new AbstractAction() {
-		public void actionPerformed(ActionEvent e) {
-			JComponent tf = (JComponent) e.getSource();
-			Autocompleter completer = (Autocompleter) tf.getClientProperty(AUTOCOMPLETER);
-			if (tf.isEnabled()) {
-				completer.popup.setVisible(false);
-			}
-		}
-	};
-
 	/**
 	 * Selects the next item in the list. It won't change the selection if the
 	 * currently selected item is already the last item.
 	 */
-	protected void selectNextPossibleValue() {
+	private void selectNextPossibleValue() {
 		int si = list.getSelectedIndex();
 
 		if (si < list.getModel().getSize() - 1) {
@@ -286,7 +271,7 @@ public abstract class Autocompleter {
 	 * Selects the previous item in the list. It won't change the selection if
 	 * the currently selected item is already the first item.
 	 */
-	protected void selectPreviousPossibleValue() {
+	private void selectPreviousPossibleValue() {
 		int si = list.getSelectedIndex();
 
 		if (si > 0) {
@@ -311,20 +296,31 @@ public abstract class Autocompleter {
 			public void run() {
 				popup.setVisible(false);
 				String selected = (String) list.getSelectedValue();
+				if (selected == null) {
+					return;
+				}
+
 				int caretPosition = textComp.getCaretPosition();
 
 				try {
 					String append = selected.substring(caretPosition);
+
+					// remove the document listener before inserting and then
+					// add it again to avoid to fire an undesired DocumentEvent.EventType.INSERT
+					textComp.getDocument().removeDocumentListener(documentListener);
 					textComp.getDocument().insertString(caretPosition, append, null);
+					textComp.getDocument().addDocumentListener(documentListener);
 				} catch (BadLocationException e) {
 					e.printStackTrace();
 				}
 
-				//fire an action in the underlying text field when a suggestion is accepted
+				// fire an action in the underlying text field when a suggestion
+				// is accepted
 				if (textComp instanceof JTextField) {
 					JTextField textField = (JTextField) textComp;
-					ActionEvent e = new ActionEvent(textComp, ActionEvent.ACTION_PERFORMED, "action_performed");
-					for (ActionListener l : textField.getActionListeners()) {						
+					ActionEvent e = new ActionEvent(textComp,
+							ActionEvent.ACTION_PERFORMED, "action_performed");
+					for (ActionListener l : textField.getActionListeners()) {
 						l.actionPerformed(e);
 					}
 				}
@@ -338,7 +334,9 @@ public abstract class Autocompleter {
 	 * 
 	 * @param value
 	 *            The current text in the field.
-	 * @return The list of the possible auto completions.
+	 * @return The list of the possible auto completions. Empty list or {@code
+	 *         null} for no suggestion.
 	 */
 	protected abstract List<String> updateSuggestions(String value);
+
 }

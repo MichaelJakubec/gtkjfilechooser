@@ -14,7 +14,7 @@ import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
 
 import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
 
-public class AutoCompleterTextFieldTest {
+public class PathAutoCompleterTextFieldTest {
 
 	public static void main(String[] args) throws Exception {
 		UIManager.setLookAndFeel(GTKLookAndFeel.class.getName());
