@@ -12,15 +12,17 @@ import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
 
 public class GtkFileChooserUITestGui {
 
-	public void testGTKFileChooserUI() throws Exception {
-		UIManager.setLookAndFeel(GTKLookAndFeel.class.getName());
-
-		if ("GTK look and feel".equals(UIManager.getLookAndFeel().getName())){
-			UIManager.put("FileChooserUI", eu.kostia.gtkjfilechooser.ui.GtkFileChooserUI.class.getName());
-		}		
-
+	public void showOpenDialog() throws Exception {
 		JFileChooser fileChooser = new JFileChooser();
 		int option = fileChooser.showOpenDialog(null);
+		if (JFileChooser.APPROVE_OPTION == option){
+			System.out.println("Selected file: " + fileChooser.getSelectedFile());
+		}
+	}
+
+	public void showSaveDialog() throws Exception {
+		JFileChooser fileChooser = new JFileChooser();
+		int option = fileChooser.showSaveDialog(null);
 		if (JFileChooser.APPROVE_OPTION == option){
 			System.out.println("Selected file: " + fileChooser.getSelectedFile());
 		}
@@ -52,8 +54,16 @@ public class GtkFileChooserUITestGui {
 	}
 
 	public static void main(String[] args) throws Exception {
-		new GtkFileChooserUITestGui().testGTKFileChooserUI();
-		//new GtkFileChooserUITestGui().testLayout();
+		UIManager.setLookAndFeel(GTKLookAndFeel.class.getName());
+
+		if ("GTK look and feel".equals(UIManager.getLookAndFeel().getName())){
+			UIManager.put("FileChooserUI", eu.kostia.gtkjfilechooser.ui.GtkFileChooserUI.class.getName());
+		}
+
+		GtkFileChooserUITestGui test = new GtkFileChooserUITestGui();
+		test.showOpenDialog();
+		//test.showSaveDialog();
+		//test.testLayout();
 
 	}
 }
