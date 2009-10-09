@@ -20,8 +20,6 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -94,6 +92,10 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 				}				
 			}		
 		});		
+
+		if (chooser.getCurrentDirectory() == null){
+			chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+		}
 	}
 
 	/**
@@ -110,7 +112,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 	// private FilterComboBoxChangeListener filterComboBoxModel;
 
 	private JTextField fileNameTextField;
-	
+
 	/**
 	 * Decorator for auto completion for #fileNameTextField
 	 */
@@ -323,15 +325,16 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 				}
 			}
 		});
-		
-		fileNameTextField.addKeyListener(new KeyAdapter(){
+
+		fileNameTextField.addActionListener(new ActionListener() {
 			@Override
-			public void keyTyped(KeyEvent e) {
-				int keychar = e.getKeyChar();
-				if (keychar == 10){
-					// Pressed enter
-					File path = new File(getDirectory().getAbsolutePath() + File.separator +fileNameTextField.getText());
-					System.out.println(path);
+			public void actionPerformed(ActionEvent e) {
+				File path = new File(getFileChooser().getCurrentDirectory().getAbsolutePath() + File.separator +fileNameTextField.getText());
+				if (path.isDirectory()){
+					getFileChooser().setCurrentDirectory(path);
+				} else {
+					getFileChooser().setSelectedFile(path);					
+					getFileChooser().approveSelection();
 				}
 			}
 		});
@@ -339,26 +342,8 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		// Add decorator for auto completion
 		pathAutoCompletion = new PathAutoCompleter(fileNameTextField);
 		pathAutoCompletion.setShowHidden(GtkFileChooserSettings.get().getShowHidden());
-		pathAutoCompletion.setCurrentPath(getDirectory().getAbsolutePath());
-//		pathAutoCompletion.addActionListener(new ActionListener(){
-//
-//			@Override
-//			public void actionPerformed(ActionEvent e) {
-//				File path = new File(pathAutoCompletion.getCurrentPath() + File.separator +fileNameTextField.getText());
-//				
-//				if (!path.exists()) {
-//					return;
-//				}
-//				
-//				// If a file select it and close the file chooser
-//				if (path.isFile()) {					
-//					getFileChooser().setSelectedFile(path);					
-//					getFileChooser().approveSelection();
-//				}				
-//			}
-//			
-//		});
-		
+		pathAutoCompletion.setCurrentPath(getFileChooser().getCurrentDirectory().getAbsolutePath());
+
 		if (fc.isMultiSelectionEnabled()) {
 			setFileName(fileNameString(fc.getSelectedFiles()));
 		} else {
@@ -396,8 +381,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		});
 
 		// CurrentDir Combo Buttons
-		File currentDirectory = getDirectory();
-		comboButtons = new GtkPathBar(currentDirectory);
+		comboButtons = new GtkPathBar(getFileChooser().getCurrentDirectory());
 		comboButtons.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -508,22 +492,6 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		fileNameTextField.setText("");		
 	}
 
-	@Override
-	public File getDirectory() {
-		File dir = super.getDirectory();
-		
-		if (dir == null) {
-			dir = getFileChooser().getCurrentDirectory();
-			setDirectory(dir);
-		}
-		
-		if (dir == null) {
-			dir = new File(System.getProperty("user.home"));
-			setDirectory(dir);
-		}
-		
-		return dir;
-	}
 
 	private void addFileBrowserPane(final JFileChooser fc) {
 		JSplitPane mainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
