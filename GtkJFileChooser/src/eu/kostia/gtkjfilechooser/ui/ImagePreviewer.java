@@ -28,6 +28,7 @@ import javax.swing.JPanel;
  */
 public class ImagePreviewer extends JPanel implements PropertyChangeListener {
 	private static final int SCALED_WIDTH = 180;
+	private static final int OFFSET = 20;
 	ImageIcon thumbnail = null;
 	private JLabel filenameLabel;
 	private JLabel previewLabel;
@@ -37,7 +38,7 @@ public class ImagePreviewer extends JPanel implements PropertyChangeListener {
 		previewLabel = new JLabel("", JLabel.CENTER);
 
 		setLayout(new BorderLayout());
-		setPreferredSize(new Dimension(SCALED_WIDTH + 20, 50));
+		setPreferredSize(new Dimension(SCALED_WIDTH + OFFSET, -1));
 		fc.addPropertyChangeListener(this);
 		setVisible(false);
 
