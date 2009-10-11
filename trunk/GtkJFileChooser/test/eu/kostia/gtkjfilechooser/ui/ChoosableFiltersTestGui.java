@@ -1,6 +1,7 @@
 package eu.kostia.gtkjfilechooser.ui;
 
 import java.io.File;
+import java.util.Arrays;
 
 import javax.swing.JFileChooser;
 import javax.swing.UIManager;
@@ -11,10 +12,10 @@ import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
 public class ChoosableFiltersTestGui {
 
 	public void testChoosableFilters() {
-		FileFilter imageFilter = createImageFilter();
 
 		JFileChooser fileChooser = new JFileChooser();
-		fileChooser.addChoosableFileFilter(imageFilter);
+		fileChooser.addChoosableFileFilter(createExtensionFilter("gif", "jpg"));
+		fileChooser.addChoosableFileFilter(createExtensionFilter("txt"));
 
 		int option = fileChooser.showOpenDialog(null);
 		if (JFileChooser.APPROVE_OPTION == option) {
@@ -22,18 +23,29 @@ public class ChoosableFiltersTestGui {
 		}
 	}
 
-	private FileFilter createImageFilter() {
+	private FileFilter createExtensionFilter(final String... extensions) {
 		FileFilter imageFilter = new FileFilter() {
 
 			@Override
 			public boolean accept(File pathname) {
 				String name = pathname.getName().toLowerCase();
-				return name.endsWith(".gif") || name.endsWith(".jpg");
+				for (String extension : extensions) {
+					if (name.endsWith("."+extension)) {
+						return true;
+					}
+				}
+
+				return false;
 			}
 
 			@Override
 			public String getDescription() {
-				return "JPEG and GIF Image Files";
+				return Arrays.toString(extensions) + " files";
+			}
+
+			@Override
+			public String toString() {
+				return getDescription();
 			}
 
 		};
