@@ -1,0 +1,13 @@
+#summary How to add an image preview
+
+= Introduction =
+To add an image preview as below:
+
+[http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/Preview.png]
+
+simply set `ImagePreviewer` (in the package `eu.kostia.gtkjfilechooser.ui`) as accessory component in `JFileChooser` object:
+{{{
+JFileChooser chooser = new JFileChooser();
+chooser.setAccessory(new ImagePreviewer(chooser));
+}}}
+and you've done!
