@@ -1,6 +1,10 @@
 #summary The lastest news on the project
 
 = Latest News =
+=== 11.10.2009 Added test app ===
+To launch the demo application, whose purpose is mainly for testing, double click on gtkjfilechooser-demo.jar or type from the command line "java -jar gtkjfilechooser-demo.jar":
+[http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/FileChooserDemo.png]
+The demo is completly based on the Sun Java FileChooserDemo in $JAVA_HOME/demo/jfc/FileChooserDemo.
 
 === 10.10.2009 Added Path autocompletion support ===
 [http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/autocompletion.png]
