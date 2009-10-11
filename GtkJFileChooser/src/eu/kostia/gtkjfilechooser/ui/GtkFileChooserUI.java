@@ -27,6 +27,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -563,6 +564,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		fileBrowserPane.setViewType(FilePane.VIEWTYPE_DETAILS);
 
 		// Filetype combobox
+		Log.debug("fc.getChoosableFileFilters(): ", Arrays.toString(fc.getChoosableFileFilters()));
 		JPanel fileBrowserSubPanel = addFilterCombobox(fileBrowserPane);
 		rightPanel.add(fileBrowserSubPanel, FILEBROWSER_PANEL);
 		mainPanel.add(rightPanel);
@@ -578,7 +580,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 	 */
 	private JPanel addFilterCombobox(JComponent component) {
 		filterComboBox = new JComboBox();
-		fillFileFilterComboBox(filterComboBox);
+
 		filterComboBox.putClientProperty(
 				AccessibleContext.ACCESSIBLE_DESCRIPTION_PROPERTY, filesOfTypeLabelText);
 
@@ -602,11 +604,14 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		return fileBrowserSubPanel;
 	}
 
-	private void fillFileFilterComboBox(JComboBox comboBox) {
+	//TODO invoke this method when getFileChooser().getChoosableFileFilters() is not empty
+	private void fillFileFilterComboBox() {
+		filterComboBox.removeAllItems();
+
 		FileFilter[] filters = getFileChooser().getChoosableFileFilters();
 		Log.debug("Filters length: ", filters.length);
 		for (final FileFilter filter : filters) {
-			comboBox.addItem(new FileFilter() {
+			filterComboBox.addItem(new FileFilter() {
 
 				@Override
 				public String getDescription() {
@@ -625,9 +630,9 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 			});
 		}
 
-		if (comboBox.getItemCount() == 0) {
+		if (filterComboBox.getItemCount() == 0) {
 			// Add Default AcceptAll file filter
-			comboBox.addItem(new FileFilter() {
+			filterComboBox.addItem(new FileFilter() {
 
 				@Override
 				public String getDescription() {
