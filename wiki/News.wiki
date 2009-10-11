@@ -3,7 +3,7 @@
 = Latest News =
 === 11.10.2009 Added preview ===
 [http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/Preview.png]
-More info in the wiki.
+More info in the [http://code.google.com/p/gtkjfilechooser/wiki/ImagePreview wiki].
 
 === 11.10.2009 Added test app ===
 To launch the demo application, whose purpose is mainly for testing, double click on gtkjfilechooser-demo.jar or type from the command line "java -jar gtkjfilechooser-demo.jar":
