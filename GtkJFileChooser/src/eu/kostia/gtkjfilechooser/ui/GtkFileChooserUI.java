@@ -329,7 +329,12 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		fileNameTextField.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				File path = new File(getFileChooser().getCurrentDirectory().getAbsolutePath() + File.separator +fileNameTextField.getText());
+				String text = fileNameTextField.getText();
+				File path = new File(text);
+				if (!path.isAbsolute()) {
+					path = new File(getFileChooser().getCurrentDirectory().getAbsolutePath() + File.separator + text);
+				}
+
 				if (path.isDirectory()){
 					getFileChooser().setCurrentDirectory(path);
 				} else {
