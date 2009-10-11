@@ -5,9 +5,11 @@
 	<property name="target" value="1.6" />
 	<property name="source" value="1.6" />
 	<property name="src.dir" value="src" />
+	<property name="demo.src.dir" value="demo" />
 	<property name="build.dir" value="build" />
 	<property name="dist.dir" value="dist" />
-	<property name="jar.file" value="${dist.dir}/gtkjfilechooser.jar" />
+	<property name="jar.file" value="gtkjfilechooser.jar" />
+	<property name="demo.jar.file" value="gtkjfilechooser-demo.jar" />
 	<property name="javadoc.dir" value="doc" />	
 	<property name="version.number" value="0.1" />	
 
@@ -36,11 +38,31 @@
 			<classpath refid="project.classpath" />
 		</javac>
 	</target>
+	
+	<target name="build.demo">
+		<echo message="${ant.project.name}: ${ant.file}" />
+		<javac debug="true" debuglevel="${debuglevel}" destdir="${build.dir}" source="${source}" target="${target}">
+			<src path="${demo.src.dir}" />
+			<classpath refid="project.classpath" />
+		</javac>
+	</target>
 				
 	<target name="jar" depends="build" description="Create a jar file">
 		<mkdir dir="${dist.dir}" />
-		<jar destfile="${jar.file}" baseDir="${build.dir}">
+		<jar destfile="${dist.dir}/${jar.file}" baseDir="${build.dir}">
 			<manifest>
+				<attribute name="Implementation-Version" value="${version.number}" />
+				<attribute name="Built-Date" value="${TODAY}" />
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="demo" depends="jar, build.demo" description="Create a small demo app">
+		<mkdir dir="${dist.dir}" />
+		<jar destfile="${dist.dir}/${demo.jar.file}" baseDir="${build.dir}" includes="eu/kostia/gtkjfilechooser/demo/**">
+			<manifest>				
+				<attribute name="Main-Class" value="eu.kostia.gtkjfilechooser.demo.FileChooserDemo" />
+				<attribute name="Class-Path" value="${jar.file}" />
 				<attribute name="Implementation-Version" value="${version.number}" />
 				<attribute name="Built-Date" value="${TODAY}" />
 			</manifest>
@@ -53,6 +75,12 @@
 		<javadoc sourcepath="${src.dir}" destdir="${javadoc.dir}" access="public" author="true" doctitle="GtkJFileChooser" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.6" splitindex="true" use="true" version="true">
 			<classpath refid="project.classpath" />
 		</javadoc>
+	</target>
+	
+	<!-- Create a distributable zip with a demo-->
+	<target name="dist" depends="clean, jar, demo" description="Create a distributable zip">
+		<copy file="misc/README.txt" todir="${dist.dir}"/>
+		  <zip destfile="${ant.project.name}.zip" basedir="${dist.dir}" />
 	</target>
 
 </project>
