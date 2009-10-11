@@ -51,28 +51,22 @@ import static javax.swing.JFileChooser.FILES_AND_DIRECTORIES;
 import static javax.swing.JFileChooser.FILES_ONLY;
 import static javax.swing.JFileChooser.OPEN_DIALOG;
 import static javax.swing.JFileChooser.SAVE_DIALOG;
-import static javax.swing.JFileChooser.SELECTED_FILE_CHANGED_PROPERTY;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -93,6 +87,8 @@ import javax.swing.plaf.basic.BasicFileChooserUI;
 
 import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
 
+import eu.kostia.gtkjfilechooser.ui.ImagePreviewer;
+
 /**
  * 
  * A demo which makes extensive use of the file chooser.
@@ -110,7 +106,7 @@ public class FileChooserDemo extends JPanel implements ActionListener {
 	JCheckBox showImageFilesFilterCheckBox;
 	JCheckBox showFullDescriptionCheckBox;
 
-	JCheckBox accessoryCheckBox;
+	JCheckBox previewCheckBox;
 	JCheckBox setHiddenCheckBox;
 	JCheckBox useEmbedInWizardCheckBox;
 	JCheckBox useControlsCheckBox;
@@ -139,7 +135,7 @@ public class FileChooserDemo extends JPanel implements ActionListener {
 	public final static Dimension vpad4 = new Dimension(1, 4);
 	public final static Insets insets = new Insets(5, 10, 0, 10);
 
-	FilePreviewer previewer;
+	ImagePreviewer previewer;
 	JFileChooser chooser;
 
 	public FileChooserDemo() {
@@ -147,7 +143,7 @@ public class FileChooserDemo extends JPanel implements ActionListener {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
 		chooser = new JFileChooser();
-		previewer = new FilePreviewer(chooser);
+		previewer = new ImagePreviewer(chooser);
 
 		// create a radio listener to listen to option changes
 		OptionListener optionListener = new OptionListener();
@@ -188,9 +184,9 @@ public class FileChooserDemo extends JPanel implements ActionListener {
 		showImageFilesFilterCheckBox.addActionListener(optionListener);
 		showImageFilesFilterCheckBox.setSelected(false);
 
-		accessoryCheckBox = new JCheckBox("Show Preview");
-		accessoryCheckBox.addActionListener(optionListener);
-		accessoryCheckBox.setSelected(false);
+		previewCheckBox = new JCheckBox("Show Preview");
+		previewCheckBox.addActionListener(optionListener);
+		previewCheckBox.setSelected(false);
 
 		// more options
 		setHiddenCheckBox = new JCheckBox("Show Hidden Files");
@@ -297,7 +293,7 @@ public class FileChooserDemo extends JPanel implements ActionListener {
 		control3.add(Box.createRigidArea(vpad20));
 		control3.add(setHiddenCheckBox);
 		control3.add(Box.createRigidArea(vpad7));
-		control3.add(accessoryCheckBox);
+		control3.add(previewCheckBox);
 		control3.add(Box.createRigidArea(vpad7));
 		control3.add(useEmbedInWizardCheckBox);
 		control3.add(Box.createRigidArea(vpad7));
@@ -371,7 +367,7 @@ public class FileChooserDemo extends JPanel implements ActionListener {
 		// clear the preview from the previous display of the chooser
 		JComponent accessory = chooser.getAccessory();
 		if (accessory != null) {
-			((FilePreviewer) accessory).loadImage(null);
+			((ImagePreviewer) accessory).loadImage(null);
 		}
 
 		if (useEmbedInWizardCheckBox.isSelected()) {
@@ -605,7 +601,7 @@ public class FileChooserDemo extends JPanel implements ActionListener {
 				showFullDescriptionCheckBox.setEnabled(selected);
 			} else if (c == setHiddenCheckBox) {
 				chooser.setFileHidingEnabled(!selected);
-			} else if (c == accessoryCheckBox) {
+			} else if (c == previewCheckBox) {
 				if (selected) {
 					chooser.setAccessory(previewer);
 				} else {
@@ -631,57 +627,6 @@ public class FileChooserDemo extends JPanel implements ActionListener {
 		}
 	}
 
-	class FilePreviewer extends JComponent implements PropertyChangeListener {
-		ImageIcon thumbnail = null;
-
-		public FilePreviewer(JFileChooser fc) {
-			setPreferredSize(new Dimension(100, 50));
-			fc.addPropertyChangeListener(this);
-		}
-
-		public void loadImage(File f) {
-			if (f == null) {
-				thumbnail = null;
-			} else {
-				ImageIcon tmpIcon = new ImageIcon(f.getPath());
-				if (tmpIcon.getIconWidth() > 90) {
-					thumbnail = new ImageIcon(tmpIcon.getImage().getScaledInstance(90,
-							-1, Image.SCALE_DEFAULT));
-				} else {
-					thumbnail = tmpIcon;
-				}
-			}
-		}
-
-		public void propertyChange(PropertyChangeEvent e) {
-			String prop = e.getPropertyName();
-			if (prop == SELECTED_FILE_CHANGED_PROPERTY) {
-				if (isShowing()) {
-					loadImage((File) e.getNewValue());
-					repaint();
-				}
-			}
-		}
-
-		@Override
-		public void paint(Graphics g) {
-			if (thumbnail != null) {
-				int x = getWidth() / 2 - thumbnail.getIconWidth() / 2;
-				int y = getHeight() / 2 - thumbnail.getIconHeight() / 2;
-				if (y < 0) {
-					y = 0;
-				}
-
-				if (x < 5) {
-					x = 5;
-				}
-				thumbnail.paintIcon(this, g, x, y);
-			}
-		}
-	}
-
-
-
 	class InsetPanel extends JPanel {
 		Insets i;
 
@@ -699,12 +644,14 @@ public class FileChooserDemo extends JPanel implements ActionListener {
 		try {
 			UIManager.setLookAndFeel(GTKLookAndFeel.class.getName());
 		} catch (Exception exc) {
-			JOptionPane.showMessageDialog(null, exc.getLocalizedMessage(), "Look and Feel error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, exc.getLocalizedMessage(),
+					"Look and Feel error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 
-		if ("GTK look and feel".equals(UIManager.getLookAndFeel().getName())){
-			UIManager.put("FileChooserUI", eu.kostia.gtkjfilechooser.ui.GtkFileChooserUI.class.getName());
+		if ("GTK look and feel".equals(UIManager.getLookAndFeel().getName())) {
+			UIManager.put("FileChooserUI",
+					eu.kostia.gtkjfilechooser.ui.GtkFileChooserUI.class.getName());
 		}
 
 		FileChooserDemo panel = new FileChooserDemo();
