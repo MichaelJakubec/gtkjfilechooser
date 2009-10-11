@@ -62,6 +62,7 @@ import sun.swing.FilePane;
 import eu.kostia.gtkjfilechooser.ActionPath;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
+import eu.kostia.gtkjfilechooser.Log;
 import eu.kostia.gtkjfilechooser.Path;
 import eu.kostia.gtkjfilechooser.BookmarkManager.GtkBookmark;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings.Mode;
@@ -184,6 +185,10 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 	 */
 	private SearchPanel searchPanel;
 
+	/**
+	 * Combox with file filters.
+	 */
+	private JComboBox filterComboBox;
 
 	private boolean useShellFolder;
 
@@ -558,8 +563,6 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		fileBrowserPane.setViewType(FilePane.VIEWTYPE_DETAILS);
 
 		// Filetype combobox
-		// TODO add PropertyChangeListener to filterComboBox
-		// fc.addPropertyChangeListener(new FilterComboBoxChangeListener());
 		JPanel fileBrowserSubPanel = addFilterCombobox(fileBrowserPane);
 		rightPanel.add(fileBrowserSubPanel, FILEBROWSER_PANEL);
 		mainPanel.add(rightPanel);
@@ -574,7 +577,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 	 * Add on the botton-right corner a combobox for file filtering.
 	 */
 	private JPanel addFilterCombobox(JComponent component) {
-		JComboBox filterComboBox = new JComboBox();
+		filterComboBox = new JComboBox();
 		fillFileFilterComboBox(filterComboBox);
 		filterComboBox.putClientProperty(
 				AccessibleContext.ACCESSIBLE_DESCRIPTION_PROPERTY, filesOfTypeLabelText);
@@ -586,7 +589,62 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 				BorderLayout.CENTER), new PanelElement(JPanelUtil.createPanel(
 						new GridLayout(1, 3), new JLabel(), new JLabel(), filterComboBox),
 						BorderLayout.PAGE_END));
+		filterComboBox.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO  Issue 12: Add File Filter support				
+				FileFilter filter = (FileFilter) filterComboBox.getSelectedItem();
+				Log.debug("Selected filter: ", filter);
+			}
+		});
+
 		return fileBrowserSubPanel;
+	}
+
+	private void fillFileFilterComboBox(JComboBox comboBox) {
+		FileFilter[] filters = getFileChooser().getChoosableFileFilters();
+		Log.debug("Filters length: ", filters.length);
+		for (final FileFilter filter : filters) {
+			comboBox.addItem(new FileFilter() {
+
+				@Override
+				public String getDescription() {
+					return filter.getDescription();
+				}
+
+				@Override
+				public boolean accept(File f) {
+					return filter.accept(f);
+				}
+
+				@Override
+				public String toString() {
+					return getDescription();
+				}
+			});
+		}
+
+		if (comboBox.getItemCount() == 0) {
+			// Add Default AcceptAll file filter
+			comboBox.addItem(new FileFilter() {
+
+				@Override
+				public String getDescription() {
+					return UIManager.getString("FileChooser.acceptAllFileFilterText");
+				}
+
+				@Override
+				public boolean accept(File f) {
+					return true;
+				}
+
+				@Override
+				public String toString() {
+					return getDescription();
+				}
+			});
+		}
 	}
 
 
@@ -773,49 +831,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		}
 	}
 
-	private void fillFileFilterComboBox(JComboBox comboBox) {
-		FileFilter[] filters = getFileChooser().getChoosableFileFilters();
-		for (final FileFilter filter : filters) {
-			comboBox.addItem(new FileFilter() {
 
-				@Override
-				public String getDescription() {
-					return filter.getDescription();
-				}
-
-				@Override
-				public boolean accept(File f) {
-					return filter.accept(f);
-				}
-
-				@Override
-				public String toString() {
-					return getDescription();
-				}
-			});
-		}
-
-		if (comboBox.getItemCount() == 0) {
-			// Add Default AcceptAll file filter
-			comboBox.addItem(new FileFilter() {
-
-				@Override
-				public String getDescription() {
-					return UIManager.getString("FileChooser.acceptAllFileFilterText");
-				}
-
-				@Override
-				public boolean accept(File f) {
-					return true;
-				}
-
-				@Override
-				public String toString() {
-					return getDescription();
-				}
-			});
-		}
-	}
 
 	private void updateUseShellFolder() {
 		// Decide whether to use the ShellFolder class to populate shortcut
