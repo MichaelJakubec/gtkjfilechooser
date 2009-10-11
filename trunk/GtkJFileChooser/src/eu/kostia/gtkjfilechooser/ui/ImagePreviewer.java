@@ -19,7 +19,7 @@ import javax.swing.JPanel;
  * accessory component:
  * 
  * <pre>
- * JFileChooser chooser = new JFileChooser(imgDir);
+ * JFileChooser chooser = new JFileChooser();
  * chooser.setAccessory(new ImagePreviewer(chooser));
  * </pre>
  * 
