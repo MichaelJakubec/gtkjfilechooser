@@ -162,12 +162,12 @@ public class GtkStockIcon {
 	 * 3. else null
 	 */
 	private static File lookForMagic(File file) throws IOException {
-		if (!file.exists()) {
+		// don't handle /dev files (devices)
+		if (!file.exists() || file.getAbsolutePath().startsWith("/dev")) {
 			return null;
 		}
 
-		boolean isScript = isExecScript(file);
-		if (isScript) {
+		if (isTextScript(file)) {
 			return new File(ICONS_FOLDER + "/16x16/mimetypes/text-x-script.png");
 		}
 
@@ -179,11 +179,14 @@ public class GtkStockIcon {
 		return null;
 	}
 
-	private static boolean isExecScript(File file) throws FileNotFoundException,
-	IOException {
+	private static boolean isTextScript(File file) throws IOException {
+		if (!file.canRead()){
+			return false;
+		}
+
 		byte[] bytes = new byte[3];
 		InputStream is = null;
-		try {
+		try {			
 			is = new FileInputStream(file);
 			is.read(bytes);
 		} finally {
@@ -192,8 +195,7 @@ public class GtkStockIcon {
 			}
 		}
 
-		boolean isScript = (bytes[0] == '#' && bytes[1] == '!' && bytes[2] == '/');
-		return isScript;
+		return (bytes[0] == '#' && bytes[1] == '!' && bytes[2] == '/');
 	}
 
 	/**
@@ -234,7 +236,7 @@ public class GtkStockIcon {
 
 				// if text, check is executable script
 				if ("text".equals(genericType)) {
-					iconname = isExecScript(file) ? "text-x-script" : "text-x-generic";
+					iconname = isTextScript(file) ? "text-x-script" : "text-x-generic";
 				} else {
 					iconname = genericType + "-x-generic";
 				}
