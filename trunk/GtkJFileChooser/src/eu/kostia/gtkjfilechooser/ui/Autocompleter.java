@@ -32,8 +32,6 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 
-import eu.kostia.gtkjfilechooser.Log;
-
 /**
  * Decorator for {@link JTextComponent}s to add auto completion support. Based
  * on the Santhosh Kumar's <a
@@ -304,7 +302,6 @@ public abstract class Autocompleter {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-				Log.debug("selectText");
 				textComp.select(selectionStart, selectionEnd);
 			}
 		});
