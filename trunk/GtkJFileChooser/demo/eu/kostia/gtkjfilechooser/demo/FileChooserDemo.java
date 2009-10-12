@@ -40,17 +40,7 @@ package eu.kostia.gtkjfilechooser.demo;
  * @(#)FileChooserDemo.java	1.31 06/02/03
  */
 
-import static javax.swing.JFileChooser.APPROVE_OPTION;
-import static javax.swing.JFileChooser.APPROVE_SELECTION;
-import static javax.swing.JFileChooser.CANCEL_OPTION;
-import static javax.swing.JFileChooser.CANCEL_SELECTION;
-import static javax.swing.JFileChooser.CUSTOM_DIALOG;
-import static javax.swing.JFileChooser.DIRECTORIES_ONLY;
-import static javax.swing.JFileChooser.ERROR_OPTION;
-import static javax.swing.JFileChooser.FILES_AND_DIRECTORIES;
-import static javax.swing.JFileChooser.FILES_ONLY;
-import static javax.swing.JFileChooser.OPEN_DIALOG;
-import static javax.swing.JFileChooser.SAVE_DIALOG;
+import static javax.swing.JFileChooser.*;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -541,13 +531,13 @@ public class FileChooserDemo extends JPanel implements ActionListener {
 			if (files != null && files.length > 0) {
 				path = "";
 				for (int i = 0; i < files.length; i++) {
-					path = path + "<br>" + files[i].getPath();
+					path = path + "<br>" + files[i].getAbsolutePath();
 				}
 			}
 		} else {
 			File file = chooser.getSelectedFile();
 			if (file != null) {
-				path = "<br>" + file.getPath();
+				path = "<br>" + file.getAbsolutePath();
 			}
 		}
 		if (path != null) {

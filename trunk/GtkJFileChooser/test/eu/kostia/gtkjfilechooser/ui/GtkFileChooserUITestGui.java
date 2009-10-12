@@ -2,6 +2,7 @@ package eu.kostia.gtkjfilechooser.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.io.File;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -14,9 +15,13 @@ public class GtkFileChooserUITestGui {
 
 	public void showOpenDialog() throws Exception {
 		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setMultiSelectionEnabled(true);
 		int option = fileChooser.showOpenDialog(null);
-		if (JFileChooser.APPROVE_OPTION == option){
-			System.out.println("Selected file: " + fileChooser.getSelectedFile());
+		if (JFileChooser.APPROVE_OPTION == option){			
+			for (File selected : fileChooser.getSelectedFiles()) {
+				System.out.println("Selected file: " + selected);	
+			}
+
 		}
 	}
 

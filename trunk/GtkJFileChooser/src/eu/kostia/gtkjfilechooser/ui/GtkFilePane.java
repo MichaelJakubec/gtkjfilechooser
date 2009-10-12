@@ -89,6 +89,7 @@ import eu.kostia.gtkjfilechooser.DateUtil;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
+import eu.kostia.gtkjfilechooser.Log;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings.Column;
 import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
 import eu.kostia.gtkjfilechooser.ui.GtkFileChooserUI.MyGTKFileChooserUIAccessor;
@@ -752,8 +753,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	}
 
 	class DetailsTableModel extends AbstractTableModel implements ListDataListener {
-
-
 
 		private static final long serialVersionUID = GtkFilePane.serialVersionUID;
 
@@ -1574,32 +1573,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		getListSelectionModel().removeSelectionInterval(index, index);
 	}
 
-	/* The following methods are used by the PropertyChange Listener */
-
-	private void doSelectedFileChanged(PropertyChangeEvent e) {
-		applyEdit();
-		File f = (File) e.getNewValue();
-		JFileChooser fc = getFileChooser();
-		if (f != null
-				&& ((fc.isFileSelectionEnabled() && !f.isDirectory()) || (f.isDirectory() && fc
-						.isDirectorySelectionEnabled()))) {
-
-			setFileSelected();
-		}
-	}
-
-	private void doSelectedFilesChanged(PropertyChangeEvent e) {
-		applyEdit();
-		File[] files = (File[]) e.getNewValue();
-		JFileChooser fc = getFileChooser();
-		if (files != null
-				&& files.length > 0
-				&& (files.length > 1 || fc.isDirectorySelectionEnabled() || !files[0]
-				                                                                   .isDirectory())) {
-			setFileSelected();
-		}
-	}
-
 	private void doDirectoryChanged(PropertyChangeEvent e) {
 		getDetailsTableModel().updateColumnInfo();
 
@@ -1635,10 +1608,14 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	}
 
 	private void doMultiSelectionChanged(PropertyChangeEvent e) {
+		Log.debug("SelectionMode: ", detailsTable.getSelectionModel().getSelectionMode());
+
 		if (getFileChooser().isMultiSelectionEnabled()) {
-			getListSelectionModel().setSelectionMode(
-					ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			// TODO doesn't work.
+			getListSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			detailsTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);			
 		} else {
+			detailsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			getListSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			clearSelection();
 			getFileChooser().setSelectedFiles(null);
@@ -1655,11 +1632,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		}
 
 		String s = e.getPropertyName();
-		if (s.equals(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY)) {
-			doSelectedFileChanged(e);
-		} else if (s.equals(JFileChooser.SELECTED_FILES_CHANGED_PROPERTY)) {
-			doSelectedFilesChanged(e);
-		} else if (s.equals(JFileChooser.DIRECTORY_CHANGED_PROPERTY)) {
+		if (s.equals(JFileChooser.DIRECTORY_CHANGED_PROPERTY)) {
 			doDirectoryChanged(e);
 		} else if (s.equals(JFileChooser.FILE_FILTER_CHANGED_PROPERTY)) {
 			doFilterChanged(e);
@@ -1749,8 +1722,8 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	}
 
 	/**
-	 * Create a popup menu on right click.
-	 * Features: Refresh (?), Rename (?), Add to Bookmark, Show hidden files, Show size column
+	 * Create a popup menu on right click. Features: Refresh (?), Rename (?),
+	 * Add to Bookmark, Show hidden files, Show size column
 	 */
 	public JPopupMenu createContextMenu() {
 		JPopupMenu contextMenu = new JPopupMenu();
@@ -1770,11 +1743,12 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		JMenuItem addToBookmarkMenuItem = new JMenuItem();
 		// TODO I18N
 		addToBookmarkMenuItem.setText("Add to Bookmark");
-		addToBookmarkMenuItem.setIcon(GtkStockIcon.get("gtk-add", Size.GTK_ICON_SIZE_MENU));
-		final File path = getSelectedPath();		
+		addToBookmarkMenuItem.setIcon(GtkStockIcon
+				.get("gtk-add", Size.GTK_ICON_SIZE_MENU));
+		final File path = getSelectedPath();
 		addToBookmarkMenuItem.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {				
+			public void actionPerformed(ActionEvent e) {
 				getFileChooserUIAccessor().getLocationsPane().addBookmark(path);
 			}
 
@@ -1795,10 +1769,11 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 				JCheckBoxMenuItem source = (JCheckBoxMenuItem) e.getSource();
 				boolean showHidden = source.isSelected();
 				getFileChooser().setFileHidingEnabled(!showHidden);
-				// property 'showHidden' persisten in GtkFileChooserUI#listenToFileChooserPropertyChanges
+				// property 'showHidden' persisten in
+				// GtkFileChooserUI#listenToFileChooserPropertyChanges
 
 				// Update also the decorator for the filenameTextField
-				getFileChooserUIAccessor().showHiddenAutocompletion(showHidden);				
+				getFileChooserUIAccessor().showHiddenAutocompletion(showHidden);
 			}
 		});
 		contextMenu.add(showHiddenCheckBoxItem);
@@ -1928,7 +1903,8 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 	public File getSelectedPath() {
 		int row = detailsTable.getSelectedRow();
-		return row != -1 ? new File(detailsTableModel.getValueAt(row, 0).toString()) : null;
+		return row != -1 ? new File(detailsTableModel.getValueAt(row, 0).toString())
+		: null;
 	}
 
 	// This interface is used to access methods in the FileChooserUI

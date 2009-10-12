@@ -1,10 +1,9 @@
 package eu.kostia.gtkjfilechooser.ui;
 
 import static eu.kostia.gtkjfilechooser.ui.JPanelUtil.createPanel;
-import static javax.swing.JFileChooser.CHOOSABLE_FILE_FILTER_CHANGED_PROPERTY;
-import static javax.swing.JFileChooser.FILE_FILTER_CHANGED_PROPERTY;
-import static javax.swing.JFileChooser.FILE_HIDING_CHANGED_PROPERTY;
-import static javax.swing.JFileChooser.FILE_SELECTION_MODE_CHANGED_PROPERTY;
+import static javax.swing.JFileChooser.*;
+import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
+import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -81,6 +80,8 @@ import eu.kostia.gtkjfilechooser.xbel.RecentlyUsedManager;
  * @author Costantino Cerbo, Jeff Dinkins
  */
 public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable {
+
+	private static final String CURRENT_PANEL_CHANGED = "CurrentPanelChanged";
 
 	private static final int NUMBER_OF_RECENT_FILES = 30;
 
@@ -619,38 +620,52 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 				Log.debug("Property name: ", propertyName, " ; value: ", value);
 				if (CHOOSABLE_FILE_FILTER_CHANGED_PROPERTY.equals(propertyName)) {
 					fillFileFilterComboBox();
+				} else if (CURRENT_PANEL_CHANGED.equals(propertyName)) {
+					fillFileFilterComboBox();
 				} else if (FILE_FILTER_CHANGED_PROPERTY.equals(propertyName)) {
 					pathAutoCompletion.setCurrentFilter((FileFilter) value);
-
-					FileFilter filterInChooser = (FileFilter) value;
-					FileFilter filterInCombo = (FileFilter) filterComboBox.getSelectedItem();
-
-					if (filterInChooser == null || filterInCombo == null) {
-						return;
-					}					
-					if (!filterInCombo.getDescription().equals(filterInChooser.getDescription())) {
-						// Select on the combo the just now changed 
-						// file-filter value if different.
-						for (int i = 0; i < filterComboBox.getItemCount(); i++) {
-							FileFilter item = (FileFilter) filterComboBox.getItemAt(i);
-							if (item.getDescription().equals(
-									filterInChooser.getDescription())) {
-								filterComboBox.setSelectedIndex(i);
-								break;
-							}
-						}
-					}
+					selectFilterInCombo();
 				} else if (FILE_SELECTION_MODE_CHANGED_PROPERTY.equals(propertyName)) {
 					pathAutoCompletion.setFileSelectionMode((Integer) value);
 				} else if (FILE_HIDING_CHANGED_PROPERTY.equals(propertyName)) {
 					boolean showHidden = !(Boolean)value;
 					GtkFileChooserSettings.get().setShowHidden(showHidden);
+				} else if(MULTI_SELECTION_ENABLED_CHANGED_PROPERTY.equals(propertyName)){
+					int selectionMode = getFileChooser().isMultiSelectionEnabled() ? MULTIPLE_INTERVAL_SELECTION : SINGLE_SELECTION;
+					if (recentlyUsedPane != null) {
+						recentlyUsedPane.setSelectionMode(selectionMode);
+					}					
+					if (searchFilesPane != null) {
+						searchFilesPane.setSelectionMode(selectionMode);	
+					}					
 				}
 			}
 		});
 	}
 
+	private void selectFilterInCombo() {
+		FileFilter filterInChooser = getFileChooser().getFileFilter();
+		FileFilter filterInCombo = (FileFilter) filterComboBox.getSelectedItem();
+
+		if (filterInChooser == null || filterInCombo == null) {
+			return;
+		}					
+		if (!filterInCombo.getDescription().equals(filterInChooser.getDescription())) {
+			// Select on the combo the just now changed 
+			// file-filter value if different.
+			for (int i = 0; i < filterComboBox.getItemCount(); i++) {
+				FileFilter item = (FileFilter) filterComboBox.getItemAt(i);
+				if (item.getDescription().equals(
+						filterInChooser.getDescription())) {
+					filterComboBox.setSelectedIndex(i);
+					break;
+				}
+			}
+		}
+	}
+
 	private void fillFileFilterComboBox() {
+		Log.debug("filterComboBox.removeAllItems()");
 		filterComboBox.removeAllItems();
 
 		FileFilter[] filters = getFileChooser().getChoosableFileFilters();
@@ -699,17 +714,21 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		 */
 		CardLayout top = (CardLayout) topPanel.getLayout();
 		if (FILEBROWSER_PANEL.equals(key)) {
-			topPanel.setVisible(true);
+			topPanel.setVisible(true);			
 			filenamePanel.setVisible(showPositionButton.isSelected());
 			top.show(topPanel, TOP_PATHBAR_PANEL);
+			getFileChooser().firePropertyChange(CURRENT_PANEL_CHANGED, -1, FILEBROWSER_PANEL.hashCode());
 		} else if (RECENTLY_USED_PANEL.equals(key)) {
 			topPanel.setVisible(false);
+			getFileChooser().firePropertyChange(CURRENT_PANEL_CHANGED, -1, RECENTLY_USED_PANEL.hashCode());
 		} else if (SEARCH_PANEL.equals(key)) {
 			filenamePanel.setVisible(false);
 			topPanel.setVisible(true);
 			top.show(topPanel, TOP_SEARCH_PANEL);
 			searchPanel.requestFocusInWindow();
+			getFileChooser().firePropertyChange(CURRENT_PANEL_CHANGED, -1, SEARCH_PANEL.hashCode());
 		}
+
 
 		/**
 		 * Right panel
@@ -726,7 +745,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 	 */
 	protected void handleAction(ActionPath actionPath) {
 		String action = actionPath.getAction();
-		if (ActionPath.RECENTLY_USED.getAction().equals(action)) {
+		if (ActionPath.RECENTLY_USED.getAction().equals(action)) {			
 			// show recent used files panel
 			if (recentlyUsedPane == null) {
 				createRecentlyUsedPane();
@@ -749,11 +768,16 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 	 */
 	private void createSearchPane() {
 		searchFilesPane = new FilesListPane();
+		int selectionMode = getFileChooser().isMultiSelectionEnabled() ? MULTIPLE_INTERVAL_SELECTION : SINGLE_SELECTION;
+		searchFilesPane.setSelectionMode(selectionMode);
 		searchFilesPane.addActionListeners(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				File file = searchFilesPane.getSelectedFile();
-				getFileChooser().setSelectedFile(file);
+				if (getFileChooser().isMultiSelectionEnabled()) {
+					getFileChooser().setSelectedFiles(searchFilesPane.getSelectedFiles());
+				} else {
+					getFileChooser().setSelectedFile(searchFilesPane.getSelectedFile());
+				}
 
 				if (FilesListPane.DOUBLE_CLICK_ID == e.getID()) {
 					// On double click close the file chooser.
@@ -773,11 +797,16 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		 * Create an empty table
 		 */
 		recentlyUsedPane = new FilesListPane();
+		int selectionMode = getFileChooser().isMultiSelectionEnabled() ? MULTIPLE_INTERVAL_SELECTION : SINGLE_SELECTION;
+		recentlyUsedPane.setSelectionMode(selectionMode);
 		recentlyUsedPane.addActionListeners(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				File file = recentlyUsedPane.getSelectedFile();
-				getFileChooser().setSelectedFile(file);
+				if (getFileChooser().isMultiSelectionEnabled()) {
+					getFileChooser().setSelectedFiles(recentlyUsedPane.getSelectedFiles());
+				} else {
+					getFileChooser().setSelectedFile(recentlyUsedPane.getSelectedFile());
+				}
 
 				if (FilesListPane.DOUBLE_CLICK_ID == e.getID()) {
 					// On double click on a recent file, close the file chooser.

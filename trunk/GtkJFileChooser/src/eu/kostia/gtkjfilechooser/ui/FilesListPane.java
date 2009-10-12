@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.swing.JComponent;
+import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.UIManager;
@@ -57,7 +58,7 @@ public class FilesListPane extends JComponent {
 	public FilesListPane(List<File> fileEntries) {
 		setLayout(new BorderLayout());
 
-		table = new JTable();
+		table = new JTable();		
 		table.setAutoCreateColumnsFromModel(false);
 		actionListeners = new ArrayList<ActionListener>();
 		table.setColumnModel(new FilesListTableColumnModel());
@@ -90,6 +91,15 @@ public class FilesListPane extends JComponent {
 		add(new JScrollPane(table), BorderLayout.CENTER);
 	}
 
+	/**
+	 * Sets the table's selection mode to allow only single selections, a single
+	 * contiguous interval, or multiple intervals.
+	 *
+	 * @see JList#setSelectionMode
+	 */
+	public void setSelectionMode(int selectionMode) {
+		table.setSelectionMode(selectionMode);
+	}
 	/**
 	 * Append a new {@link File} to this table.Notification of the row being
 	 * added will be generated.
@@ -140,6 +150,20 @@ public class FilesListPane extends JComponent {
 		}
 
 		return (File) table.getModel().getValueAt(table.convertRowIndexToModel(row), 0);
+	}
+
+	public File[] getSelectedFiles() {
+		int[] rows = table.getSelectedRows();
+		if (rows.length == 0) {
+			return null;
+		}
+
+		File[] selectesFiles = new File[rows.length];
+		for (int i = 0; i < rows.length; i++) {
+			int rowIndex = rows[i];
+			selectesFiles[i] = (File) table.getModel().getValueAt(table.convertRowIndexToModel(rowIndex), 0);			
+		}
+		return selectesFiles;
 	}
 
 	public void addActionListeners(ActionListener l) {
@@ -389,5 +413,7 @@ public class FilesListPane extends JComponent {
 		}
 
 	}
+
+
 
 }
