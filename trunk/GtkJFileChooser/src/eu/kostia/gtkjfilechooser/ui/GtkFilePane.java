@@ -795,7 +795,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 				if (FILE_SIZE_HEADER.equals(column.getTitle())) {
 					column.setWidth(FILE_SIZE_COLUMN_WIDTH);
 				}
-				
+
 				if (FILE_DATE_HEADER.equals(column.getTitle())) {
 					column.setWidth(FILE_DATE_COLUMN_WIDTH);
 				}
@@ -1079,7 +1079,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			} else if (value instanceof File) {
 				File file = (File) value;
 				text = chooser.getName(file);
-				
+
 				Icon thumb = GtkStockIcon.get(file, Size.GTK_ICON_SIZE_MENU);
 				setIcon(thumb != null ? thumb : chooser.getIcon(file));
 
@@ -1710,7 +1710,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	public void clearSelection() {
 		if (getListSelectionModel() != null) {
 			getListSelectionModel().clearSelection();
-			
+
 			if (getListSelectionModel() instanceof DefaultListSelectionModel) {
 				DefaultListSelectionModel defaultListSelectionModel = (DefaultListSelectionModel) getListSelectionModel();
 				defaultListSelectionModel.moveLeadSelectionIndex(0);
@@ -1795,8 +1795,8 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 				JCheckBoxMenuItem source = (JCheckBoxMenuItem) e.getSource();
 				boolean showHidden = source.isSelected();
 				getFileChooser().setFileHidingEnabled(!showHidden);
-				GtkFileChooserSettings.get().setShowHidden(showHidden);
-				
+				// property 'showHidden' persisten in GtkFileChooserUI#listenToFileChooserPropertyChanges
+
 				// Update also the decorator for the filenameTextField
 				getFileChooserUIAccessor().showHiddenAutocompletion(showHidden);				
 			}
@@ -1957,7 +1957,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		public ListSelectionListener createListSelectionListener();
 
 		public boolean usesShellFolder();
-		
+
 		public void showHiddenAutocompletion(boolean flag);
 	}
 }

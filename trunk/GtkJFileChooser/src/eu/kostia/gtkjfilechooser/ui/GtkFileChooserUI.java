@@ -3,6 +3,7 @@ package eu.kostia.gtkjfilechooser.ui;
 import static eu.kostia.gtkjfilechooser.ui.JPanelUtil.createPanel;
 import static javax.swing.JFileChooser.CHOOSABLE_FILE_FILTER_CHANGED_PROPERTY;
 import static javax.swing.JFileChooser.FILE_FILTER_CHANGED_PROPERTY;
+import static javax.swing.JFileChooser.FILE_HIDING_CHANGED_PROPERTY;
 import static javax.swing.JFileChooser.FILE_SELECTION_MODE_CHANGED_PROPERTY;
 
 import java.awt.BorderLayout;
@@ -612,10 +613,10 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		getFileChooser().addPropertyChangeListener(new PropertyChangeListener() {
 
 			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				Log.debug("PropertyName: ", evt.getPropertyName());
+			public void propertyChange(PropertyChangeEvent evt) {				
 				String propertyName = evt.getPropertyName();
 				Object value = evt.getNewValue();
+				Log.debug("Property name: ", propertyName, " ; value: ", value);
 				if (CHOOSABLE_FILE_FILTER_CHANGED_PROPERTY.equals(propertyName)) {
 					fillFileFilterComboBox();
 				} else if (FILE_FILTER_CHANGED_PROPERTY.equals(propertyName)) {
@@ -641,6 +642,9 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 					}
 				} else if (FILE_SELECTION_MODE_CHANGED_PROPERTY.equals(propertyName)) {
 					pathAutoCompletion.setFileSelectionMode((Integer) value);
+				} else if (FILE_HIDING_CHANGED_PROPERTY.equals(propertyName)) {
+					boolean showHidden = !(Boolean)value;
+					GtkFileChooserSettings.get().setShowHidden(showHidden);
 				}
 			}
 		});
