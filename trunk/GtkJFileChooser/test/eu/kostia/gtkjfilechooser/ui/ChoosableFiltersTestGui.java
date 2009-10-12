@@ -17,10 +17,17 @@ public class ChoosableFiltersTestGui {
 		fileChooser.addChoosableFileFilter(createExtensionFilter("gif", "jpg"));
 		fileChooser.addChoosableFileFilter(createExtensionFilter("txt"));
 
+		for (FileFilter fileFilter : fileChooser.getChoosableFileFilters()) {
+			System.out.println("  FileFilter: " + fileFilter.getDescription());
+		}
+		
 		int option = fileChooser.showOpenDialog(null);
 		if (JFileChooser.APPROVE_OPTION == option) {
 			System.out.println("Selected file: " + fileChooser.getSelectedFile());
 		}
+		
+
+		
 	}
 
 	private FileFilter createExtensionFilter(final String... extensions) {
@@ -29,6 +36,10 @@ public class ChoosableFiltersTestGui {
 			@Override
 			public boolean accept(File pathname) {
 				String name = pathname.getName().toLowerCase();
+				if (pathname.isDirectory()) {
+					return true;
+				}
+				
 				for (String extension : extensions) {
 					if (name.endsWith("."+extension)) {
 						return true;
