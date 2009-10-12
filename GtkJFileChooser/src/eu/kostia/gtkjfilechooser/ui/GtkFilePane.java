@@ -1710,10 +1710,11 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	public void clearSelection() {
 		if (getListSelectionModel() != null) {
 			getListSelectionModel().clearSelection();
+			
 			if (getListSelectionModel() instanceof DefaultListSelectionModel) {
-				((DefaultListSelectionModel) getListSelectionModel())
-				.moveLeadSelectionIndex(0);
-				getListSelectionModel().setAnchorSelectionIndex(0);
+				DefaultListSelectionModel defaultListSelectionModel = (DefaultListSelectionModel) getListSelectionModel();
+				defaultListSelectionModel.moveLeadSelectionIndex(0);
+				defaultListSelectionModel.setAnchorSelectionIndex(0);
 			}
 		}
 	}
