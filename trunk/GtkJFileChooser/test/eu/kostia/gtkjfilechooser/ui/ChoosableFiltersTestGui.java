@@ -20,14 +20,14 @@ public class ChoosableFiltersTestGui {
 		for (FileFilter fileFilter : fileChooser.getChoosableFileFilters()) {
 			System.out.println("  FileFilter: " + fileFilter.getDescription());
 		}
-		
+
 		int option = fileChooser.showOpenDialog(null);
 		if (JFileChooser.APPROVE_OPTION == option) {
 			System.out.println("Selected file: " + fileChooser.getSelectedFile());
 		}
-		
 
-		
+
+
 	}
 
 	private FileFilter createExtensionFilter(final String... extensions) {
@@ -39,7 +39,7 @@ public class ChoosableFiltersTestGui {
 				if (pathname.isDirectory()) {
 					return true;
 				}
-				
+
 				for (String extension : extensions) {
 					if (name.endsWith("."+extension)) {
 						return true;
