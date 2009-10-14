@@ -5,7 +5,7 @@ import javax.swing.JTable;
 import javax.swing.text.Position;
 
 public class TableFindAction extends FindAction {
-
+	
 	@Override
 	protected boolean changed(JComponent comp, String searchString, Position.Bias bias) {
 		JTable table = (JTable) comp;
