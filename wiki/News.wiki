@@ -1,6 +1,11 @@
 #summary The lastest news on the project
 
 = Latest News =
+=== 14.10.2009 Added incremental search ===
+When the focus in on the table and you press a key, an interactive incremental search will be started:
+
+[http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/incremental_search.png]
+
 === 11.10.2009 Added preview ===
 [http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/Preview.png]
 More info in the [http://code.google.com/p/gtkjfilechooser/wiki/ImagePreview wiki].
