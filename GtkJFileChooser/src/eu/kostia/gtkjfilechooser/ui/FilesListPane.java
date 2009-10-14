@@ -88,6 +88,10 @@ public class FilesListPane extends JComponent {
 		});
 
 		createColumnsFromModel(table);
+		
+		// Add interactive file search support
+		new FileFindAction().install(table);
+		
 		add(new JScrollPane(table), BorderLayout.CENTER);
 	}
 

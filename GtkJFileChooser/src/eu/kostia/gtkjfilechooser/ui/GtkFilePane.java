@@ -1237,6 +1237,9 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		p.add(scrollpane, BorderLayout.CENTER);
 
 		detailsTableModel.fireTableStructureChanged();
+		
+		// Add interactive file search support
+		new FileFindAction().install(detailsTable);
 
 		return p;
 	} // createDetailsView
