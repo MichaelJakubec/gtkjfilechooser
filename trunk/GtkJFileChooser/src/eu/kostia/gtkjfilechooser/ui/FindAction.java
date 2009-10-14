@@ -11,6 +11,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -24,7 +26,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.Position;
 
 public abstract class FindAction extends AbstractAction implements DocumentListener,
-KeyListener {
+		KeyListener {
 	private JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 3));
 	protected JTextField searchField;
 	private JPopupMenu popup = new JPopupMenu();
@@ -158,9 +160,11 @@ KeyListener {
 		comp.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
-				String ch = String.valueOf(e.getKeyChar());
-				ActionEvent ae = new ActionEvent(comp, 1001, ch);
-				actionPerformed(ae);
+				char ch = e.getKeyChar();
+				if (Character.isLetterOrDigit(ch)) {
+					ActionEvent ae = new ActionEvent(comp, 1001, String.valueOf(ch));
+					actionPerformed(ae);
+				}
 			}
 		});
 
@@ -170,7 +174,6 @@ KeyListener {
 			public void run() {
 				while (!stop) {
 					long time = (System.currentTimeMillis() - lastKeyPressed) / 1000L;
-					System.out.println(time);
 					if (time > TIMEOUT && popup.isShowing()) {
 						popup.setVisible(false);
 					}
@@ -179,13 +182,16 @@ KeyListener {
 			}
 		}).start();
 
-		//TODO find a better solution to stop the timeout thread.
-		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {			
+		comp.addPropertyChangeListener(new PropertyChangeListener() {
+
 			@Override
-			public void run() {
-				stop = true;
-				System.out.println("shutdownHook");
+			public void propertyChange(PropertyChangeEvent evt) {				
+				// When die ancestor component for the table becomes null, stop the timeout thread.
+				if ("ancestor".equals(evt.getPropertyName()) && evt.getNewValue() == null ){
+					stop = true;
+				}			
 			}
-		}));
+
+		});
 	}
 }
