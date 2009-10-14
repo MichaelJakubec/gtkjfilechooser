@@ -23,6 +23,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -48,6 +49,7 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
@@ -247,6 +249,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		buttonPanel = null;
 	}
 
+
 	class MyGTKFileChooserUIAccessor implements GtkFilePane.FileChooserUIAccessor {
 		public JFileChooser getFileChooser() {
 			return GtkFileChooserUI.this.getFileChooser();
@@ -335,9 +338,9 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 			}
 		});
 
-		fileNameTextField.addActionListener(new ActionListener() {
+		fileNameTextField.addActionListener(new SelectPathAction(){
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			protected File getSelectedPath() {
 				String text = fileNameTextField.getText();
 				File path = new File(text);
 				if (!path.isAbsolute()) {
@@ -345,17 +348,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 							.getAbsolutePath()
 							+ File.separator + text);
 				}
-
-				if (path.isDirectory()) {
-					getFileChooser().setCurrentDirectory(path);
-					if (getFileChooser().getFileSelectionMode() == JFileChooser.DIRECTORIES_ONLY){
-						getFileChooser().setSelectedFile(path);
-						getFileChooser().approveSelection();
-					}
-				} else {
-					getFileChooser().setSelectedFile(path);
-					getFileChooser().approveSelection();
-				}
+				return path;
 			}
 		});
 
@@ -786,6 +779,23 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 			}
 		});
 
+		//add listener on ENTER pressed for select/browse
+		searchFilesPane.addActionListeners(new SelectPathAction(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (FilesListPane.ENTER_PRESSED_ID == e.getID()) {
+					super.actionPerformed(e);
+				}				
+			}
+
+			@Override
+			protected File getSelectedPath() {
+				return searchFilesPane.getSelectedFile();		
+			}
+
+		});
+
 		searchPanel = new SearchPanel(searchFilesPane);
 
 		topPanel.add(searchPanel, TOP_SEARCH_PANEL);
@@ -816,6 +826,23 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		});
 
 		rightPanel.add(addFilterCombobox(recentlyUsedPane), RECENTLY_USED_PANEL);
+
+		//add listener on ENTER pressed for select/browse
+		recentlyUsedPane.addActionListeners(new SelectPathAction(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (FilesListPane.ENTER_PRESSED_ID == e.getID()) {
+					super.actionPerformed(e);
+				}				
+			}
+
+			@Override
+			protected File getSelectedPath() {
+				return recentlyUsedPane.getSelectedFile();		
+			}
+
+		});
 
 		/**
 		 * Add the content
@@ -959,6 +986,19 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 				GtkFileChooserSettings.get().setBound(bound);
 			}
 		});
+
+		// On ENTER pressed select/browse the selected path.
+		SelectPathAction selectBrowseAction = new SelectPathAction(){
+
+			@Override
+			protected File getSelectedPath() {				
+				return fileBrowserPane.getSelectedPath();
+			}
+		};
+		fileBrowserPane.getDetailsTable().registerKeyboardAction(
+				selectBrowseAction, 
+				KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), JComponent.WHEN_FOCUSED
+		);
 	}
 
 	protected JPanel createList(JFileChooser fc) {
@@ -1383,4 +1423,32 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		}
 	}
 
+	/**
+	 * Action to select a file or select/browse a directory (according to
+	 * the FileSelectionMode).
+	 */
+	private abstract class SelectPathAction implements ActionListener {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			File path = getSelectedPath();
+
+			if (path == null) {
+				return;
+			}
+
+			if (path.isDirectory()) {
+				getFileChooser().setCurrentDirectory(path);
+				if (getFileChooser().getFileSelectionMode() == JFileChooser.DIRECTORIES_ONLY){
+					getFileChooser().setSelectedFile(path);
+					getFileChooser().approveSelection();
+				}
+			} else {
+				getFileChooser().setSelectedFile(path);
+				getFileChooser().approveSelection();
+			}
+		}
+
+		protected abstract File getSelectedPath();
+	}
 }

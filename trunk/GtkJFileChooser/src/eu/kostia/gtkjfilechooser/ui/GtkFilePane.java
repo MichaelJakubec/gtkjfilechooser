@@ -1237,7 +1237,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		p.add(scrollpane, BorderLayout.CENTER);
 
 		detailsTableModel.fireTableStructureChanged();
-		
+
 		// Add interactive file search support
 		new FileFindAction().install(detailsTable);
 
@@ -1634,20 +1634,21 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			setViewType(VIEWTYPE_LIST);
 		}
 
-		String s = e.getPropertyName();
-		if (s.equals(JFileChooser.DIRECTORY_CHANGED_PROPERTY)) {
+		String name = e.getPropertyName();
+
+		if (name.equals(JFileChooser.DIRECTORY_CHANGED_PROPERTY)) {
 			doDirectoryChanged(e);
-		} else if (s.equals(JFileChooser.FILE_FILTER_CHANGED_PROPERTY)) {
+		} else if (name.equals(JFileChooser.FILE_FILTER_CHANGED_PROPERTY)) {
 			doFilterChanged(e);
-		} else if (s.equals(JFileChooser.FILE_SELECTION_MODE_CHANGED_PROPERTY)) {
+		} else if (name.equals(JFileChooser.FILE_SELECTION_MODE_CHANGED_PROPERTY)) {
 			doFileSelectionModeChanged(e);
-		} else if (s.equals(JFileChooser.MULTI_SELECTION_ENABLED_CHANGED_PROPERTY)) {
+		} else if (name.equals(JFileChooser.MULTI_SELECTION_ENABLED_CHANGED_PROPERTY)) {
 			doMultiSelectionChanged(e);
-		} else if (s.equals(JFileChooser.CANCEL_SELECTION)) {
+		} else if (name.equals(JFileChooser.CANCEL_SELECTION)) {
 			applyEdit();
-		} else if (s.equals("busy")) {
+		} else if (name.equals("busy")) {
 			setCursor((Boolean) e.getNewValue() ? waitCursor : null);
-		} else if (s.equals("componentOrientation")) {
+		} else if (name.equals("componentOrientation")) {
 			ComponentOrientation o = (ComponentOrientation) e.getNewValue();
 			JFileChooser cc = (JFileChooser) e.getSource();
 			if (o != e.getOldValue()) {

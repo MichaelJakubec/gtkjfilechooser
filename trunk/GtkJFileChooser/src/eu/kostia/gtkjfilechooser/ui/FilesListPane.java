@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -33,6 +35,8 @@ import eu.kostia.gtkjfilechooser.GtkStockIcon;
 import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
 
 public class FilesListPane extends JComponent {
+
+	private static final int ENTER = 10;
 	private static final String FILE_NAME_COLUMN_ID = "FileChooser.fileNameHeaderText";
 	private static final String FILE_SIZE_COLUMN_ID = "FileChooser.fileSizeHeaderText";
 	private static final int FILE_SIZE_COLUMN_WIDTH = 100;
@@ -44,6 +48,9 @@ public class FilesListPane extends JComponent {
 
 	public static final String DOUBLE_CLICK = "double_click";
 	public static final int DOUBLE_CLICK_ID = 2;
+
+	public static final String ENTER_PRESSED = "enter pressed";
+	public static final int ENTER_PRESSED_ID = 3;
 
 	private static final long serialVersionUID = 1L;
 
@@ -72,26 +79,36 @@ public class FilesListPane extends JComponent {
 		table.getTableHeader().setResizingAllowed(true);
 		// gnome rows are taller
 		table.setRowHeight(22);
-		final FilesListPane thisPane = this;
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
 				ActionEvent event = null;
 				if (e.getClickCount() == 2) {
-					event = new ActionEvent(thisPane, DOUBLE_CLICK_ID, DOUBLE_CLICK);
+					event = new ActionEvent(FilesListPane.this, DOUBLE_CLICK_ID, DOUBLE_CLICK);
 				} else {
-					event = new ActionEvent(thisPane, SELECTED_ID, SELECTED);
+					event = new ActionEvent(FilesListPane.this, SELECTED_ID, SELECTED);
 				}
 
 				fireActionEvent(event);
 			}
 		});
 
+		table.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				int ch = e.getKeyChar();
+
+				if (ch == KeyEvent.VK_ENTER) {
+					fireActionEvent(new ActionEvent(FilesListPane.this, ENTER_PRESSED_ID, ENTER_PRESSED));
+				}
+			}
+		});
+
 		createColumnsFromModel(table);
-		
+
 		// Add interactive file search support
 		new FileFindAction().install(table);
-		
+
 		add(new JScrollPane(table), BorderLayout.CENTER);
 	}
 
