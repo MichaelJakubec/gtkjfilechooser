@@ -36,7 +36,6 @@ import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
 
 public class FilesListPane extends JComponent {
 
-	private static final int ENTER = 10;
 	private static final String FILE_NAME_COLUMN_ID = "FileChooser.fileNameHeaderText";
 	private static final String FILE_SIZE_COLUMN_ID = "FileChooser.fileSizeHeaderText";
 	private static final int FILE_SIZE_COLUMN_WIDTH = 100;
