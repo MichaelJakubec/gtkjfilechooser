@@ -89,7 +89,6 @@ import eu.kostia.gtkjfilechooser.DateUtil;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
-import eu.kostia.gtkjfilechooser.Log;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings.Column;
 import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
 import eu.kostia.gtkjfilechooser.ui.GtkFileChooserUI.MyGTKFileChooserUIAccessor;
@@ -1172,10 +1171,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		TableCellRenderer cellRenderer = new DetailsTableCellRenderer(chooser);
 		detailsTable.setDefaultRenderer(Object.class, cellRenderer);
 
-		// So that drag can be started on a mouse press
-		detailsTable.getColumnModel().getSelectionModel().setSelectionMode(
-				ListSelectionModel.SINGLE_SELECTION);
-
 		detailsTable.addMouseListener(getMouseHandler());
 		// No need to addListSelectionListener because selections are forwarded
 		// to our JList.
@@ -1611,10 +1606,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	}
 
 	private void doMultiSelectionChanged(PropertyChangeEvent e) {
-		Log.debug("SelectionMode: ", detailsTable.getSelectionModel().getSelectionMode());
-
 		if (getFileChooser().isMultiSelectionEnabled()) {
-			// TODO doesn't work.
 			getListSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			detailsTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);			
 		} else {

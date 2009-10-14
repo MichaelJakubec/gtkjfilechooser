@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Arrays;
 
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
@@ -15,6 +16,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 
 import sun.swing.SwingUtilities2;
+import eu.kostia.gtkjfilechooser.Log;
 
 public class GtkFilePaneMouseListener implements MouseListener {
 	private MouseListener doubleClickListener;
@@ -23,6 +25,11 @@ public class GtkFilePaneMouseListener implements MouseListener {
 
 	public GtkFilePaneMouseListener(GtkFilePane filepane) {
 		this.filepane = filepane;
+	}
+
+	private boolean isMultiSelectionEnabled(){
+		return ListSelectionModel.MULTIPLE_INTERVAL_SELECTION == filepane.getDetailsTable().getSelectionModel().getSelectionMode();
+
 	}
 
 	private JList getFilesList() {
@@ -52,6 +59,8 @@ public class GtkFilePaneMouseListener implements MouseListener {
 	}
 
 	public void mouseClicked(MouseEvent evt) {
+		Log.debug("isMultiSelectionEnabled: ", isMultiSelectionEnabled());
+
 		int index = getRowIndex(evt);
 
 		// Translate point from table to filesList
@@ -108,11 +117,12 @@ public class GtkFilePaneMouseListener implements MouseListener {
 
 
 
-	public void mousePressed(MouseEvent evt) {		
-		int index = getRowIndex(evt);
-		getListSelectionModel().setSelectionInterval(index, index);
-
+	public void mousePressed(MouseEvent evt) {
+		Log.debug("rows: ",Arrays.toString(filepane.getDetailsTable().getSelectedRows()));
 		if (SwingUtilities.isRightMouseButton(evt)) {
+			int index = getRowIndex(evt);
+			// on right click reset the selections			
+			getListSelectionModel().setSelectionInterval(index, index);
 			onRightMouseButtonClick(evt);
 		}
 	}
