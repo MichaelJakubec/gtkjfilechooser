@@ -930,12 +930,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			}
 		}
 
-		@Override
-		public boolean isCellEditable(int row, int column) {
-			File currentDirectory = getFileChooser().getCurrentDirectory();
-			return (!readOnly && column == COLUMN_FILENAME && canWrite(currentDirectory));
-		}
-
 		public void contentsChanged(ListDataEvent e) {
 			// Update the selection after the model has been updated
 			new DelayedSelectionUpdater();
@@ -1143,6 +1137,12 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			public int getRowHeight() {
 				// gnome rows are a taller
 				return 22;
+			}
+
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				//disable any form of editing/renaming definitely
+				return false;
 			}
 		};
 
