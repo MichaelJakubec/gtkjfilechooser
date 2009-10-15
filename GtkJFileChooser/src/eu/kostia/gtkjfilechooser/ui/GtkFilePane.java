@@ -13,12 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -26,7 +21,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -37,22 +31,17 @@ import javax.swing.AbstractAction;
 import javax.swing.AbstractListModel;
 import javax.swing.Action;
 import javax.swing.ActionMap;
-import javax.swing.ButtonGroup;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.Icon;
-import javax.swing.InputMap;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -127,182 +116,14 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	private JPanel currentViewPanel;
 	private String[] viewTypeActionNames;
 
-	private JMenu viewMenu;
-
-	private String viewMenuLabelText;
+	//	private JMenu viewMenu;
 	private String refreshActionLabelText;
 	private String newFolderActionLabelText;
 
-	private String renameErrorTitleText;
-	private String renameErrorText;
-	private String renameErrorFileExistsText;
+
 
 	private static final Cursor waitCursor = Cursor
 	.getPredefinedCursor(Cursor.WAIT_CURSOR);
-
-	private final KeyListener detailsKeyListener = new KeyAdapter() {
-		private final long timeFactor;
-
-		private final StringBuilder typedString = new StringBuilder();
-
-		private long lastTime = 1000L;
-
-		{
-			Long l = (Long) UIManager.get("Table.timeFactor");
-			timeFactor = (l != null) ? l : 1000L;
-		}
-
-		/**
-		 * Moves the keyboard focus to the first element whose prefix matches
-		 * the sequence of alphanumeric keys pressed by the user with delay less
-		 * than value of <code>timeFactor</code>. Subsequent same key presses
-		 * move the keyboard focus to the next object that starts with the same
-		 * letter until another key is pressed, then it is treated as the prefix
-		 * with appropriate number of the same letters followed by first typed
-		 * another letter.
-		 */
-		@Override
-		public void keyTyped(KeyEvent e) {
-			BasicDirectoryModel model = getModel();
-			int rowCount = model.getSize();
-
-			if (detailsTable == null || rowCount == 0 || e.isAltDown()
-					|| e.isControlDown() || e.isMetaDown()) {
-				return;
-			}
-
-			InputMap inputMap = detailsTable
-			.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-			KeyStroke key = KeyStroke.getKeyStrokeForEvent(e);
-
-			if (inputMap != null && inputMap.get(key) != null) {
-				return;
-			}
-
-			int startIndex = detailsTable.getSelectionModel().getLeadSelectionIndex();
-
-			if (startIndex < 0) {
-				startIndex = 0;
-			}
-
-			if (startIndex >= rowCount) {
-				startIndex = rowCount - 1;
-			}
-
-			char c = e.getKeyChar();
-
-			long time = e.getWhen();
-
-			if (time - lastTime < timeFactor) {
-				if (typedString.length() == 1 && typedString.charAt(0) == c) {
-					// Subsequent same key presses move the keyboard focus to
-					// the next
-					// object that starts with the same letter.
-					startIndex++;
-				} else {
-					typedString.append(c);
-				}
-			} else {
-				startIndex++;
-
-				typedString.setLength(0);
-				typedString.append(c);
-			}
-
-			lastTime = time;
-
-			if (startIndex >= rowCount) {
-				startIndex = 0;
-			}
-
-			// Find next file
-			int index = getNextMatch(startIndex, rowCount - 1);
-
-			if (index < 0 && startIndex > 0) { // wrap
-				index = getNextMatch(0, startIndex - 1);
-			}
-
-			if (index >= 0) {
-				detailsTable.getSelectionModel().setSelectionInterval(index, index);
-
-				Rectangle cellRect = detailsTable.getCellRect(index, detailsTable
-						.convertColumnIndexToView(COLUMN_FILENAME), false);
-				detailsTable.scrollRectToVisible(cellRect);
-			}
-		}
-
-		private int getNextMatch(int startIndex, int finishIndex) {
-			BasicDirectoryModel model = getModel();
-			JFileChooser fileChooser = getFileChooser();
-			GtkFilePaneRowSorter rowSorter = getRowSorter();
-
-			String prefix = typedString.toString().toLowerCase();
-
-			// Search element
-			for (int index = startIndex; index <= finishIndex; index++) {
-				File file = (File) model.getElementAt(rowSorter
-						.convertRowIndexToModel(index));
-
-				String fileName = fileChooser.getName(file).toLowerCase();
-
-				if (fileName.startsWith(prefix)) {
-					return index;
-				}
-			}
-
-			return -1;
-		}
-	};
-
-	private FocusListener editorFocusListener = new FocusAdapter() {
-		@Override
-		public void focusLost(FocusEvent e) {
-			if (!e.isTemporary()) {
-				applyEdit();
-			}
-		}
-	};
-
-	private static FocusListener repaintListener = new FocusListener() {
-		public void focusGained(FocusEvent fe) {
-			repaintSelection(fe.getSource());
-		}
-
-		public void focusLost(FocusEvent fe) {
-			repaintSelection(fe.getSource());
-		}
-
-		private void repaintSelection(Object source) {
-			if (source instanceof JList) {
-				repaintListSelection((JList) source);
-			} else if (source instanceof JTable) {
-				repaintTableSelection((JTable) source);
-			}
-		}
-
-		private void repaintListSelection(JList list) {
-			int[] indices = list.getSelectedIndices();
-			for (int i : indices) {
-				Rectangle bounds = list.getCellBounds(i, i);
-				list.repaint(bounds);
-			}
-		}
-
-		private void repaintTableSelection(JTable table) {
-			int minRow = table.getSelectionModel().getMinSelectionIndex();
-			int maxRow = table.getSelectionModel().getMaxSelectionIndex();
-			if (minRow == -1 || maxRow == -1) {
-				return;
-			}
-
-			int col0 = table.convertColumnIndexToView(COLUMN_FILENAME);
-
-			Rectangle first = table.getCellRect(minRow, col0, false);
-			Rectangle last = table.getCellRect(maxRow, col0, false);
-			Rectangle dirty = first.union(last);
-			table.repaint(dirty);
-		}
-	};
 
 	private boolean smallIconsView = false;
 	private Border listViewBorder;
@@ -395,42 +216,10 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			revalidate();
 			repaint();
 		}
-		updateViewMenu();
+		//		updateViewMenu();
 		firePropertyChange("viewType", oldValue, viewType);
 	}
 
-	class ViewTypeAction extends AbstractAction {
-
-		private static final long serialVersionUID = GtkFilePane.serialVersionUID;
-
-		private int viewType;
-
-		ViewTypeAction(int viewType) {
-			super(viewTypeActionNames[viewType]);
-			this.viewType = viewType;
-
-			String cmd;
-			switch (viewType) {
-			case VIEWTYPE_LIST:
-				cmd = ACTION_VIEW_LIST;
-				break;
-			case VIEWTYPE_DETAILS:
-				cmd = ACTION_VIEW_DETAILS;
-				break;
-			default:
-				cmd = (String) getValue(Action.NAME);
-			}
-			putValue(Action.ACTION_COMMAND_KEY, cmd);
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			setViewType(viewType);
-		}
-	}
-
-	public Action getViewTypeAction(int viewType) {
-		return new ViewTypeAction(viewType);
-	}
 
 	private static void recursivelySetInheritsPopupMenu(Container container, boolean b) {
 		if (container instanceof JComponent) {
@@ -487,9 +276,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		listViewWindowsStyle = UIManager.getBoolean("FileChooser.listViewWindowsStyle");
 		readOnly = UIManager.getBoolean("FileChooser.readOnly");
 
-		// TODO: On windows, get the following localized strings from the OS
-
-		viewMenuLabelText = UIManager.getString("FileChooser.viewMenuLabelText", l);
 		refreshActionLabelText = UIManager.getString(
 				"FileChooser.refreshActionLabelText", l);
 		newFolderActionLabelText = UIManager.getString(
@@ -501,10 +287,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		viewTypeActionNames[VIEWTYPE_DETAILS] = UIManager.getString(
 				"FileChooser.detailsViewActionLabelText", l);
 
-		renameErrorTitleText = UIManager.getString("FileChooser.renameErrorTitleText", l);
-		renameErrorText = UIManager.getString("FileChooser.renameErrorText", l);
-		renameErrorFileExistsText = UIManager.getString(
-				"FileChooser.renameErrorFileExistsText", l);
 	}
 
 	/**
@@ -584,14 +366,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			if (action != null) {
 				actionList.add(action);
 			}
-			action = getViewTypeAction(VIEWTYPE_LIST);
-			if (action != null) {
-				actionList.add(action);
-			}
-			action = getViewTypeAction(VIEWTYPE_DETAILS);
-			if (action != null) {
-				actionList.add(action);
-			}
+
 			actions = actionList.toArray(new Action[actionList.size()]);
 		}
 
@@ -653,10 +428,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 		// 4835633 : tell BasicListUI that this is a file filesList
 		list.putClientProperty("List.isFileList", Boolean.TRUE);
-
-		if (listViewWindowsStyle) {
-			list.addFocusListener(repaintListener);
-		}
 
 		updateListRowCount(list);
 
@@ -878,57 +649,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 					: ShellFolder.getFolderColumnValue(f, columnMap[col]);
 		}
 
-		@Override
-		public void setValueAt(Object value, int row, int col) {
-			if (col == COLUMN_FILENAME) {
-				JFileChooser chooser = getFileChooser();
-				File f = (File) getValueAt(row, col);
-				if (f != null) {
-					String oldDisplayName = chooser.getName(f);
-					String oldFileName = f.getName();
-					String newDisplayName = ((String) value).trim();
-					String newFileName;
-
-					if (!newDisplayName.equals(oldDisplayName)) {
-						newFileName = newDisplayName;
-						// Check if extension is hidden from user
-						int i1 = oldFileName.length();
-						int i2 = oldDisplayName.length();
-						if (i1 > i2 && oldFileName.charAt(i2) == '.') {
-							newFileName = newDisplayName + oldFileName.substring(i2);
-						}
-
-						// rename
-						FileSystemView fsv = chooser.getFileSystemView();
-						File f2 = fsv.createFileObject(f.getParentFile(), newFileName);
-						if (f2.exists()) {
-							JOptionPane.showMessageDialog(chooser, MessageFormat.format(
-									renameErrorFileExistsText, oldFileName),
-									renameErrorTitleText, JOptionPane.ERROR_MESSAGE);
-						} else {
-							if (GtkFilePane.this.getModel().renameFile(f, f2)) {
-								if (fsv.isParent(chooser.getCurrentDirectory(), f2)) {
-									if (chooser.isMultiSelectionEnabled()) {
-										chooser.setSelectedFiles(new File[] { f2 });
-									} else {
-										chooser.setSelectedFile(f2);
-									}
-								} else {
-									// Could be because of delay in updating
-									// Desktop folder
-									// chooser.setSelectedFile(null);
-								}
-							} else {
-								JOptionPane.showMessageDialog(chooser, MessageFormat
-										.format(renameErrorText, oldFileName),
-										renameErrorTitleText, JOptionPane.ERROR_MESSAGE);
-							}
-						}
-					}
-				}
-			}
-		}
-
 		public void contentsChanged(ListDataEvent e) {
 			// Update the selection after the model has been updated
 			new DelayedSelectionUpdater();
@@ -994,8 +714,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 			// Install cell editor for editing file name
 			if (!readOnly && columnModel.getColumnCount() > COLUMN_FILENAME) {
-				columnModel.getColumn(COLUMN_FILENAME).setCellEditor(
-						getDetailsTableCellEditor());
+				columnModel.getColumn(COLUMN_FILENAME).setCellEditor(getDetailsTableCellEditor());
 			}
 
 			table.setColumnModel(columnModel);
@@ -1027,7 +746,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		public DetailsTableCellEditor(JTextField tf) {
 			super(tf);
 			this.tf = tf;
-			tf.addFocusListener(editorFocusListener);
 		}
 
 		@Override
@@ -1057,8 +775,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		public Component getTableCellRendererComponent(JTable table, Object value,
 				boolean isSelected, boolean hasFocus, int row, int column) {
 
-			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
-					column);
+			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
 			setIcon(null);
 
@@ -1074,7 +791,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 
 				Icon thumb = GtkStockIcon.get(file, Size.GTK_ICON_SIZE_MENU);
 				setIcon(thumb != null ? thumb : chooser.getIcon(file));
-
 			} else if (value instanceof Date) {
 				// modified date
 				text = DateUtil.toPrettyFormat((Date) value);
@@ -1145,15 +861,16 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			}
 		};
 
+		detailsTable.addMouseListener(getMouseHandler());
 		detailsTable.setRowSorter(getRowSorter());
 		detailsTable.getTableHeader().setReorderingAllowed(false);
 		detailsTable.getTableHeader().setResizingAllowed(false);
 		detailsTable.setAutoCreateColumnsFromModel(false);
 		detailsTable.setComponentOrientation(chooser.getComponentOrientation());
 		detailsTable.setShowGrid(false);
-		detailsTable.setRowSelectionAllowed(true);
+
 		detailsTable.putClientProperty("JTable.autoStartsEdit", Boolean.FALSE);
-		detailsTable.addKeyListener(detailsKeyListener);
+		//		detailsTable.addKeyListener(detailsKeyListener);
 
 		if (getFilesList() == null) {
 			// The Details view works only after that the filesList view was
@@ -1171,16 +888,14 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		TableCellRenderer cellRenderer = new DetailsTableCellRenderer(chooser);
 		detailsTable.setDefaultRenderer(Object.class, cellRenderer);
 
-		detailsTable.addMouseListener(getMouseHandler());
-		// No need to addListSelectionListener because selections are forwarded
-		// to our JList.
+
 
 		// 4835633 : tell BasicTableUI that this is a file filesList
 		detailsTable.putClientProperty("Table.isFileList", Boolean.TRUE);
 
-		if (listViewWindowsStyle) {
-			detailsTable.addFocusListener(repaintListener);
-		}
+		//		if (listViewWindowsStyle) {
+		//			detailsTable.addFocusListener(repaintListener);
+		//		}
 
 		// TAB/SHIFT-TAB should transfer focus and ENTER should select an item.
 		// We don't want them to navigate within the table
@@ -1325,8 +1040,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			Rectangle r = getFilesList().getCellBounds(index, index);
 			if (editCell == null) {
 				editCell = new JTextField();
-				editCell.addActionListener(new EditActionListener());
-				editCell.addFocusListener(editorFocusListener);
 			}
 			getFilesList().add(editCell);
 			editCell.setText(chooser.getName(getEditFile()));
@@ -1353,63 +1066,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		}
 	}
 
-	class EditActionListener implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			applyEdit();
-		}
-	}
-
-	private void applyEdit() {
-		if (getEditFile() != null && getEditFile().exists()) {
-			JFileChooser chooser = getFileChooser();
-			String oldDisplayName = chooser.getName(getEditFile());
-			String oldFileName = getEditFile().getName();
-			String newDisplayName = editCell.getText().trim();
-			String newFileName;
-
-			if (!newDisplayName.equals(oldDisplayName)) {
-				newFileName = newDisplayName;
-				// Check if extension is hidden from user
-				int i1 = oldFileName.length();
-				int i2 = oldDisplayName.length();
-				if (i1 > i2 && oldFileName.charAt(i2) == '.') {
-					newFileName = newDisplayName + oldFileName.substring(i2);
-				}
-
-				// rename
-				FileSystemView fsv = chooser.getFileSystemView();
-				File f2 = fsv
-				.createFileObject(getEditFile().getParentFile(), newFileName);
-				if (f2.exists()) {
-					JOptionPane.showMessageDialog(chooser, MessageFormat.format(
-							renameErrorFileExistsText, oldFileName),
-							renameErrorTitleText, JOptionPane.ERROR_MESSAGE);
-				} else {
-					if (getModel().renameFile(getEditFile(), f2)) {
-						if (fsv.isParent(chooser.getCurrentDirectory(), f2)) {
-							if (chooser.isMultiSelectionEnabled()) {
-								chooser.setSelectedFiles(new File[] { f2 });
-							} else {
-								chooser.setSelectedFile(f2);
-							}
-						} else {
-							// Could be because of delay in updating Desktop
-							// folder
-							// chooser.setSelectedFile(null);
-						}
-					} else {
-						JOptionPane.showMessageDialog(chooser, MessageFormat.format(
-								renameErrorText, oldFileName), renameErrorTitleText,
-								JOptionPane.ERROR_MESSAGE);
-					}
-				}
-			}
-		}
-		if (detailsTable != null && detailsTable.isEditing()) {
-			detailsTable.getCellEditor().stopCellEditing();
-		}
-		cancelEdit();
-	}
 
 	protected Action newFolderAction;
 
@@ -1577,7 +1233,7 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 		JFileChooser fc = getFileChooser();
 		FileSystemView fsv = fc.getFileSystemView();
 
-		applyEdit();
+		//		applyEdit();
 		resetEditIndex();
 		ensureIndexIsVisible(0);
 		File currentDirectory = fc.getCurrentDirectory();
@@ -1594,13 +1250,13 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	}
 
 	private void doFilterChanged(PropertyChangeEvent e) {
-		applyEdit();
+		//		applyEdit();
 		resetEditIndex();
 		clearSelection();
 	}
 
 	private void doFileSelectionModeChanged(PropertyChangeEvent e) {
-		applyEdit();
+		//		applyEdit();
 		resetEditIndex();
 		clearSelection();
 	}
@@ -1622,10 +1278,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 	 * changing, or the type of the dialog changing.
 	 */
 	public void propertyChange(PropertyChangeEvent e) {
-		if (viewType == -1) {
-			setViewType(VIEWTYPE_LIST);
-		}
-
 		String name = e.getPropertyName();
 
 		if (name.equals(JFileChooser.DIRECTORY_CHANGED_PROPERTY)) {
@@ -1636,8 +1288,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 			doFileSelectionModeChanged(e);
 		} else if (name.equals(JFileChooser.MULTI_SELECTION_ENABLED_CHANGED_PROPERTY)) {
 			doMultiSelectionChanged(e);
-		} else if (name.equals(JFileChooser.CANCEL_SELECTION)) {
-			applyEdit();
 		} else if (name.equals("busy")) {
 			setCursor((Boolean) e.getNewValue() ? waitCursor : null);
 		} else if (name.equals("componentOrientation")) {
@@ -1684,35 +1334,6 @@ public class GtkFilePane extends JPanel implements PropertyChangeListener {
 				DefaultListSelectionModel defaultListSelectionModel = (DefaultListSelectionModel) getListSelectionModel();
 				defaultListSelectionModel.moveLeadSelectionIndex(0);
 				defaultListSelectionModel.setAnchorSelectionIndex(0);
-			}
-		}
-	}
-
-	public JMenu getViewMenu() {
-		if (viewMenu == null) {
-			viewMenu = new JMenu(viewMenuLabelText);
-			ButtonGroup viewButtonGroup = new ButtonGroup();
-
-			for (int i = 0; i < VIEWTYPE_COUNT; i++) {
-				JRadioButtonMenuItem mi = new JRadioButtonMenuItem(new ViewTypeAction(i));
-				viewButtonGroup.add(mi);
-				viewMenu.add(mi);
-			}
-			updateViewMenu();
-		}
-		return viewMenu;
-	}
-
-	private void updateViewMenu() {
-		if (viewMenu != null) {
-			Component[] comps = viewMenu.getMenuComponents();
-			for (int i = 0; i < comps.length; i++) {
-				if (comps[i] instanceof JRadioButtonMenuItem) {
-					JRadioButtonMenuItem mi = (JRadioButtonMenuItem) comps[i];
-					if (((ViewTypeAction) mi.getAction()).viewType == viewType) {
-						mi.setSelected(true);
-					}
-				}
 			}
 		}
 	}

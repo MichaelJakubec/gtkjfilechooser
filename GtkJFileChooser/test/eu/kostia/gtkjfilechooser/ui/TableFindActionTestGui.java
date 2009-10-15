@@ -13,13 +13,15 @@ import javax.swing.table.DefaultTableModel;
 
 import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
 
+import eu.kostia.gtkjfilechooser.Log;
+
 public class TableFindActionTestGui extends JFrame {
-	private JTable jTable;
+	private JTable table;
 	private boolean cellEditable = false;
 
 
 	public TableFindActionTestGui() {
-		jTable = new JTable() {
+		table = new JTable() {
 			@Override
 			public boolean isCellEditable(int row, int column) {
 				// Cell editable ONLY when double-clicked
@@ -27,7 +29,7 @@ public class TableFindActionTestGui extends JFrame {
 			}
 		};
 
-		jTable.addMouseListener( new MouseAdapter()
+		table.addMouseListener( new MouseAdapter()
 		{
 			@Override
 			public void mouseClicked(MouseEvent e)
@@ -51,7 +53,7 @@ public class TableFindActionTestGui extends JFrame {
 
 		setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-		jTable.setModel(new DefaultTableModel(new Object[][] {
+		table.setModel(new DefaultTableModel(new Object[][] {
 				{ "Costantino", "Cerbo", "Napoli" },
 				{ "Christiane", "Oellig", "Stuttgart" }, 
 				{ "Davide", "Cerbo", "Roma" },
@@ -59,8 +61,9 @@ public class TableFindActionTestGui extends JFrame {
 
 				new String[] { "Nome", "Cognome", "Cittá" }));
 
-		new TableFindAction().install(jTable);
-		getContentPane().add(new JScrollPane(jTable));
+		Log.debug(table.getSelectionModel().getClass());
+		new TableFindAction().install(table);
+		getContentPane().add(new JScrollPane(table));
 	}
 
 	public static void main(String[] args) throws Exception {
