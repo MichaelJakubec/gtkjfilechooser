@@ -62,7 +62,7 @@ public class SearchPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-				filesPane.clean();
+				filesPane.getModel().clear();
 				stopSearch();
 				fileSearch = new FileSearch(System.getProperty("user.home"), searchTextField.getText(), new ThisFileSearchHandler());
 				fileSearch.setSearchHidden(GtkFileChooserSettings.get().getShowHidden());

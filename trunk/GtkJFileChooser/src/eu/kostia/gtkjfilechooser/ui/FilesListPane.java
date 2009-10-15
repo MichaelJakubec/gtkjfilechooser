@@ -20,7 +20,11 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.UIManager;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableColumnModel;
@@ -32,6 +36,7 @@ import eu.kostia.gtkjfilechooser.DateUtil;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
+import eu.kostia.gtkjfilechooser.Log;
 import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
 
 public class FilesListPane extends JComponent {
@@ -53,7 +58,7 @@ public class FilesListPane extends JComponent {
 
 	private static final long serialVersionUID = 1L;
 
-	private JTable table;
+	protected JTable table;
 
 	private List<ActionListener> actionListeners;
 
@@ -64,7 +69,7 @@ public class FilesListPane extends JComponent {
 	public FilesListPane(List<File> fileEntries) {
 		setLayout(new BorderLayout());
 
-		table = new JTable();		
+		table = new JTable();
 		table.setAutoCreateColumnsFromModel(false);
 		actionListeners = new ArrayList<ActionListener>();
 		table.setColumnModel(new FilesListTableColumnModel());
@@ -83,7 +88,8 @@ public class FilesListPane extends JComponent {
 			public void mousePressed(MouseEvent e) {
 				ActionEvent event = null;
 				if (e.getClickCount() == 2) {
-					event = new ActionEvent(FilesListPane.this, DOUBLE_CLICK_ID, DOUBLE_CLICK);
+					event = new ActionEvent(FilesListPane.this, DOUBLE_CLICK_ID,
+							DOUBLE_CLICK);
 				} else {
 					event = new ActionEvent(FilesListPane.this, SELECTED_ID, SELECTED);
 				}
@@ -98,7 +104,8 @@ public class FilesListPane extends JComponent {
 				int ch = e.getKeyChar();
 
 				if (ch == KeyEvent.VK_ENTER) {
-					fireActionEvent(new ActionEvent(FilesListPane.this, ENTER_PRESSED_ID, ENTER_PRESSED));
+					fireActionEvent(new ActionEvent(FilesListPane.this, ENTER_PRESSED_ID,
+							ENTER_PRESSED));
 				}
 			}
 		});
@@ -114,12 +121,13 @@ public class FilesListPane extends JComponent {
 	/**
 	 * Sets the table's selection mode to allow only single selections, a single
 	 * contiguous interval, or multiple intervals.
-	 *
+	 * 
 	 * @see JList#setSelectionMode
 	 */
 	public void setSelectionMode(int selectionMode) {
 		table.setSelectionMode(selectionMode);
 	}
+
 	/**
 	 * Append a new {@link File} to this table.Notification of the row being
 	 * added will be generated.
@@ -132,17 +140,21 @@ public class FilesListPane extends JComponent {
 		dataModel.addFile(entry);
 	}
 
-	/**
-	 * Remove all the rows in this table.
-	 */
-	public void clean() {
-		setModel(new ArrayList<File>());
-	}
 
 	public void setModel(List<File> fileEntries) {
 		FilesListTableModel dataModel = new FilesListTableModel(fileEntries);
 		table.setModel(dataModel);
-		table.setRowSorter(new FilesListTableRowSorter(dataModel));
+
+		List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>();
+		sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+
+		FilesListTableRowSorter sorter = new FilesListTableRowSorter();
+		sorter.setSortKeys(sortKeys);
+		table.setRowSorter(sorter);
+	}
+
+	public FilesListTableModel getModel(){
+		return (FilesListTableModel) table.getModel();
 	}
 
 	private void createColumnsFromModel(JTable aTable) {
@@ -181,7 +193,8 @@ public class FilesListPane extends JComponent {
 		File[] selectesFiles = new File[rows.length];
 		for (int i = 0; i < rows.length; i++) {
 			int rowIndex = rows[i];
-			selectesFiles[i] = (File) table.getModel().getValueAt(table.convertRowIndexToModel(rowIndex), 0);			
+			selectesFiles[i] = (File) table.getModel().getValueAt(
+					table.convertRowIndexToModel(rowIndex), 0);
 		}
 		return selectesFiles;
 	}
@@ -207,7 +220,8 @@ public class FilesListPane extends JComponent {
 	/**
 	 * Model
 	 */
-	private class FilesListTableModel extends AbstractTableModel implements Serializable {
+	protected class FilesListTableModel extends AbstractTableModel implements
+	Serializable, TableModelListener {
 
 		private static final long serialVersionUID = 1L;
 
@@ -223,6 +237,7 @@ public class FilesListPane extends JComponent {
 
 		public FilesListTableModel(List<File> fileEntries) {
 			this.data = new ArrayList<Object[]>();
+			addTableModelListener(this);
 			this.columnIds = new String[] { FILE_NAME_COLUMN_ID, FILE_SIZE_COLUMN_ID,
 					FILE_DATE_COLUMN_ID };
 			this.columnNames = new String[columnIds.length];
@@ -239,6 +254,11 @@ public class FilesListPane extends JComponent {
 			for (File file : fileEntries) {
 				addFileEntryInternal(file);
 			}
+		}
+
+		public void clear(){
+			this.data = new ArrayList<Object[]>();
+			fireTableDataChanged();
 		}
 
 		private void addFileEntryInternal(File file) {
@@ -262,7 +282,6 @@ public class FilesListPane extends JComponent {
 			int row = getRowCount() - 1;
 			fireTableRowsInserted(row, row);
 		}
-
 
 		/**
 		 * Maps the index of the column in the table model at the index of the
@@ -328,6 +347,12 @@ public class FilesListPane extends JComponent {
 			}
 
 			return Object.class;
+		}
+
+		@Override
+		public void tableChanged(TableModelEvent e) {
+			Log.debug("type: ", e.getType());
+			table.getRowSorter().allRowsChanged();
 		}
 	}
 
@@ -401,9 +426,9 @@ public class FilesListPane extends JComponent {
 
 	}
 
-	private class FilesListTableRowSorter extends TableRowSorter<FilesListTableModel> {
-		public FilesListTableRowSorter(FilesListTableModel model) {
-			super(model);
+	protected class FilesListTableRowSorter extends TableRowSorter<FilesListTableModel> {
+		public FilesListTableRowSorter() {
+			super((FilesListTableModel) table.getModel());
 		}
 
 		@SuppressWarnings("unchecked")
@@ -417,6 +442,13 @@ public class FilesListPane extends JComponent {
 				return new Comparator<File>() {
 					@Override
 					public int compare(File o1, File o2) {
+						// directories go first
+						if (o1.isDirectory() && !o2.isDirectory()) {
+							return -1;
+						}
+						if (!o1.isDirectory() && o2.isDirectory()) {
+							return 1;
+						}
 						return o1.getName().compareTo(o2.getName());
 					}
 				};
@@ -433,7 +465,5 @@ public class FilesListPane extends JComponent {
 		}
 
 	}
-
-
 
 }
