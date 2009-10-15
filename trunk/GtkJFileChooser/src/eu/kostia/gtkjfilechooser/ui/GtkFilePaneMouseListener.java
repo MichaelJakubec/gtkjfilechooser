@@ -119,8 +119,10 @@ public class GtkFilePaneMouseListener implements MouseListener {
 
 	public void mousePressed(MouseEvent evt) {
 		Log.debug("rows: ",Arrays.toString(filepane.getDetailsTable().getSelectedRows()));
-		if (SwingUtilities.isRightMouseButton(evt)) {
-			int index = getRowIndex(evt);
+		int index = getRowIndex(evt);
+		Log.debug(getListSelectionModel());
+
+		if (SwingUtilities.isRightMouseButton(evt)) {			
 			// on right click reset the selections			
 			getListSelectionModel().setSelectionInterval(index, index);
 			onRightMouseButtonClick(evt);
