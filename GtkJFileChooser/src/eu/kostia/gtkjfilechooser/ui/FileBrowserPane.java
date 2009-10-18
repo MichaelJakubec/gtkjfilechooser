@@ -1,16 +1,23 @@
 package eu.kostia.gtkjfilechooser.ui;
 
+import static javax.swing.JFileChooser.*;
+import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
+import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.Arrays;
 
-import javax.swing.JFileChooser;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.KeyStroke;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-
-import eu.kostia.gtkjfilechooser.Log;
 /**
  * File browser
  * 
@@ -18,79 +25,16 @@ import eu.kostia.gtkjfilechooser.Log;
  *
  */
 
-
-public class FileBrowserPane extends FilesListPane {
-	//TODO fire all the following property changes:
-
-	//	/** Identifies user's directory change. */
-	//	public static final String DIRECTORY_CHANGED_PROPERTY = "directoryChanged";
-	//
-	//	/** Identifies change in user's single-file selection. */
-	//	public static final String SELECTED_FILE_CHANGED_PROPERTY = "SelectedFileChangedProperty";
-	//
-	//	/** Identifies change in user's multiple-file selection. */
-	//	public static final String SELECTED_FILES_CHANGED_PROPERTY = "SelectedFilesChangedProperty";
-	//
-	//	/** Enables multiple-file selections. */
-	//	public static final String MULTI_SELECTION_ENABLED_CHANGED_PROPERTY = "MultiSelectionEnabledChangedProperty";
-	//
-	//	/**
-	//	 * Says that a different object is being used to find available drives
-	//	 * on the system. 
-	//	 */
-	//	public static final String FILE_SYSTEM_VIEW_CHANGED_PROPERTY = "FileSystemViewChanged";
-	//
-	//	/**
-	//	 * Says that a different object is being used to retrieve file
-	//	 * information. 
-	//	 */
-	//	public static final String FILE_VIEW_CHANGED_PROPERTY = "fileViewChanged";
-	//
-	//	/** Identifies a change in the display-hidden-files property. */
-	//	public static final String FILE_HIDING_CHANGED_PROPERTY = "FileHidingChanged";
-	//
-	//	/** User changed the kind of files to display. */
-	//	public static final String FILE_FILTER_CHANGED_PROPERTY = "fileFilterChanged";
-	//
-	//	/**
-	//	 * Identifies a change in the kind of selection (single,
-	//	 * multiple, etc.). 
-	//	 */
-	//	public static final String FILE_SELECTION_MODE_CHANGED_PROPERTY = "fileSelectionChanged";
-	//
-	//	/**
-	//	 * Says that a different accessory component is in use
-	//	 * (for example, to preview files). 
-	//	 */
-	//	public static final String ACCESSORY_CHANGED_PROPERTY = "AccessoryChangedProperty";
-	//
-	//	/**
-	//	 * Identifies whether a the AcceptAllFileFilter is used or not. 
-	//	 */
-	//	public static final String ACCEPT_ALL_FILE_FILTER_USED_CHANGED_PROPERTY = "acceptAllFileFilterUsedChanged";
-	//
-	//	/** Identifies a change in the dialog title. */
-	//	public static final String DIALOG_TITLE_CHANGED_PROPERTY = "DialogTitleChangedProperty";
-	//
-	//	/**
-	//	 * Identifies a change in the type of files displayed (files only,
-	//	 * directories only, or both files and directories). 
-	//	 */
-	//	public static final String DIALOG_TYPE_CHANGED_PROPERTY = "DialogTypeChangedProperty";
-	//
-	//	/** 
-	//	 * Identifies a change in the list of predefined file filters
-	//	 * the user can choose from.
-	//	 */
-	//	public static final String CHOOSABLE_FILE_FILTER_CHANGED_PROPERTY = "ChoosableFileFilterChangedProperty";
+//TODO add popup here?
+public class FileBrowserPane extends FilesListPane implements PropertyChangeListener{
 
 	private File currentDir;
 
-	protected boolean showHidden = false;
+	private boolean showHidden = false;
 
-	protected boolean isMultiSelectionEnabled = false;
+	private boolean isMultiSelectionEnabled = false;
 
-	protected int fileSelectionMode = JFileChooser.FILES_ONLY;
+	private int fileSelectionMode = FILES_ONLY;
 
 	private FileFilter acceptAll = new FileFilter() {
 
@@ -103,6 +47,7 @@ public class FileBrowserPane extends FilesListPane {
 	private FileFilter currentFilter = acceptAll;
 
 	public FileBrowserPane(File startDir) {
+		addPropertyChangeListener(this);
 		this.currentDir = startDir;
 
 		File[] files = currentDir.listFiles(currentFilter);
@@ -113,16 +58,10 @@ public class FileBrowserPane extends FilesListPane {
 		addActionListeners(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				FilesListPane p = (FilesListPane) e.getSource();
 				String cmd = e.getActionCommand();
-				File selectedFile = p.getSelectedFile();
-				Log.debug(cmd, ": ", selectedFile);
 
 				if (FilesListPane.DOUBLE_CLICK.equals(cmd)) {
-					if (fileSelectionMode == JFileChooser.FILES_ONLY
-							&& selectedFile.isDirectory()) {
-						setCurrentDir(selectedFile);
-					}
+					maybeApproveSelection();
 				}
 			}
 		});
@@ -132,12 +71,53 @@ public class FileBrowserPane extends FilesListPane {
 
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				firePropertyChange(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY, null, getSelectedFile());
+				if (table.getSelectedRowCount() > 1) {
+					firePropertyChange(SELECTED_FILES_CHANGED_PROPERTY, null, getSelectedFiles());
+				} else {
+					firePropertyChange(SELECTED_FILE_CHANGED_PROPERTY, null, getSelectedFile());	
+				}				
 			}
 		});
+
+		bindKeyAction();
+
+		doMultiSelectionEnabledChanged(isMultiSelectionEnabled);
 	}
 
-	private void listDirectory(File dir){
+	/**
+	 * The following action are binded to the following keys
+	 * <ul>
+	 * <li><i>up-folder:</i> Alt+Up[b] ; Backspace</li>
+	 * <li><i>down-folder:</i> Alt+Down</li>
+	 * <li><i>home-folder:</i>  Alt+Home</li>
+	 * <li><i>location-popup:</i> Control+L (empty path); / (path of "/")[a]; ~ (path of "~")</li>
+	 * <li><i>desktop-folder:</i> Alt+D</li>
+	 * <li><i>quick-bookmark:</i> Alt+1 through Alt+0</li>	 * 
+	 * </ul>
+	 */
+	private void bindKeyAction() {
+		// On enter pressed, approve the selection or go into the selected dir.
+		bind(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), new AbstractAction("maybeApproveSelection") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				maybeApproveSelection();
+			}
+		});
+
+		//TODO bind the other keys
+	}
+
+	private void bind(KeyStroke key, Action action) {
+		String name = (String) action.getValue(Action.NAME);
+		if (name == null) {
+			throw new IllegalArgumentException("The action must have a name.");
+		}
+
+		table.getInputMap().put(key, name);
+		table.getActionMap().put(name, action);
+	}
+
+	private void listDirectory(File dir, FileFilter filter){
 		if (!dir.exists()) {
 			throw new IllegalArgumentException(dir + " doesn't exist.");
 		}
@@ -146,9 +126,10 @@ public class FileBrowserPane extends FilesListPane {
 			throw new IllegalArgumentException(dir + " isn't a directory.");
 		}
 		getModel().clear();
-		File[] files = dir.listFiles(currentFilter);
+		File[] files = dir.listFiles(filter);
 		if (files != null) {
 			for (File file : files) {
+
 				getModel().addFile(file);
 			}
 		}
@@ -166,10 +147,95 @@ public class FileBrowserPane extends FilesListPane {
 		Object oldValue = this.currentDir;
 		Object newValue = currentDir;
 
-		this.currentDir = currentDir;
-		listDirectory(currentDir);
+		this.currentDir = currentDir;		
 
-		firePropertyChange(JFileChooser.DIRECTORY_CHANGED_PROPERTY, oldValue, newValue);
+		firePropertyChange(DIRECTORY_CHANGED_PROPERTY, oldValue, newValue);
 	}
+
+	public void setShowHidden(boolean showHidden) {
+		this.showHidden = showHidden;
+		firePropertyChange(FILE_HIDING_CHANGED_PROPERTY, !showHidden, showHidden);
+	}
+
+	public void setIsMultiSelectionEnabled(boolean enabled){
+		this.isMultiSelectionEnabled = enabled;
+		firePropertyChange(MULTI_SELECTION_ENABLED_CHANGED_PROPERTY, !enabled, enabled);
+	}
+
+	public void setCurrentFilter(FileFilter currentFilter) {
+		Object oldValue = this.currentFilter;
+		Object newValue = currentFilter;
+
+		this.currentFilter = currentFilter;
+
+		firePropertyChange(FILE_FILTER_CHANGED_PROPERTY, oldValue, newValue);
+	}
+
+	//TODO move to FilesListpane?
+	public void setFileSelectionMode(int fileSelectionMode) {
+		int oldValue = this.fileSelectionMode;
+		int newValue = fileSelectionMode;
+
+		this.fileSelectionMode = fileSelectionMode;
+		firePropertyChange(FILE_SELECTION_MODE_CHANGED_PROPERTY, oldValue, newValue);
+	}
+
+	/**
+	 * Property listeners
+	 */
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		String property = evt.getPropertyName();
+		Object value = evt.getNewValue();
+
+		if (MULTI_SELECTION_ENABLED_CHANGED_PROPERTY.equals(property)) {
+			doMultiSelectionEnabledChanged((Boolean)value);
+		} else if (FILE_FILTER_CHANGED_PROPERTY.equals(property)){
+			doFileFilerChanged((FileFilter)value);
+		} else if (DIRECTORY_CHANGED_PROPERTY.equals(property)){
+			doDirectoryChanged((File)value);// 
+		} else if (FILE_SELECTION_MODE_CHANGED_PROPERTY.equals(property)){
+			doFileSelectionModeChanged((Integer)value);
+		}
+
+	}
+
+	private void doFileSelectionModeChanged(Integer value) {
+		setFilesSelectable(DIRECTORIES_ONLY != value);
+
+		// Repaint the table to immediately enable/disable the rows
+		table.repaint();
+	}
+
+	private void doDirectoryChanged(File dir) {
+		listDirectory(dir, currentFilter);
+	}
+
+	private void doFileFilerChanged(FileFilter filter) {
+		listDirectory(getCurrentDir(), filter);
+	}
+
+	private void doMultiSelectionEnabledChanged(Boolean multi) {
+		table.setSelectionMode(multi ? MULTIPLE_INTERVAL_SELECTION : SINGLE_SELECTION);
+	}
+
+	/**
+	 * Approve a selection (with double click or enter) or navigate 
+	 * into another directory (when the File Selection Mode isn't DIRECTORIES_ONLY).
+	 */
+	private void maybeApproveSelection() {
+		File selectedFile = getSelectedFile();
+		if (selectedFile == null) {
+			return;
+		}
+
+		if (fileSelectionMode != DIRECTORIES_ONLY && selectedFile.isDirectory()) {
+			setCurrentDir(selectedFile);
+		} else {
+			fireActionEvent(new ActionEvent(FileBrowserPane.this, APPROVE_SELECTION.hashCode(), APPROVE_SELECTION));
+		}
+	}
+
+
 
 }

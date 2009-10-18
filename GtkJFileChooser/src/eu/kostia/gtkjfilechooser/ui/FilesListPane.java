@@ -41,6 +41,8 @@ import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
 
 public class FilesListPane extends JComponent {
 
+	public static final Color PEARL_GRAY = new Color(238, 238, 238);
+
 	private static final String FILE_NAME_COLUMN_ID = "FileChooser.fileNameHeaderText";
 	private static final String FILE_SIZE_COLUMN_ID = "FileChooser.fileSizeHeaderText";
 	private static final int FILE_SIZE_COLUMN_WIDTH = 100;
@@ -62,6 +64,8 @@ public class FilesListPane extends JComponent {
 
 	private List<ActionListener> actionListeners;
 
+	private boolean filesSelectable = true;
+
 	public FilesListPane() {
 		this(new ArrayList<File>());
 	}
@@ -69,8 +73,20 @@ public class FilesListPane extends JComponent {
 	public FilesListPane(List<File> fileEntries) {
 		setLayout(new BorderLayout());
 
-		table = new JTable();
+		table = new JTable() {
+			@Override
+			public void changeSelection(int row, int column, boolean toggle, boolean extend) {
+				File file = (File) getValueAt(row, 0);
+				if(FilesListPane.this.isRowEnabled(file)){
+					// If the row isn't enabled, don't allow the selection.
+					super.changeSelection(row, column, toggle, extend);
+				}
+			}
+		};
+
+
 		table.setAutoCreateColumnsFromModel(false);
+		table.setBackground(UIManager.getColor("TextPane.background"));
 		actionListeners = new ArrayList<ActionListener>();
 		table.setColumnModel(new FilesListTableColumnModel());
 		table.getTableHeader().setReorderingAllowed(false);
@@ -81,7 +97,7 @@ public class FilesListPane extends JComponent {
 		table.setRowSelectionAllowed(true);
 		table.setShowGrid(false);
 		table.getTableHeader().setResizingAllowed(true);
-		// gnome rows are taller
+		// Gnome rows are taller
 		table.setRowHeight(22);
 		table.addMouseListener(new MouseAdapter() {
 			@Override
@@ -141,6 +157,14 @@ public class FilesListPane extends JComponent {
 	}
 
 
+	/**
+	 * Set if the the files are enabled/selectable;  for example when FileSelectionMode = DIRECTORIES_ONLY.
+	 * @param filesSelectable
+	 */
+	public void setFilesSelectable(boolean filesSelectable) {
+		this.filesSelectable = filesSelectable;
+	}
+
 	public void setModel(List<File> fileEntries) {
 		FilesListTableModel dataModel = new FilesListTableModel(fileEntries);
 		table.setModel(dataModel);
@@ -155,6 +179,18 @@ public class FilesListPane extends JComponent {
 
 	public FilesListTableModel getModel(){
 		return (FilesListTableModel) table.getModel();
+	}
+
+	private boolean isRowEnabled(File file) {
+		// Directory are always enabled
+		if (file.isDirectory()){
+			return true;
+		}
+
+		// When FileSelectionMode = DIRECTORIES_ONLY, disable files
+		// Use !file.isDirectory() instead of file.isFile() because 
+		// the last one doesn't return true for links
+		return !file.isDirectory() && filesSelectable;
 	}
 
 	private void createColumnsFromModel(JTable aTable) {
@@ -359,7 +395,9 @@ public class FilesListPane extends JComponent {
 	/**
 	 * Cell renderer
 	 */
-	private class FilesListRenderer extends DefaultTableCellRenderer {
+	protected class FilesListRenderer extends DefaultTableCellRenderer {
+
+
 
 		private static final long serialVersionUID = 1L;
 
@@ -386,20 +424,24 @@ public class FilesListPane extends JComponent {
 				setText(DateUtil.toPrettyFormat(date));
 			}
 
-			if (isSelected) {
-				setForeground(UIManager.getColor("List.selectionForeground"));
-				setBackground(UIManager.getColor("List.selectionBackground"));
+			if (isSelected) {				
+				setForeground(table.getSelectionForeground());
+				setBackground(table.getSelectionBackground());
 			} else {
-				setForeground(UIManager.getColor("List.foreground"));
-				Color rowcolor = (row % 2 == 0) ? new Color(238, 238, 238) : UIManager
-						.getColor("TextPane.background");
+				setForeground(table.getForeground());
+
+				Color rowcolor = (row % 2 == 0) ? PEARL_GRAY : table.getBackground();
 				setBackground(rowcolor);
 			}
 
+
+			setEnabled(FilesListPane.this.isRowEnabled(file));
+
 			return this;
 		}
-
 	}
+
+
 
 	private class FilesListTableColumnModel extends DefaultTableColumnModel {
 		private static final long serialVersionUID = 1L;
