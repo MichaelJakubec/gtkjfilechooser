@@ -7,6 +7,7 @@ import java.awt.FlowLayout;
 import java.awt.LayoutManager;
 import java.awt.Toolkit;
 
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -27,6 +28,21 @@ public class JPanelUtil {
 		}
 
 		return panel;
+	}
+
+	static public JPanel createPanelBoxLayout(int axis, Component... components) {
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, axis));
+		for (Component component : components) {
+			panel.add(component);
+		}
+
+		return panel;
+	}
+
+	static public JPanel createPanelBoxLayout(Component... components) {
+		int axis = BoxLayout.X_AXIS;
+		return createPanelBoxLayout(axis, components);
 	}
 
 	static public JPanel createPanel(Component... components) {
