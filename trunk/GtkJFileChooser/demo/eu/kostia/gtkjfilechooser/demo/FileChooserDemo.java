@@ -77,6 +77,7 @@ import javax.swing.plaf.basic.BasicFileChooserUI;
 
 import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
 
+import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.ui.ImagePreviewer;
 
 /**
@@ -180,6 +181,8 @@ public class FileChooserDemo extends JPanel implements ActionListener {
 
 		// more options
 		setHiddenCheckBox = new JCheckBox("Show Hidden Files");
+		setHiddenCheckBox.setSelected(GtkFileChooserSettings.get().getShowHidden());
+
 		setHiddenCheckBox.addActionListener(optionListener);
 
 		showFullDescriptionCheckBox = new JCheckBox("With File Extensions");

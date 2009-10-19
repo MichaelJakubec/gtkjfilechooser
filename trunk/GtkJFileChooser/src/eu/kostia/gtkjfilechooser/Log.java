@@ -6,7 +6,7 @@ import java.lang.reflect.Array;
 //TODO remove this class in the releases
 public class Log {
 	static public void debug(Object... msgs) {
-		if (false) {
+		if (true) {
 			String location = getInvokingLocation();
 
 			System.out.print(location);
