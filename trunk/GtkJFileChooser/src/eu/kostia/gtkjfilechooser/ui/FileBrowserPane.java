@@ -6,6 +6,7 @@ import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -18,6 +19,9 @@ import javax.swing.Action;
 import javax.swing.KeyStroke;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
+import eu.kostia.gtkjfilechooser.FreeDesktopUtil.WellKnownDir;
 /**
  * File browser
  * 
@@ -104,7 +108,24 @@ public class FileBrowserPane extends FilesListPane implements PropertyChangeList
 			}
 		});
 
-		//TODO bind the other keys
+		// Home-folder: Alt+Home
+		KeyStroke altHome = KeyStroke.getKeyStroke(KeyEvent.VK_HOME, InputEvent.ALT_DOWN_MASK);
+		bind(altHome, new AbstractAction("Go to Home folder") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doDirectoryChanged(new File(System.getProperty("user.home")));
+			}
+		});
+
+		// Desktop-folder: Alt+D
+		//TODO disable incremental search
+		KeyStroke altD = KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.ALT_DOWN_MASK);
+		bind(altD, new AbstractAction("Go to Desktop") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doDirectoryChanged(FreeDesktopUtil.getWellKnownDirPath(WellKnownDir.DESKTOP));
+			}
+		});
 	}
 
 	private void bind(KeyStroke key, Action action) {
