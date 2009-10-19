@@ -27,6 +27,7 @@ import javax.swing.text.Position;
 
 public abstract class FindAction extends AbstractAction implements DocumentListener,
 		KeyListener {
+	
 	private JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 3));
 	protected JTextField searchField;
 	private JPopupMenu popup = new JPopupMenu();
@@ -152,18 +153,31 @@ public abstract class FindAction extends AbstractAction implements DocumentListe
 
 	/*-------------------------------------------------[ Installation ]---------------------------------------------------*/
 
-	public void install(final JComponent comp) {
-		// comp.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke('I',
-		// InputEvent.CTRL_MASK), getName());
-		// comp.getActionMap().put(getName(), this);
-
+	public void install(final JComponent comp) {		
 		comp.addKeyListener(new KeyAdapter() {
+			private static final int ALT_KEY = 65535;
+			private boolean isSearchEnabled = true;
+			
 			@Override
 			public void keyPressed(KeyEvent e) {
 				char ch = e.getKeyChar();
-				if (Character.isLetterOrDigit(ch)) {
+				if (ALT_KEY == ch) {
+					// Workaround to disable incremental search when a key is pressed with ALT.
+					isSearchEnabled = false;
+				}
+				
+				if (Character.isLetterOrDigit(ch) && isSearchEnabled) {
 					ActionEvent ae = new ActionEvent(comp, 1001, String.valueOf(ch));
 					actionPerformed(ae);
+				}
+			}
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+				char ch = e.getKeyChar();
+				if (ALT_KEY == ch) {
+					// enable again the incremental search: the key ALT was released.
+					isSearchEnabled = true;
 				}
 			}
 		});

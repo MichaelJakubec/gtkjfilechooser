@@ -91,7 +91,7 @@ public class FileBrowserPane extends FilesListPane implements PropertyChangeList
 	/**
 	 * The following action are binded to the following keys
 	 * <ul>
-	 * <li><i>up-folder:</i> Alt+Up[b] ; Backspace</li>
+	 * <li><i>up-folder:</i> Alt+Up</li>
 	 * <li><i>down-folder:</i> Alt+Down</li>
 	 * <li><i>home-folder:</i>  Alt+Home</li>
 	 * <li><i>location-popup:</i> Control+L (empty path); / (path of "/")[a]; ~ (path of "~")</li>
@@ -108,15 +108,6 @@ public class FileBrowserPane extends FilesListPane implements PropertyChangeList
 			}
 		});
 
-		// Home-folder: Alt+Home
-		KeyStroke altHome = KeyStroke.getKeyStroke(KeyEvent.VK_HOME, InputEvent.ALT_DOWN_MASK);
-		bind(altHome, new AbstractAction("Go to Home folder") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				doDirectoryChanged(new File(System.getProperty("user.home")));
-			}
-		});
-
 		// Desktop-folder: Alt+D
 		//TODO disable incremental search
 		KeyStroke altD = KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.ALT_DOWN_MASK);
@@ -126,6 +117,15 @@ public class FileBrowserPane extends FilesListPane implements PropertyChangeList
 				doDirectoryChanged(FreeDesktopUtil.getWellKnownDirPath(WellKnownDir.DESKTOP));
 			}
 		});
+		
+		// Home-folder: Alt+Home
+		KeyStroke altHome = KeyStroke.getKeyStroke(KeyEvent.VK_HOME, InputEvent.ALT_DOWN_MASK);
+		bind(altHome, new AbstractAction("Go to Home folder") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				doDirectoryChanged(new File(System.getProperty("user.home")));
+			}
+		});		
 	}
 
 	private void bind(KeyStroke key, Action action) {
