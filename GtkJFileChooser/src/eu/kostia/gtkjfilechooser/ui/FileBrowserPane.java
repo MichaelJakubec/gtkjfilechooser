@@ -22,15 +22,16 @@ import javax.swing.event.ListSelectionListener;
 
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil.WellKnownDir;
+
 /**
  * File browser
  * 
  * @author Costantino Cerbo
- *
+ * 
  */
 
-//TODO add popup here?
-public class FileBrowserPane extends FilesListPane implements PropertyChangeListener{
+// TODO add popup here?
+public class FileBrowserPane extends FilesListPane implements PropertyChangeListener {
 
 	private File currentDir;
 
@@ -76,10 +77,12 @@ public class FileBrowserPane extends FilesListPane implements PropertyChangeList
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				if (table.getSelectedRowCount() > 1) {
-					firePropertyChange(SELECTED_FILES_CHANGED_PROPERTY, null, getSelectedFiles());
+					firePropertyChange(SELECTED_FILES_CHANGED_PROPERTY, null,
+							getSelectedFiles());
 				} else {
-					firePropertyChange(SELECTED_FILE_CHANGED_PROPERTY, null, getSelectedFile());	
-				}				
+					firePropertyChange(SELECTED_FILE_CHANGED_PROPERTY, null,
+							getSelectedFile());
+				}
 			}
 		});
 
@@ -93,15 +96,17 @@ public class FileBrowserPane extends FilesListPane implements PropertyChangeList
 	 * <ul>
 	 * <li><i>up-folder:</i> Alt+Up</li>
 	 * <li><i>down-folder:</i> Alt+Down</li>
-	 * <li><i>home-folder:</i>  Alt+Home</li>
-	 * <li><i>location-popup:</i> Control+L (empty path); / (path of "/")[a]; ~ (path of "~")</li>
+	 * <li><i>home-folder:</i> Alt+Home</li>
+	 * <li><i>location-popup:</i> Control+L (empty path); / (path of "/")[a]; ~
+	 * (path of "~")</li>
 	 * <li><i>desktop-folder:</i> Alt+D</li>
-	 * <li><i>quick-bookmark:</i> Alt+1 through Alt+0</li>	 * 
+	 * <li><i>quick-bookmark:</i> Alt+1 through Alt+0</li>
 	 * </ul>
 	 */
 	private void bindKeyAction() {
 		// On enter pressed, approve the selection or go into the selected dir.
-		bind(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), new AbstractAction("maybeApproveSelection") {
+		bind(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), new AbstractAction(
+				"maybeApproveSelection") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				maybeApproveSelection();
@@ -109,23 +114,25 @@ public class FileBrowserPane extends FilesListPane implements PropertyChangeList
 		});
 
 		// Desktop-folder: Alt+D
-		//TODO disable incremental search
+		// TODO disable incremental search
 		KeyStroke altD = KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.ALT_DOWN_MASK);
 		bind(altD, new AbstractAction("Go to Desktop") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				doDirectoryChanged(FreeDesktopUtil.getWellKnownDirPath(WellKnownDir.DESKTOP));
+				doDirectoryChanged(FreeDesktopUtil
+						.getWellKnownDirPath(WellKnownDir.DESKTOP));
 			}
 		});
-		
+
 		// Home-folder: Alt+Home
-		KeyStroke altHome = KeyStroke.getKeyStroke(KeyEvent.VK_HOME, InputEvent.ALT_DOWN_MASK);
+		KeyStroke altHome = KeyStroke.getKeyStroke(KeyEvent.VK_HOME,
+				InputEvent.ALT_DOWN_MASK);
 		bind(altHome, new AbstractAction("Go to Home folder") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				doDirectoryChanged(new File(System.getProperty("user.home")));
 			}
-		});		
+		});
 	}
 
 	private void bind(KeyStroke key, Action action) {
@@ -138,7 +145,7 @@ public class FileBrowserPane extends FilesListPane implements PropertyChangeList
 		table.getActionMap().put(name, action);
 	}
 
-	private void listDirectory(File dir, FileFilter filter){
+	private void listDirectory(File dir, FileFilter filter) {
 		if (!dir.exists()) {
 			throw new IllegalArgumentException(dir + " doesn't exist.");
 		}
@@ -162,13 +169,14 @@ public class FileBrowserPane extends FilesListPane implements PropertyChangeList
 
 	/**
 	 * Set the current dir and update the view.
+	 * 
 	 * @param currentDir
 	 */
 	public void setCurrentDir(File currentDir) {
 		Object oldValue = this.currentDir;
 		Object newValue = currentDir;
 
-		this.currentDir = currentDir;		
+		this.currentDir = currentDir;
 
 		firePropertyChange(DIRECTORY_CHANGED_PROPERTY, oldValue, newValue);
 	}
@@ -178,7 +186,7 @@ public class FileBrowserPane extends FilesListPane implements PropertyChangeList
 		firePropertyChange(FILE_HIDING_CHANGED_PROPERTY, !showHidden, showHidden);
 	}
 
-	public void setIsMultiSelectionEnabled(boolean enabled){
+	public void setIsMultiSelectionEnabled(boolean enabled) {
 		this.isMultiSelectionEnabled = enabled;
 		firePropertyChange(MULTI_SELECTION_ENABLED_CHANGED_PROPERTY, !enabled, enabled);
 	}
@@ -192,7 +200,7 @@ public class FileBrowserPane extends FilesListPane implements PropertyChangeList
 		firePropertyChange(FILE_FILTER_CHANGED_PROPERTY, oldValue, newValue);
 	}
 
-	//TODO move to FilesListpane?
+	// TODO move to FilesListpane?
 	public void setFileSelectionMode(int fileSelectionMode) {
 		int oldValue = this.fileSelectionMode;
 		int newValue = fileSelectionMode;
@@ -210,15 +218,30 @@ public class FileBrowserPane extends FilesListPane implements PropertyChangeList
 		Object value = evt.getNewValue();
 
 		if (MULTI_SELECTION_ENABLED_CHANGED_PROPERTY.equals(property)) {
-			doMultiSelectionEnabledChanged((Boolean)value);
-		} else if (FILE_FILTER_CHANGED_PROPERTY.equals(property)){
-			doFileFilerChanged((FileFilter)value);
-		} else if (DIRECTORY_CHANGED_PROPERTY.equals(property)){
-			doDirectoryChanged((File)value);// 
-		} else if (FILE_SELECTION_MODE_CHANGED_PROPERTY.equals(property)){
-			doFileSelectionModeChanged((Integer)value);
+			doMultiSelectionEnabledChanged((Boolean) value);
+		} else if (FILE_FILTER_CHANGED_PROPERTY.equals(property)) {
+			FileFilter ioFileFilter = toIOFileFiler((javax.swing.filechooser.FileFilter)value);
+			doFileFilerChanged(ioFileFilter);
+		} else if (DIRECTORY_CHANGED_PROPERTY.equals(property)) {
+			doDirectoryChanged((File) value);// 
+		} else if (FILE_SELECTION_MODE_CHANGED_PROPERTY.equals(property)) {
+			doFileSelectionModeChanged((Integer) value);
 		}
 
+	}
+
+	private FileFilter toIOFileFiler(final javax.swing.filechooser.FileFilter swingFileFilter) {
+		if (swingFileFilter == null){
+			return null;
+		}
+		
+		FileFilter ioFileFilter = new FileFilter() {
+			@Override
+			public boolean accept(File pathname) {
+				return swingFileFilter.accept(pathname);
+			}
+		};
+		return ioFileFilter;
 	}
 
 	private void doFileSelectionModeChanged(Integer value) {
@@ -241,8 +264,8 @@ public class FileBrowserPane extends FilesListPane implements PropertyChangeList
 	}
 
 	/**
-	 * Approve a selection (with double click or enter) or navigate 
-	 * into another directory (when the File Selection Mode isn't DIRECTORIES_ONLY).
+	 * Approve a selection (with double click or enter) or navigate into another
+	 * directory (when the File Selection Mode isn't DIRECTORIES_ONLY).
 	 */
 	private void maybeApproveSelection() {
 		File selectedFile = getSelectedFile();
@@ -253,10 +276,15 @@ public class FileBrowserPane extends FilesListPane implements PropertyChangeList
 		if (fileSelectionMode != DIRECTORIES_ONLY && selectedFile.isDirectory()) {
 			setCurrentDir(selectedFile);
 		} else {
-			fireActionEvent(new ActionEvent(FileBrowserPane.this, APPROVE_SELECTION.hashCode(), APPROVE_SELECTION));
+			fireActionEvent(new ActionEvent(FileBrowserPane.this, APPROVE_SELECTION
+					.hashCode(), APPROVE_SELECTION));
 		}
 	}
 
-
-
+	/**
+	 * List again the entries in the current directory.
+	 */
+	public void rescanCurrentDirectory() {
+		listDirectory(getCurrentDir(), currentFilter);
+	}
 }

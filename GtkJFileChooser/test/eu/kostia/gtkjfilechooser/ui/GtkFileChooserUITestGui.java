@@ -29,7 +29,7 @@ public class GtkFileChooserUITestGui {
 		JFileChooser fileChooser = new JFileChooser();
 		int option = fileChooser.showSaveDialog(null);
 		if (JFileChooser.APPROVE_OPTION == option){
-			System.out.println("Selected file: " + fileChooser.getSelectedFile());
+			System.out.println(">>>> Selected file: " + fileChooser.getSelectedFile());
 		}
 	}
 

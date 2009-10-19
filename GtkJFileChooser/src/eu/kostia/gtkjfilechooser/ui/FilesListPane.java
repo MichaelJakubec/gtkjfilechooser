@@ -36,7 +36,6 @@ import eu.kostia.gtkjfilechooser.DateUtil;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
-import eu.kostia.gtkjfilechooser.Log;
 import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
 
 public class FilesListPane extends JComponent {
@@ -62,7 +61,7 @@ public class FilesListPane extends JComponent {
 
 	protected JTable table;
 
-	private List<ActionListener> actionListeners;
+	protected List<ActionListener> actionListeners;
 
 	private boolean filesSelectable = true;
 
@@ -132,6 +131,11 @@ public class FilesListPane extends JComponent {
 		new FileFindAction().install(table);
 
 		add(new JScrollPane(table), BorderLayout.CENTER);
+	}
+	
+	public void uninstallUI() {
+		table = null;
+		actionListeners = null;		
 	}
 
 	/**
@@ -251,6 +255,10 @@ public class FilesListPane extends JComponent {
 
 	private Boolean getShowSizeColumn() {
 		return GtkFileChooserSettings.get().getShowSizeColumn();
+	}
+	
+	public void clearSelection() {
+		table.getSelectionModel().clearSelection();		
 	}
 
 	/**
@@ -387,7 +395,6 @@ public class FilesListPane extends JComponent {
 
 		@Override
 		public void tableChanged(TableModelEvent e) {
-			Log.debug("type: ", e.getType());
 			table.getRowSorter().allRowsChanged();
 		}
 	}

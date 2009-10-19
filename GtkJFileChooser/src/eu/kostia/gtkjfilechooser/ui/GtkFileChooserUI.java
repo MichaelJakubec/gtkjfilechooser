@@ -19,14 +19,9 @@ import java.awt.LayoutManager;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -35,8 +30,6 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.accessibility.AccessibleContext;
-import javax.swing.Action;
-import javax.swing.ActionMap;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -49,8 +42,6 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
@@ -58,12 +49,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
-import javax.swing.plaf.ActionMapUIResource;
 import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.basic.BasicDirectoryModel;
 import javax.swing.plaf.basic.BasicFileChooserUI;
 
-import sun.swing.FilePane;
 import eu.kostia.gtkjfilechooser.ActionPath;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
@@ -81,7 +69,8 @@ import eu.kostia.gtkjfilechooser.xbel.RecentlyUsedManager;
  * @version 1.95 10/02/08
  * @author Costantino Cerbo, Jeff Dinkins
  */
-public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable {
+public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable,
+		PropertyChangeListener, ActionListener {
 
 	private static final String CURRENT_PANEL_CHANGED = "CurrentPanelChanged";
 
@@ -169,7 +158,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 	/**
 	 * The panel with for the file/directory navigation.
 	 */
-	private GtkFilePane fileBrowserPane;
+	private FileBrowserPane fileBrowserPane;
 
 	/**
 	 * Table to show the recent used files
@@ -249,66 +238,67 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		buttonPanel = null;
 	}
 
-
-	class MyGTKFileChooserUIAccessor implements GtkFilePane.FileChooserUIAccessor {
-		public JFileChooser getFileChooser() {
-			return GtkFileChooserUI.this.getFileChooser();
-		}
-
-		public BasicDirectoryModel getModel() {
-			return GtkFileChooserUI.this.getModel();
-		}
-
-		public JPanel createList() {
-			return GtkFileChooserUI.this.createList(getFileChooser());
-		}
-
-		public JPanel createDetailsView() {
-			return GtkFileChooserUI.this.createDetailsView(getFileChooser());
-		}
-
-		public boolean isDirectorySelected() {
-			return GtkFileChooserUI.this.isDirectorySelected();
-		}
-
-		public File getDirectory() {
-			return GtkFileChooserUI.this.getDirectory();
-		}
-
-		public Action getChangeToParentDirectoryAction() {
-			return GtkFileChooserUI.this.getChangeToParentDirectoryAction();
-		}
-
-		public Action getApproveSelectionAction() {
-			return GtkFileChooserUI.this.getApproveSelectionAction();
-		}
-
-		public Action getNewFolderAction() {
-			return GtkFileChooserUI.this.getNewFolderAction();
-		}
-
-		public MouseListener createDoubleClickListener(JList list) {
-			return GtkFileChooserUI.this
-			.createDoubleClickListener(getFileChooser(), list);
-		}
-
-		public ListSelectionListener createListSelectionListener() {
-			return GtkFileChooserUI.this.createListSelectionListener(getFileChooser());
-		}
-
-		public boolean usesShellFolder() {
-			return useShellFolder;
-		}
-
-		public GtkLocationsPane getLocationsPane() {
-			return GtkFileChooserUI.this.locationsPane;
-		}
-
-		@Override
-		public void showHiddenAutocompletion(boolean showHidden) {
-			GtkFileChooserUI.this.pathAutoCompletion.setShowHidden(showHidden);
-		}
-	}
+	// class MyGTKFileChooserUIAccessor implements
+	// GtkFilePane.FileChooserUIAccessor {
+	// public JFileChooser getFileChooser() {
+	// return GtkFileChooserUI.this.getFileChooser();
+	// }
+	//
+	// public BasicDirectoryModel getModel() {
+	// return GtkFileChooserUI.this.getModel();
+	// }
+	//
+	// // public JPanel createList() {
+	// // return GtkFileChooserUI.this.createList(getFileChooser());
+	// // }
+	//
+	// // public JPanel createDetailsView() {
+	// // return GtkFileChooserUI.this.createDetailsView(getFileChooser());
+	// // }
+	//
+	// public boolean isDirectorySelected() {
+	// return GtkFileChooserUI.this.isDirectorySelected();
+	// }
+	//
+	// public File getDirectory() {
+	// return GtkFileChooserUI.this.getDirectory();
+	// }
+	//
+	// public Action getChangeToParentDirectoryAction() {
+	// return GtkFileChooserUI.this.getChangeToParentDirectoryAction();
+	// }
+	//
+	// public Action getApproveSelectionAction() {
+	// return GtkFileChooserUI.this.getApproveSelectionAction();
+	// }
+	//
+	// public Action getNewFolderAction() {
+	// return GtkFileChooserUI.this.getNewFolderAction();
+	// }
+	//
+	// public MouseListener createDoubleClickListener(JList list) {
+	// return GtkFileChooserUI.this
+	// .createDoubleClickListener(getFileChooser(), list);
+	// }
+	//
+	// public ListSelectionListener createListSelectionListener() {
+	// return
+	// GtkFileChooserUI.this.createListSelectionListener(getFileChooser());
+	// }
+	//
+	// public boolean usesShellFolder() {
+	// return useShellFolder;
+	// }
+	//
+	// public GtkLocationsPane getLocationsPane() {
+	// return GtkFileChooserUI.this.locationsPane;
+	// }
+	//
+	// @Override
+	// public void showHiddenAutocompletion(boolean showHidden) {
+	// GtkFileChooserUI.this.pathAutoCompletion.setShowHidden(showHidden);
+	// }
+	// }
 
 	private void createFilenamePanel(JFileChooser fc) {
 		// FileName label and textfield
@@ -338,7 +328,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 			}
 		});
 
-		fileNameTextField.addActionListener(new SelectPathAction(){
+		fileNameTextField.addActionListener(new SelectPathAction() {
 			@Override
 			protected File getSelectedPath() {
 				String text = fileNameTextField.getText();
@@ -370,8 +360,10 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		fc.setBorder(new EmptyBorder(12, 12, 11, 11));
 		fc.setLayout(new BorderLayout(0, 11));
 
-		fileBrowserPane = new GtkFilePane(new MyGTKFileChooserUIAccessor());
-		fc.addPropertyChangeListener(fileBrowserPane);
+		fileBrowserPane = new FileBrowserPane(getFileChooser().getCurrentDirectory());
+		fc.addPropertyChangeListener(this);
+		fileBrowserPane.addPropertyChangeListener(this);
+		fileBrowserPane.addActionListeners(this);
 
 		updateUseShellFolder();
 
@@ -382,7 +374,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		showPositionButton = new JToggleButton(GtkStockIcon.get("gtk-edit",
 				Size.GTK_ICON_SIZE_BUTTON));
 		showPositionButton
-		.setSelected(GtkFileChooserSettings.get().getLocationMode() == Mode.FILENAME_ENTRY);
+				.setSelected(GtkFileChooserSettings.get().getLocationMode() == Mode.FILENAME_ENTRY);
 		showPositionButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -397,8 +389,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		comboButtons.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				fc.setCurrentDirectory(comboButtons.getCurrentDirectory());
-				updateFileNameField();
+				doDirectoryChanged(comboButtons.getCurrentDirectory());
 			}
 		});
 
@@ -408,10 +399,12 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		JPanel pathbar = new JPanel(new BorderLayout());
 		pathbar.add(createPanel(new PanelElement(createPanel(showPositionButton),
 				BorderLayout.LINE_START), new PanelElement(comboButtons,
-						BorderLayout.CENTER)), BorderLayout.CENTER);
+				BorderLayout.CENTER)), BorderLayout.CENTER);
 		if (fc.getDialogType() == JFileChooser.SAVE_DIALOG) {
 			// New Directory Button
-			JButton newDirButton = new JButton(fileBrowserPane.getNewFolderAction());
+			// TODO
+			JButton newDirButton = null; // new
+											// JButton(fileBrowserPane.getNewFolderAction());
 			newDirButton.setText("New Directory"); // TODO I18N
 			newDirButton.setToolTipText(newFolderToolTipText);
 			newDirButton.putClientProperty(AccessibleContext.ACCESSIBLE_NAME_PROPERTY,
@@ -476,10 +469,10 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		approveButton = new JButton(getApproveButtonText(fc));
 		if (fc.getDialogType() == JFileChooser.OPEN_DIALOG) {
 			approveButton
-			.setIcon(GtkStockIcon.get("gtk-open", Size.GTK_ICON_SIZE_BUTTON));
+					.setIcon(GtkStockIcon.get("gtk-open", Size.GTK_ICON_SIZE_BUTTON));
 		} else if (fc.getDialogType() == JFileChooser.SAVE_DIALOG) {
 			approveButton
-			.setIcon(GtkStockIcon.get("gtk-save", Size.GTK_ICON_SIZE_BUTTON));
+					.setIcon(GtkStockIcon.get("gtk-save", Size.GTK_ICON_SIZE_BUTTON));
 		}
 
 		approveButton.addActionListener(getApproveSelectionAction());
@@ -510,7 +503,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		addBookmarkButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				File path = fileBrowserPane.getSelectedPath();
+				File path = fileBrowserPane.getSelectedFile();
 				locationsPane.addBookmark(path);
 			}
 		});
@@ -546,7 +539,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 				showOnPanels(FILEBROWSER_PANEL);
 
 				if (entry != null && entry.getLocation() != null) {
-					fc.setCurrentDirectory(new File(entry.getLocation()));
+					doDirectoryChanged(new File(entry.getLocation()));
 				}
 			}
 		});
@@ -557,7 +550,6 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 
 		// Right Panel (file browser)
 		fileBrowserPane.setPreferredSize(LIST_PREF_SIZE);
-		fileBrowserPane.setViewType(FilePane.VIEWTYPE_DETAILS);
 
 		// Filetype combobox
 		JPanel fileBrowserSubPanel = addFilterCombobox(fileBrowserPane);
@@ -586,8 +578,8 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 
 		JPanel fileBrowserSubPanel = JPanelUtil.createPanel(new PanelElement(component,
 				BorderLayout.CENTER), new PanelElement(JPanelUtil.createPanel(
-						new GridLayout(1, 3), new JLabel(), new JLabel(), filterComboBox),
-						BorderLayout.PAGE_END));
+				new GridLayout(1, 3), new JLabel(), new JLabel(), filterComboBox),
+				BorderLayout.PAGE_END));
 		filterComboBox.addActionListener(new ActionListener() {
 
 			@Override
@@ -607,7 +599,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		getFileChooser().addPropertyChangeListener(new PropertyChangeListener() {
 
 			@Override
-			public void propertyChange(PropertyChangeEvent evt) {				
+			public void propertyChange(PropertyChangeEvent evt) {
 				String propertyName = evt.getPropertyName();
 				Object value = evt.getNewValue();
 				Log.debug("Property name: ", propertyName, " ; value: ", value);
@@ -621,16 +613,17 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 				} else if (FILE_SELECTION_MODE_CHANGED_PROPERTY.equals(propertyName)) {
 					pathAutoCompletion.setFileSelectionMode((Integer) value);
 				} else if (FILE_HIDING_CHANGED_PROPERTY.equals(propertyName)) {
-					boolean showHidden = !(Boolean)value;
+					boolean showHidden = !(Boolean) value;
 					GtkFileChooserSettings.get().setShowHidden(showHidden);
-				} else if(MULTI_SELECTION_ENABLED_CHANGED_PROPERTY.equals(propertyName)){
-					int selectionMode = getFileChooser().isMultiSelectionEnabled() ? MULTIPLE_INTERVAL_SELECTION : SINGLE_SELECTION;
+				} else if (MULTI_SELECTION_ENABLED_CHANGED_PROPERTY.equals(propertyName)) {
+					int selectionMode = getFileChooser().isMultiSelectionEnabled() ? MULTIPLE_INTERVAL_SELECTION
+							: SINGLE_SELECTION;
 					if (recentlyUsedPane != null) {
 						recentlyUsedPane.setSelectionMode(selectionMode);
-					}					
+					}
 					if (searchFilesPane != null) {
-						searchFilesPane.setSelectionMode(selectionMode);	
-					}					
+						searchFilesPane.setSelectionMode(selectionMode);
+					}
 				}
 			}
 		});
@@ -642,14 +635,13 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 
 		if (filterInChooser == null || filterInCombo == null) {
 			return;
-		}					
+		}
 		if (!filterInCombo.getDescription().equals(filterInChooser.getDescription())) {
-			// Select on the combo the just now changed 
+			// Select on the combo the just now changed
 			// file-filter value if different.
 			for (int i = 0; i < filterComboBox.getItemCount(); i++) {
 				FileFilter item = (FileFilter) filterComboBox.getItemAt(i);
-				if (item.getDescription().equals(
-						filterInChooser.getDescription())) {
+				if (item.getDescription().equals(filterInChooser.getDescription())) {
 					filterComboBox.setSelectedIndex(i);
 					break;
 				}
@@ -707,21 +699,23 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		 */
 		CardLayout top = (CardLayout) topPanel.getLayout();
 		if (FILEBROWSER_PANEL.equals(key)) {
-			topPanel.setVisible(true);			
+			topPanel.setVisible(true);
 			filenamePanel.setVisible(showPositionButton.isSelected());
 			top.show(topPanel, TOP_PATHBAR_PANEL);
-			getFileChooser().firePropertyChange(CURRENT_PANEL_CHANGED, -1, FILEBROWSER_PANEL.hashCode());
+			getFileChooser().firePropertyChange(CURRENT_PANEL_CHANGED, -1,
+					FILEBROWSER_PANEL.hashCode());
 		} else if (RECENTLY_USED_PANEL.equals(key)) {
 			topPanel.setVisible(false);
-			getFileChooser().firePropertyChange(CURRENT_PANEL_CHANGED, -1, RECENTLY_USED_PANEL.hashCode());
+			getFileChooser().firePropertyChange(CURRENT_PANEL_CHANGED, -1,
+					RECENTLY_USED_PANEL.hashCode());
 		} else if (SEARCH_PANEL.equals(key)) {
 			filenamePanel.setVisible(false);
 			topPanel.setVisible(true);
 			top.show(topPanel, TOP_SEARCH_PANEL);
 			searchPanel.requestFocusInWindow();
-			getFileChooser().firePropertyChange(CURRENT_PANEL_CHANGED, -1, SEARCH_PANEL.hashCode());
+			getFileChooser().firePropertyChange(CURRENT_PANEL_CHANGED, -1,
+					SEARCH_PANEL.hashCode());
 		}
-
 
 		/**
 		 * Right panel
@@ -738,7 +732,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 	 */
 	protected void handleAction(ActionPath actionPath) {
 		String action = actionPath.getAction();
-		if (ActionPath.RECENTLY_USED.getAction().equals(action)) {			
+		if (ActionPath.RECENTLY_USED.getAction().equals(action)) {
 			// show recent used files panel
 			if (recentlyUsedPane == null) {
 				createRecentlyUsedPane();
@@ -761,7 +755,8 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 	 */
 	private void createSearchPane() {
 		searchFilesPane = new FilesListPane();
-		int selectionMode = getFileChooser().isMultiSelectionEnabled() ? MULTIPLE_INTERVAL_SELECTION : SINGLE_SELECTION;
+		int selectionMode = getFileChooser().isMultiSelectionEnabled() ? MULTIPLE_INTERVAL_SELECTION
+				: SINGLE_SELECTION;
 		searchFilesPane.setSelectionMode(selectionMode);
 		searchFilesPane.addActionListeners(new ActionListener() {
 			@Override
@@ -779,19 +774,19 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 			}
 		});
 
-		//add listener on ENTER pressed for select/browse
-		searchFilesPane.addActionListeners(new SelectPathAction(){
+		// add listener on ENTER pressed for select/browse
+		searchFilesPane.addActionListeners(new SelectPathAction() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (FilesListPane.ENTER_PRESSED_ID == e.getID()) {
 					super.actionPerformed(e);
-				}				
+				}
 			}
 
 			@Override
 			protected File getSelectedPath() {
-				return searchFilesPane.getSelectedFile();		
+				return searchFilesPane.getSelectedFile();
 			}
 
 		});
@@ -807,13 +802,15 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		 * Create an empty table
 		 */
 		recentlyUsedPane = new FilesListPane();
-		int selectionMode = getFileChooser().isMultiSelectionEnabled() ? MULTIPLE_INTERVAL_SELECTION : SINGLE_SELECTION;
+		int selectionMode = getFileChooser().isMultiSelectionEnabled() ? MULTIPLE_INTERVAL_SELECTION
+				: SINGLE_SELECTION;
 		recentlyUsedPane.setSelectionMode(selectionMode);
 		recentlyUsedPane.addActionListeners(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (getFileChooser().isMultiSelectionEnabled()) {
-					getFileChooser().setSelectedFiles(recentlyUsedPane.getSelectedFiles());
+					getFileChooser()
+							.setSelectedFiles(recentlyUsedPane.getSelectedFiles());
 				} else {
 					getFileChooser().setSelectedFile(recentlyUsedPane.getSelectedFile());
 				}
@@ -827,19 +824,19 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 
 		rightPanel.add(addFilterCombobox(recentlyUsedPane), RECENTLY_USED_PANEL);
 
-		//add listener on ENTER pressed for select/browse
-		recentlyUsedPane.addActionListeners(new SelectPathAction(){
+		// add listener on ENTER pressed for select/browse
+		recentlyUsedPane.addActionListeners(new SelectPathAction() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (FilesListPane.ENTER_PRESSED_ID == e.getID()) {
 					super.actionPerformed(e);
-				}				
+				}
 			}
 
 			@Override
 			protected File getSelectedPath() {
-				return recentlyUsedPane.getSelectedFile();		
+				return recentlyUsedPane.getSelectedFile();
 			}
 
 		});
@@ -891,29 +888,32 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 			}
 		});
 
-		fileBrowserPane.getDetailsTable().addPropertyChangeListener(
-				new PropertyChangeListener() {
-					@Override
-					public void propertyChange(PropertyChangeEvent evt) {
-
-						addBookmarkButton
-						.setEnabled(fileBrowserPane.getSelectedPath() != null
-								&& fileBrowserPane.getSelectedPath()
-								.isDirectory());
-					}
-				});
-
-		fileBrowserPane.getDetailsTable().addMouseListener(new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent e) {
-				enableAddButton();
-			}
-
-			private void enableAddButton() {
-				addBookmarkButton.setEnabled(fileBrowserPane.getSelectedPath() != null
-						&& fileBrowserPane.getSelectedPath().isDirectory());
-			}
-		});
+		// TODO add popup for bookmarks
+		// fileBrowserPane.getDetailsTable().addPropertyChangeListener(
+		// new PropertyChangeListener() {
+		// @Override
+		// public void propertyChange(PropertyChangeEvent evt) {
+		//
+		// addBookmarkButton
+		// .setEnabled(fileBrowserPane.getSelectedPath() != null
+		// && fileBrowserPane.getSelectedPath()
+		// .isDirectory());
+		// }
+		// });
+		//
+		// fileBrowserPane.getDetailsTable().addMouseListener(new MouseAdapter()
+		// {
+		// @Override
+		// public void mousePressed(MouseEvent e) {
+		// enableAddButton();
+		// }
+		//
+		// private void enableAddButton() {
+		// addBookmarkButton.setEnabled(fileBrowserPane.getSelectedPath() !=
+		// null
+		// && fileBrowserPane.getSelectedPath().isDirectory());
+		// }
+		// });
 	}
 
 	@Override
@@ -967,47 +967,49 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 	@Override
 	protected void installListeners(JFileChooser fc) {
 		super.installListeners(fc);
-		ActionMap actionMap = new ActionMapUIResource();
-		FilePane.addActionsToMap(actionMap, fileBrowserPane.getActions());
-		SwingUtilities.replaceUIActionMap(fc, actionMap);
+		// ActionMap actionMap = new ActionMapUIResource();
+		// //FilePane.addActionsToMap(actionMap, fileBrowserPane.getActions());
+		// SwingUtilities.replaceUIActionMap(fc, actionMap);
+		//
+		// fc.addComponentListener(new ComponentAdapter() {
+		// @Override
+		// public void componentMoved(ComponentEvent e) {
+		// persistBoundaries(e.getComponent().getBounds());
+		// }
+		//
+		// @Override
+		// public void componentResized(ComponentEvent e) {
+		// persistBoundaries(e.getComponent().getBounds());
+		// }
+		//
+		// private void persistBoundaries(Rectangle bound) {
+		// GtkFileChooserSettings.get().setBound(bound);
+		// }
+		// });
 
-		fc.addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentMoved(ComponentEvent e) {
-				persistBoundaries(e.getComponent().getBounds());
-			}
+		// // On ENTER pressed select/browse the selected path.
+		// SelectPathAction selectBrowseAction = new SelectPathAction(){
+		//
+		// @Override
+		// protected File getSelectedPath() {
+		// return fileBrowserPane.getSelectedFile();
+		// }
+		// };
+		// fileBrowserPane.getDetailsTable().registerKeyboardAction(
+		// selectBrowseAction,
+		// KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), JComponent.WHEN_FOCUSED
+		// );
 
-			@Override
-			public void componentResized(ComponentEvent e) {
-				persistBoundaries(e.getComponent().getBounds());
-			}
-
-			private void persistBoundaries(Rectangle bound) {
-				GtkFileChooserSettings.get().setBound(bound);
-			}
-		});
-
-		// On ENTER pressed select/browse the selected path.
-		SelectPathAction selectBrowseAction = new SelectPathAction(){
-
-			@Override
-			protected File getSelectedPath() {				
-				return fileBrowserPane.getSelectedPath();
-			}
-		};
-		fileBrowserPane.getDetailsTable().registerKeyboardAction(
-				selectBrowseAction, 
-				KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), JComponent.WHEN_FOCUSED
-		);
+		// TODO action on enter
 	}
 
-	protected JPanel createList(JFileChooser fc) {
-		return fileBrowserPane.createList();
-	}
-
-	protected JPanel createDetailsView(JFileChooser fc) {
-		return fileBrowserPane.createDetailsView();
-	}
+	// protected JPanel createList(JFileChooser fc) {
+	// return fileBrowserPane.createList();
+	// }
+	//
+	// protected JPanel createDetailsView(JFileChooser fc) {
+	// return fileBrowserPane.createDetailsView();
+	// }
 
 	/**
 	 * Creates a selection listener for the list of files and directories.
@@ -1152,24 +1154,25 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		if (files != null
 				&& files.length > 0
 				&& (files.length > 1 || fc.isDirectorySelectionEnabled() || !files[0]
-				                                                                   .isDirectory())) {
+						.isDirectory())) {
 			setFileName(fileNameString(files));
 		}
 	}
 
-	private void doDirectoryChanged(PropertyChangeEvent e) {
+	private void doDirectoryChanged(File dir) {
 		JFileChooser fc = getFileChooser();
 		FileSystemView fsv = fc.getFileSystemView();
 
 		clearIconCache();
-		File currentDirectory = fc.getCurrentDirectory();
-		if (currentDirectory != null) {
-			comboButtons.setCurrentDirectory(currentDirectory);
+		if (dir != null) {
+			getFileChooser().setCurrentDirectory(dir);
+			comboButtons.setCurrentDirectory(dir);
 			updateFileNameField();
+			fileBrowserPane.setCurrentDir(dir);
 
 			if (fc.isDirectorySelectionEnabled() && !fc.isFileSelectionEnabled()) {
-				if (fsv.isFileSystem(currentDirectory)) {
-					setFileName(currentDirectory.getPath());
+				if (fsv.isFileSystem(dir)) {
+					setFileName(dir.getPath());
 				} else {
 					setFileName(null);
 				}
@@ -1224,59 +1227,9 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 		// Note: Metal does not use mnemonics for approve and cancel
 	}
 
-	/*
-	 * Listen for filechooser property changes, such as the selected file
-	 * changing, or the type of the dialog changing.
-	 */
-	@Override
-	public PropertyChangeListener createPropertyChangeListener(JFileChooser fc) {
-		return new PropertyChangeListener() {
-			public void propertyChange(PropertyChangeEvent e) {
-				String s = e.getPropertyName();
-				if (s.equals(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY)) {
-					doSelectedFileChanged(e);
-				} else if (s.equals(JFileChooser.SELECTED_FILES_CHANGED_PROPERTY)) {
-					doSelectedFilesChanged(e);
-				} else if (s.equals(JFileChooser.DIRECTORY_CHANGED_PROPERTY)) {
-					doDirectoryChanged(e);
-				} else if (s.equals(JFileChooser.FILE_FILTER_CHANGED_PROPERTY)) {
-					doFilterChanged(e);
-				} else if (s.equals(JFileChooser.FILE_SELECTION_MODE_CHANGED_PROPERTY)) {
-					doFileSelectionModeChanged(e);
-				} else if (s.equals(JFileChooser.ACCESSORY_CHANGED_PROPERTY)) {
-					doAccessoryChanged(e);
-				} else if (s.equals(JFileChooser.APPROVE_BUTTON_TEXT_CHANGED_PROPERTY)
-						|| s
-						.equals(JFileChooser.APPROVE_BUTTON_TOOL_TIP_TEXT_CHANGED_PROPERTY)) {
-					doApproveButtonTextChanged(e);
-				} else if (s.equals(JFileChooser.DIALOG_TYPE_CHANGED_PROPERTY)) {
-					doDialogTypeChanged(e);
-				} else if (s
-						.equals(JFileChooser.APPROVE_BUTTON_MNEMONIC_CHANGED_PROPERTY)) {
-					doApproveButtonMnemonicChanged(e);
-				} else if (s.equals("componentOrientation")) {
-					ComponentOrientation o = (ComponentOrientation) e.getNewValue();
-					JFileChooser cc = (JFileChooser) e.getSource();
-					if (o != (ComponentOrientation) e.getOldValue()) {
-						cc.applyComponentOrientation(o);
-					}
-				} else if (s == "FileChooser.useShellFolder") {
-					updateUseShellFolder();
-					doDirectoryChanged(e);
-				} else if (s.equals("ancestor")) {
-					if (e.getOldValue() == null && e.getNewValue() != null) {
-						// Ancestor was added, set initial focus
-						fileNameTextField.selectAll();
-						fileNameTextField.requestFocus();
-					}
-				}
-			}
-		};
-	}
-
 	@Override
 	public void ensureFileIsVisible(JFileChooser fc, File f) {
-		fileBrowserPane.ensureFileIsVisible(fc, f);
+		// Not implemented
 	}
 
 	@Override
@@ -1424,8 +1377,8 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 	}
 
 	/**
-	 * Action to select a file or select/browse a directory (according to
-	 * the FileSelectionMode).
+	 * Action to select a file or select/browse a directory (according to the
+	 * FileSelectionMode).
 	 */
 	private abstract class SelectPathAction implements ActionListener {
 
@@ -1438,17 +1391,75 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 			}
 
 			if (path.isDirectory()) {
-				getFileChooser().setCurrentDirectory(path);
-				if (getFileChooser().getFileSelectionMode() == JFileChooser.DIRECTORIES_ONLY){
-					getFileChooser().setSelectedFile(path);
-					getFileChooser().approveSelection();
+				doDirectoryChanged(path);
+				if (getFileChooser().getFileSelectionMode() == JFileChooser.DIRECTORIES_ONLY) {
+					approveSelection(path);
 				}
 			} else {
-				getFileChooser().setSelectedFile(path);
-				getFileChooser().approveSelection();
+				approveSelection(path);
 			}
 		}
 
 		protected abstract File getSelectedPath();
+	}
+	
+	private void approveSelection(File path) {
+		getFileChooser().setSelectedFile(path);
+		getFileChooser().approveSelection();
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent e) {
+		String property = e.getPropertyName();
+		Object value = e.getNewValue();
+
+		Log.debug("Property: ", property, " = ", value);
+		if (property.equals(JFileChooser.SELECTED_FILE_CHANGED_PROPERTY)) {
+			doSelectedFileChanged(e);
+		} else if (property.equals(JFileChooser.SELECTED_FILES_CHANGED_PROPERTY)) {
+			doSelectedFilesChanged(e);
+		} else if (property.equals(JFileChooser.DIRECTORY_CHANGED_PROPERTY)) {
+			doDirectoryChanged((File) value);
+		} else if (property.equals(JFileChooser.FILE_FILTER_CHANGED_PROPERTY)) {
+			doFilterChanged(e);
+		} else if (property.equals(JFileChooser.FILE_SELECTION_MODE_CHANGED_PROPERTY)) {
+			doFileSelectionModeChanged(e);
+		} else if (property.equals(JFileChooser.ACCESSORY_CHANGED_PROPERTY)) {
+			doAccessoryChanged(e);
+		} else if (property.equals(JFileChooser.APPROVE_BUTTON_TEXT_CHANGED_PROPERTY)
+				|| property
+						.equals(JFileChooser.APPROVE_BUTTON_TOOL_TIP_TEXT_CHANGED_PROPERTY)) {
+			doApproveButtonTextChanged(e);
+		} else if (property.equals(JFileChooser.DIALOG_TYPE_CHANGED_PROPERTY)) {
+			doDialogTypeChanged(e);
+		} else if (property.equals(JFileChooser.APPROVE_BUTTON_MNEMONIC_CHANGED_PROPERTY)) {
+			doApproveButtonMnemonicChanged(e);
+		} else if (property.equals("componentOrientation")) {
+			ComponentOrientation o = (ComponentOrientation) e.getNewValue();
+			JFileChooser cc = (JFileChooser) e.getSource();
+			if (o != (ComponentOrientation) e.getOldValue()) {
+				cc.applyComponentOrientation(o);
+			}
+		} else if (property == "FileChooser.useShellFolder") {
+			updateUseShellFolder();
+			doDirectoryChanged((File) value);
+		} else if (property.equals("ancestor")) {
+			if (e.getOldValue() == null && e.getNewValue() != null) {
+				// Ancestor was added, set initial focus
+				fileNameTextField.selectAll();
+				fileNameTextField.requestFocus();
+			}
+		}
+
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		String cmd = e.getActionCommand();
+		Log.debug("Action: ", e.getActionCommand());
+		if (cmd.equals(JFileChooser.APPROVE_SELECTION)) {
+			Log.debug("fileBrowserPane.getSelectedFile(): ", fileBrowserPane.getSelectedFile());
+			//approveSelection(fileBrowserPane.getSelectedFile());
+		}
 	}
 }
