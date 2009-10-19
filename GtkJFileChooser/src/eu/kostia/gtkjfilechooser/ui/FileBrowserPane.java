@@ -146,6 +146,8 @@ public class FileBrowserPane extends FilesListPane implements PropertyChangeList
 	}
 
 	private void listDirectory(File dir, FileFilter filter) {
+		//TODO a little bit slow, maybe FileSystemView is faster?
+		
 		if (!dir.exists()) {
 			throw new IllegalArgumentException(dir + " doesn't exist.");
 		}
