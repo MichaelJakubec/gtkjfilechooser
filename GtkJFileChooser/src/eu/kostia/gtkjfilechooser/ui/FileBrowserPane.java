@@ -67,11 +67,9 @@ public class FileBrowserPane extends FilesListPane {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				if (table.getSelectedRowCount() > 1) {
-					firePropertyChange(SELECTED_FILES_CHANGED_PROPERTY, null,
-							getSelectedFiles());
+					firePropertyChange(SELECTED_FILES_CHANGED_PROPERTY, null, getSelectedFiles());
 				} else {
-					firePropertyChange(SELECTED_FILE_CHANGED_PROPERTY, null,
-							getSelectedFile());
+					firePropertyChange(SELECTED_FILE_CHANGED_PROPERTY, null, getSelectedFile());
 				}
 			}
 		});
