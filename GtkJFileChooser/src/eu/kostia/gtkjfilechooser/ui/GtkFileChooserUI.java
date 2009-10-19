@@ -1001,6 +1001,11 @@ PropertyChangeListener, ActionListener {
 	}
 
 	private void doDirectoryChanged(File dir) {
+		if (getFileChooser().getCurrentDirectory().equals(dir)) {
+			// to avoid repeated invocations on the same directory.
+			return;
+		}
+
 		JFileChooser fc = getFileChooser();
 		FileSystemView fsv = fc.getFileSystemView();
 
@@ -1009,7 +1014,7 @@ PropertyChangeListener, ActionListener {
 			getFileChooser().setCurrentDirectory(dir);
 			comboButtons.setCurrentDirectory(dir);
 			updateFileNameField();
-			//fileBrowserPane.setCurrentDir(dir);
+			fileBrowserPane.setCurrentDir(dir);
 
 			if (fc.isDirectorySelectionEnabled() && !fc.isFileSelectionEnabled()) {
 				if (fsv.isFileSystem(dir)) {

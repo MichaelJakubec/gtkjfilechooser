@@ -26,7 +26,7 @@ import eu.kostia.gtkjfilechooser.Log;
 import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
 
 
-public class FileBrowserPaneTestGui {
+public class FileBrowserPaneTestGui implements PropertyChangeListener {
 	FileBrowserPane fileBrowser;
 	JTextField locationField;
 	JComboBox fileSelectionModeComboBox;
@@ -81,7 +81,7 @@ public class FileBrowserPaneTestGui {
 		fileSelectionModeComboBox.setSelectedIndex(JFileChooser.FILES_ONLY);
 
 
-		fileBrowser.addPropertyChangeListener(propertyChange());
+		fileBrowser.addPropertyChangeListener(this);
 
 		fileBrowser.addActionListeners(new ActionListener() {
 
@@ -99,23 +99,7 @@ public class FileBrowserPaneTestGui {
 		));
 	}
 
-	private PropertyChangeListener propertyChange() {
-		return new PropertyChangeListener() {
 
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				String property = evt.getPropertyName();
-				Object value = evt.getNewValue();
-
-				Log.debug(property, " = ", value);
-
-				if (JFileChooser.DIRECTORY_CHANGED_PROPERTY.equals(property)) {
-					locationField.setText(((File)value).getAbsolutePath());
-				}
-
-			}
-		};
-	}
 
 	/**
 	 * Main for testing purpose.
@@ -123,5 +107,17 @@ public class FileBrowserPaneTestGui {
 	public static void main(String[] args) throws Exception {
 		UIManager.setLookAndFeel(GTKLookAndFeel.class.getName());
 		new FileBrowserPaneTestGui();
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		String property = evt.getPropertyName();
+		Object value = evt.getNewValue();
+
+		Log.debug(property, " = ", value);
+
+		if (JFileChooser.DIRECTORY_CHANGED_PROPERTY.equals(property)) {
+			locationField.setText(((File)value).getAbsolutePath());
+		}		
 	}
 }
