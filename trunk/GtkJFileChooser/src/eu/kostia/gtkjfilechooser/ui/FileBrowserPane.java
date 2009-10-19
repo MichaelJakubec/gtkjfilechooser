@@ -10,7 +10,6 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileFilter;
-import java.util.Arrays;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -49,12 +48,7 @@ public class FileBrowserPane extends FilesListPane {
 	private FileFilter currentFilter = acceptAll;
 
 	public FileBrowserPane(File startDir) {
-		this.currentDir = startDir;
-
-		File[] files = currentDir.listFiles(currentFilter);
-		if (files != null) {
-			setModel(Arrays.asList(files));
-		}
+		setCurrentDir(startDir);
 
 		addActionListeners(new ActionListener() {
 			@Override
@@ -175,8 +169,6 @@ public class FileBrowserPane extends FilesListPane {
 	 * @param currentDir
 	 */
 	public void setCurrentDir(File currentDir) {
-		this.currentDir = currentDir;
-
 		Object oldValue = this.currentDir;
 		Object newValue = currentDir;
 
