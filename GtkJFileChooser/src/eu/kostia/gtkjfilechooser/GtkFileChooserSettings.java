@@ -32,16 +32,6 @@ public class GtkFileChooserSettings {
 		PATH_BAR, FILENAME_ENTRY
 	};
 
-	// static private final String COLUMN_NAME_STRING = "name";
-	// static private final String COLUMN_MTIME_STRING = "modified";
-	// static private final String COLUMN_SIZE_STRING = "size";
-	//	
-	// static private final String SORT_ASCENDING_STRING = "ascending";
-	// static private final String SORT_DESCENDING_STRING = "descending";
-
-	// static private final String MODE_PATH_BAR = "path-bar";
-	// static private final String MODE_FILENAME_ENTRY = "filename-entry";
-
 	private GKeyFile settings;
 
 	private static GtkFileChooserSettings instance;
@@ -150,7 +140,7 @@ public class GtkFileChooserSettings {
 		if (value == null) {
 			return null;
 		}
-		
+
 		return Column.valueOf(value.toUpperCase());
 	}
 
@@ -159,7 +149,7 @@ public class GtkFileChooserSettings {
 		if (value == null) {
 			return SortOrder.UNSORTED;
 		}
-		
+
 		return SortOrder.valueOf(value.toUpperCase());
 	}
 
