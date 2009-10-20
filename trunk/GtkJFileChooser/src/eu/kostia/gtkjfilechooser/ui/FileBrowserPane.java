@@ -24,6 +24,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import eu.kostia.gtkjfilechooser.AcceptAllFileFilter;
+import eu.kostia.gtkjfilechooser.FileFilterWrapper;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil.WellKnownDir;
@@ -43,16 +45,8 @@ public class FileBrowserPane extends FilesListPane {
 
 	private int fileSelectionMode = FILES_ONLY;
 
-	private FileFilter acceptAll = new FileFilter() {
+	private javax.swing.filechooser.FileFilter currentFilter = new AcceptAllFileFilter();
 
-		@Override
-		public boolean accept(File file) {
-			return true;
-		}
-	};
-
-	private FileFilter currentFilter = acceptAll;
-	
 	private ContextMenu contextMenu;
 
 	public FileBrowserPane(File startDir) {
@@ -75,9 +69,11 @@ public class FileBrowserPane extends FilesListPane {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				if (table.getSelectedRowCount() > 1) {
-					firePropertyChange(SELECTED_FILES_CHANGED_PROPERTY, null, getSelectedFiles());
+					firePropertyChange(SELECTED_FILES_CHANGED_PROPERTY, null,
+							getSelectedFiles());
 				} else {
-					firePropertyChange(SELECTED_FILE_CHANGED_PROPERTY, null, getSelectedFile());
+					firePropertyChange(SELECTED_FILE_CHANGED_PROPERTY, null,
+							getSelectedFile());
 				}
 			}
 		});
@@ -85,29 +81,30 @@ public class FileBrowserPane extends FilesListPane {
 		bindKeyAction();
 
 		doMultiSelectionEnabledChanged(false);
-		
+
 		addMouseListener();
 	}
 
 	private void addMouseListener() {
-		table.addMouseListener(new MouseAdapter(){
+		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent evt) {
 				int index = table.rowAtPoint(evt.getPoint());
 
-				if (SwingUtilities.isRightMouseButton(evt)) {			
+				if (SwingUtilities.isRightMouseButton(evt)) {
 					// on right click reset the selections
 					table.getSelectionModel().setSelectionInterval(index, index);
-					
+
 					if (contextMenu == null) {
 						createContextMenu();
 					}
-					boolean enabled = getSelectedFile() != null && getSelectedFile().isDirectory();
+					boolean enabled = getSelectedFile() != null
+					&& getSelectedFile().isDirectory();
 					contextMenu.setAddToBookmarkMenuItemEnabled(enabled);
 					contextMenu.show(evt.getComponent(), evt.getX(), evt.getY());
 				}
-			}			
-		});		
+			}
+		});
 	}
 
 	/**
@@ -163,8 +160,8 @@ public class FileBrowserPane extends FilesListPane {
 		table.getActionMap().put(name, action);
 	}
 
-	private void listDirectory(File dir, FileFilter filter) {
-		//TODO a little bit slow, maybe FileSystemView is faster?
+	private void listDirectory(File dir, javax.swing.filechooser.FileFilter swingFilter) {
+		// TODO a little bit slow, maybe FileSystemView is faster?
 
 		if (!dir.exists()) {
 			throw new IllegalArgumentException(dir + " doesn't exist.");
@@ -173,17 +170,20 @@ public class FileBrowserPane extends FilesListPane {
 		if (!dir.isDirectory()) {
 			throw new IllegalArgumentException(dir + " isn't a directory.");
 		}
+
+		FileFilter filter = new FileFilterWrapper(swingFilter);
+
 		getModel().clear();
 		File[] files = dir.listFiles(filter);
 		if (files != null) {
 			for (File file : files) {
-				if (file.isHidden()){
+				if (file.isHidden()) {
 					if (showHidden) {
 						getModel().addFile(file);
 					}
 				} else {
 					getModel().addFile(file);
-				}			
+				}
 			}
 		}
 	}
@@ -204,7 +204,7 @@ public class FileBrowserPane extends FilesListPane {
 		this.currentDir = currentDir;
 
 		listDirectory(currentDir, currentFilter);
-		firePropertyChange(DIRECTORY_CHANGED_PROPERTY, oldValue, newValue);		
+		firePropertyChange(DIRECTORY_CHANGED_PROPERTY, oldValue, newValue);
 	}
 
 	public void setShowHidden(boolean showHidden) {
@@ -215,15 +215,12 @@ public class FileBrowserPane extends FilesListPane {
 		doMultiSelectionEnabledChanged(enabled);
 	}
 
-	public void setCurrentFilter(FileFilter ioFileFilter) {
-		this.currentFilter = ioFileFilter;
-
-		doFileFilerChanged(ioFileFilter);
-	}
-
 	public void setCurrentFilter(javax.swing.filechooser.FileFilter swingFileFilter) {
-		setCurrentFilter(toIOFileFiler(swingFileFilter));
+		this.currentFilter = swingFileFilter;
+
+		doFileFilerChanged(swingFileFilter);
 	}
+
 
 	// TODO move to FilesListpane?
 	public void setFileSelectionMode(int fileSelectionMode) {
@@ -232,21 +229,6 @@ public class FileBrowserPane extends FilesListPane {
 	}
 
 
-
-	private FileFilter toIOFileFiler(final javax.swing.filechooser.FileFilter swingFileFilter) {
-		if (swingFileFilter == null){
-			return null;
-		}
-
-		FileFilter ioFileFilter = new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				return swingFileFilter.accept(pathname);
-			}
-		};
-		return ioFileFilter;
-	}
-
 	private void doFileSelectionModeChanged(Integer value) {
 		setFilesSelectable(DIRECTORIES_ONLY != value);
 
@@ -254,7 +236,7 @@ public class FileBrowserPane extends FilesListPane {
 		table.repaint();
 	}
 
-	private void doFileFilerChanged(FileFilter filter) {
+	private void doFileFilerChanged(javax.swing.filechooser.FileFilter filter) {
 		listDirectory(getCurrentDir(), filter);
 	}
 
@@ -292,11 +274,9 @@ public class FileBrowserPane extends FilesListPane {
 		contextMenu = new ContextMenu();
 		ContextMenuListener contextMenuListener = new ContextMenuListener();
 		contextMenu.addPropertyChangeListener(contextMenuListener);
-		contextMenu.addActionListener(contextMenuListener);		
+		contextMenu.addActionListener(contextMenuListener);
 	}
-	
 
-	
 	/**
 	 * Inner class
 	 */
@@ -316,18 +296,16 @@ public class FileBrowserPane extends FilesListPane {
 				GtkFileChooserSettings.get().setShowHidden(!hide);
 				setShowHidden(!hide);
 				rescanCurrentDirectory();
-			}					
+			}
 		}
 
-
-
 		@Override
-		public void actionPerformed(ActionEvent e) {	
+		public void actionPerformed(ActionEvent e) {
 			String cmd = e.getActionCommand();
-			if (ACTION_ADD_BOOKMARK.equals(cmd)){
+			if (ACTION_ADD_BOOKMARK.equals(cmd)) {
 				fireActionEvent(e);
 			}
 		}
-		
+
 	}
 }

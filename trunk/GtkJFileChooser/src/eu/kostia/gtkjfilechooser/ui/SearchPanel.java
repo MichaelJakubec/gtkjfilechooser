@@ -66,6 +66,7 @@ public class SearchPanel extends JPanel {
 				stopSearch();
 				fileSearch = new FileSearch(System.getProperty("user.home"), searchTextField.getText(), new ThisFileSearchHandler());
 				fileSearch.setSearchHidden(GtkFileChooserSettings.get().getShowHidden());
+				fileSearch.setFileFilter();
 				fileSearch.start();					
 			}
 		});
