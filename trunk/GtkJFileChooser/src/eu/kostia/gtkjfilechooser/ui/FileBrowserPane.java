@@ -26,7 +26,6 @@ import javax.swing.event.ListSelectionListener;
 
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
-import eu.kostia.gtkjfilechooser.Log;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil.WellKnownDir;
 
 /**
@@ -308,20 +307,10 @@ public class FileBrowserPane extends FilesListPane {
 			String property = evt.getPropertyName();
 			Object value = evt.getNewValue();
 
-			Log.debug(property, " = ", value);	
 			if (SHOW_SIZE_COLUMN_CHANGED_PROPERTY.equals(property)) {
 				boolean showSizeColumn = (Boolean) value;
 				setShowSizeColumn(showSizeColumn);
 				rescanCurrentDirectory();
-//				List<SortKey> sortKeys = new ArrayList<SortKey>();
-//				// The filename column has index 0
-//				SortKey sortKey = new RowSorter.SortKey(0, SortOrder.ASCENDING);
-//				sortKeys.add(sortKey);
-//				// Reset sorting settings
-//				rowSorter.setSortKeys(sortKeys);
-//
-//				table.getModel().
-//				getDetailsTableModel().updateColumnInfo();
 			} else if (FILE_HIDING_CHANGED_PROPERTY.equals(property)) {
 				boolean hide = (Boolean) value;
 				GtkFileChooserSettings.get().setShowHidden(!hide);
@@ -333,11 +322,10 @@ public class FileBrowserPane extends FilesListPane {
 
 
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			Log.debug("Action: ", e.getActionCommand());	
+		public void actionPerformed(ActionEvent e) {	
 			String cmd = e.getActionCommand();
 			if (ACTION_ADD_BOOKMARK.equals(cmd)){
-				
+				fireActionEvent(e);
 			}
 		}
 		

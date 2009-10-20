@@ -66,8 +66,8 @@ public class ImagePreviewer extends JPanel implements PropertyChangeListener {
 	}
 
 	public void propertyChange(PropertyChangeEvent e) {
-		String prop = e.getPropertyName();
-		if (prop == SELECTED_FILE_CHANGED_PROPERTY) {
+		String property = e.getPropertyName();
+		if (SELECTED_FILE_CHANGED_PROPERTY.equals(property)) {
 			File file = (File) e.getNewValue();
 			loadImage(file);
 			repaint();

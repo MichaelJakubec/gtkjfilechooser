@@ -101,7 +101,6 @@ public class FileChooserDemo extends JPanel implements ActionListener {
 	JCheckBox setHiddenCheckBox;
 	JCheckBox useEmbedInWizardCheckBox;
 	JCheckBox useControlsCheckBox;
-	JCheckBox enableDragCheckBox;
 
 	JRadioButton singleSelectionRadioButton;
 	JRadioButton multiSelectionRadioButton;
@@ -198,9 +197,6 @@ public class FileChooserDemo extends JPanel implements ActionListener {
 		useControlsCheckBox.addActionListener(optionListener);
 		useControlsCheckBox.setSelected(true);
 
-		enableDragCheckBox = new JCheckBox("Enable Dragging");
-		enableDragCheckBox.addActionListener(optionListener);
-
 		// File or Directory chooser options
 		ButtonGroup group3 = new ButtonGroup();
 		justFilesRadioButton = new JRadioButton("Just Select Files");
@@ -291,9 +287,6 @@ public class FileChooserDemo extends JPanel implements ActionListener {
 		control3.add(useEmbedInWizardCheckBox);
 		control3.add(Box.createRigidArea(vpad7));
 		control3.add(useControlsCheckBox);
-		control3.add(Box.createRigidArea(vpad7));
-		control3.add(enableDragCheckBox);
-		control3.add(Box.createRigidArea(vpad20));
 		control3.add(Box.createGlue());
 
 		// ********************************************************
@@ -577,8 +570,6 @@ public class FileChooserDemo extends JPanel implements ActionListener {
 				chooser.setControlButtonsAreShown(!selected);
 			} else if (c == useControlsCheckBox) {
 				chooser.setControlButtonsAreShown(selected);
-			} else if (c == enableDragCheckBox) {
-				chooser.setDragEnabled(selected);
 			} else if (c == saveRadioButton) {
 				chooser.setDialogType(SAVE_DIALOG);
 				customField.setEnabled(false);
