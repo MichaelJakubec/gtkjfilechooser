@@ -67,8 +67,6 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 
 	private boolean filesSelectable = true;
 
-	private Boolean showSizeColumn;
-
 	public FilesListPane() {
 		this(new ArrayList<File>());
 	}
@@ -76,26 +74,25 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 	public FilesListPane(List<File> fileEntries) {
 		setLayout(new BorderLayout());
 
-		showSizeColumn = GtkFileChooserSettings.get().getShowSizeColumn();
-		
 		table = new JTable() {
 			@Override
-			public void changeSelection(int row, int column, boolean toggle, boolean extend) {
+			public void changeSelection(int row, int column, boolean toggle,
+					boolean extend) {
 				File file = (File) getValueAt(row, 0);
-				if(FilesListPane.this.isRowEnabled(file)){
+				if (FilesListPane.this.isRowEnabled(file)) {
 					// If the row isn't enabled, don't allow the selection.
 					super.changeSelection(row, column, toggle, extend);
 				}
 			}
 		};
 
-
+		table.setColumnModel(new FilesListTableColumnModel());
 		table.setAutoCreateColumnsFromModel(false);
 		table.setBackground(UIManager.getColor("TextPane.background"));
-		table.setColumnModel(new FilesListTableColumnModel());
 		table.getTableHeader().setReorderingAllowed(false);
 
-		setModel(fileEntries);
+		Boolean showSizeColumn = GtkFileChooserSettings.get().getShowSizeColumn();
+		setModel(fileEntries, showSizeColumn);
 
 		table.setDefaultRenderer(Object.class, new FilesListRenderer());
 		table.setRowSelectionAllowed(true);
@@ -129,8 +126,7 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 				}
 			}
 		});
-
-		createColumnsFromModel(table);
+	
 
 		// Add interactive file search support
 		new FileFindAction().install(table);
@@ -138,9 +134,15 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		add(new JScrollPane(table), BorderLayout.CENTER);
 	}
 	
+	public void setShowSizeColumn(boolean showSizeColumn) {
+		GtkFileChooserSettings.get().setShowSizeColumn(showSizeColumn);
+		setModel(new ArrayList<File>(), showSizeColumn);
+		table.createDefaultColumnsFromModel();
+	}
+
 	public void uninstallUI() {
 		table = null;
-		removeAllActionListeners();		
+		removeAllActionListeners();
 	}
 
 	/**
@@ -165,17 +167,19 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		dataModel.addFile(entry);
 	}
 
-
 	/**
-	 * Set if the the files are enabled/selectable;  for example when FileSelectionMode = DIRECTORIES_ONLY.
+	 * Set if the the files are enabled/selectable; for example when
+	 * FileSelectionMode = DIRECTORIES_ONLY.
+	 * 
 	 * @param filesSelectable
 	 */
 	public void setFilesSelectable(boolean filesSelectable) {
 		this.filesSelectable = filesSelectable;
 	}
 
-	public void setModel(List<File> fileEntries) {
-		FilesListTableModel dataModel = new FilesListTableModel(fileEntries);
+	public void setModel(List<File> fileEntries, Boolean showSizeColumn) {		
+		FilesListTableModel dataModel = new FilesListTableModel(fileEntries,
+				showSizeColumn);
 		table.setModel(dataModel);
 
 		List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>();
@@ -184,29 +188,15 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		FilesListTableRowSorter sorter = new FilesListTableRowSorter();
 		sorter.setSortKeys(sortKeys);
 		table.setRowSorter(sorter);
+		
+		createColumnsFromModel();
 	}
-
-	public FilesListTableModel getModel(){
-		return (FilesListTableModel) table.getModel();
-	}
-
-	private boolean isRowEnabled(File file) {
-		// Directory are always enabled
-		if (file.isDirectory()){
-			return true;
-		}
-
-		// When FileSelectionMode = DIRECTORIES_ONLY, disable files
-		// Use !file.isDirectory() instead of file.isFile() because 
-		// the last one doesn't return true for links
-		return !file.isDirectory() && filesSelectable;
-	}
-
-	private void createColumnsFromModel(JTable aTable) {
-		FilesListTableModel m = (FilesListTableModel) aTable.getModel();
+	
+	private void createColumnsFromModel() {
+		FilesListTableModel m = (FilesListTableModel) table.getModel();
 		if (m != null) {
 			// Remove any current columns
-			TableColumnModel cm = aTable.getColumnModel();
+			TableColumnModel cm = table.getColumnModel();
 			while (cm.getColumnCount() > 0) {
 				cm.removeColumn(cm.getColumn(0));
 			}
@@ -215,10 +205,30 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 			for (int i = 0; i < m.getColumnCount(); i++) {
 				TableColumn newColumn = new TableColumn(i);
 				newColumn.setIdentifier(m.getColumnId(i));
-				aTable.addColumn(newColumn);
+				table.addColumn(newColumn);
 			}
 		}
 	}
+
+
+
+	public FilesListTableModel getModel() {
+		return (FilesListTableModel) table.getModel();
+	}
+
+	private boolean isRowEnabled(File file) {
+		// Directory are always enabled
+		if (file.isDirectory()) {
+			return true;
+		}
+
+		// When FileSelectionMode = DIRECTORIES_ONLY, disable files
+		// Use !file.isDirectory() instead of file.isFile() because
+		// the last one doesn't return true for links
+		return !file.isDirectory() && filesSelectable;
+	}
+
+
 
 	public File getSelectedFile() {
 		int row = table.getSelectedRow();
@@ -244,23 +254,15 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		return selectesFiles;
 	}
 
-	public void setShowSizeColumn(Boolean showSizeColumn) {
-		this.showSizeColumn = showSizeColumn;		
-	}
-
-	private Boolean getShowSizeColumn() {
-		return showSizeColumn;
-	}
-	
 	public void clearSelection() {
-		table.getSelectionModel().clearSelection();		
+		table.getSelectionModel().clearSelection();
 	}
 
 	/**
 	 * Model
 	 */
 	protected class FilesListTableModel extends AbstractTableModel implements
-	Serializable, TableModelListener {
+			Serializable, TableModelListener {
 
 		private static final long serialVersionUID = 1L;
 
@@ -268,43 +270,53 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 
 		private String[] columnNames;
 		private String[] columnIds;
+		
+		private boolean showSizeColumn;
 
-		/**
-		 * Indicates which columns are visible
-		 */
-		private boolean[] columnsVisible;
-
-		public FilesListTableModel(List<File> fileEntries) {
+		public FilesListTableModel(List<File> fileEntries, boolean showSizeColumn) {
 			this.data = new ArrayList<Object[]>();
+			this.showSizeColumn = showSizeColumn;
+			
 			addTableModelListener(this);
-			this.columnIds = new String[] { FILE_NAME_COLUMN_ID, FILE_SIZE_COLUMN_ID,
-					FILE_DATE_COLUMN_ID };
+			
+			if (getShowSizeColumn()) {
+				this.columnIds = new String[] { FILE_NAME_COLUMN_ID, FILE_SIZE_COLUMN_ID, FILE_DATE_COLUMN_ID };
+			} else {
+				this.columnIds = new String[] { FILE_NAME_COLUMN_ID, FILE_DATE_COLUMN_ID };
+			}
+			
+			
 			this.columnNames = new String[columnIds.length];
 			for (int i = 0; i < columnIds.length; i++) {
 				String columnId = columnIds[i];
 				columnNames[i] = UIManager.getString(columnId);
 			}
 
-			this.columnsVisible = new boolean[columnNames.length];
-			this.columnsVisible[0] = true;
-			this.columnsVisible[1] = getShowSizeColumn();
-			this.columnsVisible[2] = true;
 
 			for (File file : fileEntries) {
 				addFileEntryInternal(file);
 			}
 		}
 
-		public void clear(){
+		private Boolean getShowSizeColumn() {
+			return showSizeColumn;
+		}
+
+		public void clear() {
 			this.data = new ArrayList<Object[]>();
-			fireTableDataChanged();			
+			fireTableDataChanged();
 		}
 
 		private void addFileEntryInternal(File file) {
-			Object[] row = new Object[columnNames.length];
+			Object[] row = new Object[getColumnCount()];
 			row[0] = file;
-			row[1] = file != null ? file.length() : 0L;
-			row[2] = new Date(file.lastModified());
+			
+			if (getShowSizeColumn()) {
+				row[1] = file != null ? file.length() : 0L;
+				row[2] = new Date(file.lastModified());
+			} else {
+				row[1] = new Date(file.lastModified());
+			}			
 
 			data.add(row);
 		}
@@ -322,37 +334,11 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 			fireTableRowsInserted(row, row);
 		}
 
-		/**
-		 * Maps the index of the column in the table model at the index of the
-		 * visible column in the view. Returns the index of the corresponding
-		 * column in the view
-		 * 
-		 * @param modelColumnIndex
-		 *            the index of the column in the model
-		 * @return the index of the corresponding column in the view
-		 * 
-		 */
-		protected int convertToVisibleColumnIndex(int col) {
-			int n = col; // right number to return
-			int i = 0;
-			do {
-				if (!(columnsVisible[i])) n++;
-				i++;
-			} while (i < n);
-			// If we are on an invisible column,
-			// we have to go one step further
-			while (!(columnsVisible[n]))
-				n++;
-			return n;
-		}
-
+		
 		// *** TABLE MODEL METHODS ***
 
 		public int getColumnCount() {
-			int n = 0;
-			for (int i = 0; i < columnsVisible.length; i++)
-				if (columnsVisible[i]) n++;
-			return n;
+			return getShowSizeColumn() ? 3 : 2;
 		}
 
 		public int getRowCount() {
@@ -360,12 +346,14 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		}
 
 		public Object getValueAt(int row, int col) {
-			return data.get(row)[convertToVisibleColumnIndex(col)];
+			checkColumnIndex(col);
+			return data.get(row)[col];
 		}
 
 		@Override
 		public String getColumnName(int col) {
-			return columnNames[convertToVisibleColumnIndex(col)];
+			checkColumnIndex(col);
+			return columnNames[col];
 		}
 
 		/**
@@ -376,16 +364,25 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		 * @return The column identifier.
 		 */
 		public String getColumnId(int col) {
-			return columnIds[convertToVisibleColumnIndex(col)];
+			checkColumnIndex(col);
+			return columnIds[col];
 		}
 
 		@Override
 		public Class<?> getColumnClass(int col) {
-			if (!data.isEmpty() && data.get(0)[convertToVisibleColumnIndex(col)] != null) {
-				return data.get(0)[convertToVisibleColumnIndex(col)].getClass();
+			checkColumnIndex(col);
+			
+			if (!data.isEmpty() && data.get(0)[col] != null) {
+				return data.get(0)[col].getClass();
 			}
 
 			return Object.class;
+		}
+
+		private void checkColumnIndex(int col) {
+			if (col >= getColumnCount()) {
+				throw new IllegalArgumentException(col + " greater the the column count");
+			}			
 		}
 
 		@Override
@@ -398,8 +395,6 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 	 * Cell renderer
 	 */
 	protected class FilesListRenderer extends DefaultTableCellRenderer {
-
-
 
 		private static final long serialVersionUID = 1L;
 
@@ -426,7 +421,7 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 				setText(DateUtil.toPrettyFormat(date));
 			}
 
-			if (isSelected) {				
+			if (isSelected) {
 				setForeground(table.getSelectionForeground());
 				setBackground(table.getSelectionBackground());
 			} else {
@@ -436,14 +431,11 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 				setBackground(rowcolor);
 			}
 
-
 			setEnabled(FilesListPane.this.isRowEnabled(file));
 
 			return this;
 		}
 	}
-
-
 
 	private class FilesListTableColumnModel extends DefaultTableColumnModel {
 		private static final long serialVersionUID = 1L;
@@ -459,7 +451,7 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 			} else {
 				// The filename column fills the remaining space.
 				int offset = FILE_DATE_COLUMN_WIDTH;
-				if (getShowSizeColumn()) {
+				if (table.getModel().getColumnCount() == 3) {
 					offset += FILE_SIZE_COLUMN_WIDTH;
 				}
 				col.setPreferredWidth(getTotalColumnWidth() - offset);
@@ -467,7 +459,6 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 
 			return col;
 		}
-
 	}
 
 	protected class FilesListTableRowSorter extends TableRowSorter<FilesListTableModel> {
@@ -513,24 +504,24 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 	@Override
 	public void addActionListener(ActionListener l) {
 		actionDispatcher.addActionListener(l);
-		
+
 	}
 
 	@Override
 	public void fireActionEvent(ActionEvent e) {
 		actionDispatcher.fireActionEvent(e);
-		
+
 	}
 
 	@Override
 	public void removeActionListener(ActionListener l) {
 		actionDispatcher.removeActionListener(l);
-		
+
 	}
 
 	@Override
 	public void removeAllActionListeners() {
-		actionDispatcher.removeAllActionListeners();		
+		actionDispatcher.removeAllActionListeners();
 	}
 
 }
