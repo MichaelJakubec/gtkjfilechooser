@@ -29,6 +29,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -92,7 +93,7 @@ PropertyChangeListener, ActionListener {
 		if (chooser.getCurrentDirectory() == null) {
 			chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
 		}
-		
+
 		// Persist component bounds and sizes
 		chooser.addComponentListener(new ComponentAdapter(){
 			@Override
@@ -350,7 +351,7 @@ PropertyChangeListener, ActionListener {
 			// topPanel1.add(JPanelUtil.createPanel(new
 			// FlowLayout(FlowLayout.RIGHT), newDirButton),
 			// BorderLayout.LINE_END);
-			
+
 			//TODO add action
 		}
 
@@ -403,11 +404,9 @@ PropertyChangeListener, ActionListener {
 
 		approveButton = new JButton(getApproveButtonText(fc));
 		if (fc.getDialogType() == JFileChooser.OPEN_DIALOG) {
-			approveButton
-			.setIcon(GtkStockIcon.get("gtk-open", Size.GTK_ICON_SIZE_BUTTON));
+			approveButton.setIcon(GtkStockIcon.get("gtk-open", Size.GTK_ICON_SIZE_BUTTON));
 		} else if (fc.getDialogType() == JFileChooser.SAVE_DIALOG) {
-			approveButton
-			.setIcon(GtkStockIcon.get("gtk-save", Size.GTK_ICON_SIZE_BUTTON));
+			approveButton.setIcon(GtkStockIcon.get("gtk-save", Size.GTK_ICON_SIZE_BUTTON));
 		}
 
 		approveButton.addActionListener(getApproveSelectionAction());
@@ -956,28 +955,39 @@ PropertyChangeListener, ActionListener {
 
 			setFileName(fileNameString(file));
 		}
-		
+
 		if (file != null && !file.equals(fc.getSelectedFile())){
 			fc.setSelectedFile(file);
 		}
-						
+
 		// Enable/disable the "Add to Bookamark" button
 		addBookmarkButton.setEnabled(file != null && file.isDirectory());
 	}
 
 	private void doSelectedFilesChanged(File[] files) {
 		JFileChooser fc = getFileChooser();
-		if (files != null
-				&& files.length > 0
-				&& (files.length > 1 || fc.isDirectorySelectionEnabled() || !files[0]
-				                                                                   .isDirectory())) {
-			setFileName(fileNameString(files));
+
+		if (files != null) {
+			List<File> fileList = new ArrayList<File>();
+			for (File file : files) {
+				// If directory, don't add to the selection when isDirectorySelectionEnabled is false
+				if (file.isDirectory()) {
+					if (fc.isDirectorySelectionEnabled()) {
+						fileList.add(file);
+					}					
+				} else {
+					fileList.add(file);
+				}
+			}
+
+			setFileName(fileNameString(fileList.toArray(new File[fileList.size()])));
 		}
-		
+
+		// Update the property in the JFileChooser if not yet happened
 		if (files != null && !files.equals(fc.getSelectedFiles())){
 			fc.setSelectedFiles(files);
 		}
-		
+
 		// Enable/disable the "Add to Bookamark" button
 		if (files != null) {
 			boolean enable = true;
@@ -987,7 +997,7 @@ PropertyChangeListener, ActionListener {
 					break;
 				}
 			}
-			
+
 			addBookmarkButton.setEnabled(enable);
 		}
 	}
@@ -1251,7 +1261,7 @@ PropertyChangeListener, ActionListener {
 		Object value = e.getNewValue();
 
 		Log.debug("Property: ", property, " = ", value, " ; source :", e.getSource().getClass());
-		
+
 		if (DIRECTORY_CHANGED_PROPERTY.equals(property)) {
 			doDirectoryChanged((File) value);
 		} else if (SELECTED_FILE_CHANGED_PROPERTY.equals(property)) {
@@ -1298,6 +1308,17 @@ PropertyChangeListener, ActionListener {
 
 	}
 
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		String cmd = e.getActionCommand();
+		Log.debug("GtkFileChooserUI: Action: ", e.getActionCommand());
+		if (APPROVE_SELECTION.equals(cmd)) {
+			approveSelection(fileBrowserPane.getSelectedFile());
+		} else if(ACTION_ADD_BOOKMARK.equals(cmd)){
+			addToBookmarks();
+		}
+	}
+
 	private void doMultiSelectionEnabledChanged(Boolean multiSelectionEnabled) {
 		int selectionMode = multiSelectionEnabled ? MULTIPLE_INTERVAL_SELECTION	: SINGLE_SELECTION;
 		if (recentlyUsedPane != null) {
@@ -1316,16 +1337,7 @@ PropertyChangeListener, ActionListener {
 		fileBrowserPane.setShowHidden(showHidden);
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		String cmd = e.getActionCommand();
-		Log.debug("GtkFileChooserUI: Action: ", e.getActionCommand());
-		if (APPROVE_SELECTION.equals(cmd)) {
-			approveSelection(fileBrowserPane.getSelectedFile());
-		} else if(ACTION_ADD_BOOKMARK.equals(cmd)){
-			addToBookmarks();
-		}
-	}
+
 
 	private void addToBookmarks() {
 		File[] paths = fileBrowserPane.getSelectedFiles();
