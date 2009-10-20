@@ -32,13 +32,15 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
 
+import eu.kostia.gtkjfilechooser.ActionDispatcher;
+import eu.kostia.gtkjfilechooser.BasicActionDispatcher;
 import eu.kostia.gtkjfilechooser.DateUtil;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
 import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
 
-public class FilesListPane extends JComponent {
+public class FilesListPane extends JComponent implements ActionDispatcher {
 
 	public static final Color PEARL_GRAY = new Color(238, 238, 238);
 
@@ -61,9 +63,11 @@ public class FilesListPane extends JComponent {
 
 	protected JTable table;
 
-	protected List<ActionListener> actionListeners;
+	private ActionDispatcher actionDispatcher = new BasicActionDispatcher();
 
 	private boolean filesSelectable = true;
+
+	private Boolean showSizeColumn;
 
 	public FilesListPane() {
 		this(new ArrayList<File>());
@@ -72,6 +76,8 @@ public class FilesListPane extends JComponent {
 	public FilesListPane(List<File> fileEntries) {
 		setLayout(new BorderLayout());
 
+		showSizeColumn = GtkFileChooserSettings.get().getShowSizeColumn();
+		
 		table = new JTable() {
 			@Override
 			public void changeSelection(int row, int column, boolean toggle, boolean extend) {
@@ -86,7 +92,6 @@ public class FilesListPane extends JComponent {
 
 		table.setAutoCreateColumnsFromModel(false);
 		table.setBackground(UIManager.getColor("TextPane.background"));
-		actionListeners = new ArrayList<ActionListener>();
 		table.setColumnModel(new FilesListTableColumnModel());
 		table.getTableHeader().setReorderingAllowed(false);
 
@@ -135,7 +140,7 @@ public class FilesListPane extends JComponent {
 	
 	public void uninstallUI() {
 		table = null;
-		actionListeners = null;		
+		removeAllActionListeners();		
 	}
 
 	/**
@@ -239,22 +244,12 @@ public class FilesListPane extends JComponent {
 		return selectesFiles;
 	}
 
-	public void addActionListeners(ActionListener l) {
-		this.actionListeners.add(l);
-	}
-
-	public void removeActionListeners(ActionListener l) {
-		this.actionListeners.remove(l);
-	}
-
-	public void fireActionEvent(ActionEvent e) {
-		for (ActionListener l : actionListeners) {
-			l.actionPerformed(e);
-		}
+	public void setShowSizeColumn(Boolean showSizeColumn) {
+		this.showSizeColumn = showSizeColumn;		
 	}
 
 	private Boolean getShowSizeColumn() {
-		return GtkFileChooserSettings.get().getShowSizeColumn();
+		return showSizeColumn;
 	}
 	
 	public void clearSelection() {
@@ -302,7 +297,7 @@ public class FilesListPane extends JComponent {
 
 		public void clear(){
 			this.data = new ArrayList<Object[]>();
-			fireTableDataChanged();
+			fireTableDataChanged();			
 		}
 
 		private void addFileEntryInternal(File file) {
@@ -513,6 +508,29 @@ public class FilesListPane extends JComponent {
 
 		}
 
+	}
+
+	@Override
+	public void addActionListener(ActionListener l) {
+		actionDispatcher.addActionListener(l);
+		
+	}
+
+	@Override
+	public void fireActionEvent(ActionEvent e) {
+		actionDispatcher.fireActionEvent(e);
+		
+	}
+
+	@Override
+	public void removeActionListener(ActionListener l) {
+		actionDispatcher.removeActionListener(l);
+		
+	}
+
+	@Override
+	public void removeAllActionListeners() {
+		actionDispatcher.removeAllActionListeners();		
 	}
 
 }

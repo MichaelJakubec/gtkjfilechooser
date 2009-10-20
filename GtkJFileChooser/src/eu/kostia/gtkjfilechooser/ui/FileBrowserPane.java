@@ -1,5 +1,7 @@
 package eu.kostia.gtkjfilechooser.ui;
 
+import static eu.kostia.gtkjfilechooser.ui.ContextMenu.ACTION_ADD_BOOKMARK;
+import static eu.kostia.gtkjfilechooser.ui.ContextMenu.SHOW_SIZE_COLUMN_CHANGED_PROPERTY;
 import static javax.swing.JFileChooser.*;
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
@@ -8,17 +10,23 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileFilter;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
+import eu.kostia.gtkjfilechooser.Log;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil.WellKnownDir;
 
 /**
@@ -46,11 +54,13 @@ public class FileBrowserPane extends FilesListPane {
 	};
 
 	private FileFilter currentFilter = acceptAll;
+	
+	private ContextMenu contextMenu;
 
 	public FileBrowserPane(File startDir) {
 		setCurrentDir(startDir);
 
-		addActionListeners(new ActionListener() {
+		addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String cmd = e.getActionCommand();
@@ -77,6 +87,29 @@ public class FileBrowserPane extends FilesListPane {
 		bindKeyAction();
 
 		doMultiSelectionEnabledChanged(false);
+		
+		addMouseListener();
+	}
+
+	private void addMouseListener() {
+		table.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mousePressed(MouseEvent evt) {
+				int index = table.rowAtPoint(evt.getPoint());
+
+				if (SwingUtilities.isRightMouseButton(evt)) {			
+					// on right click reset the selections
+					table.getSelectionModel().setSelectionInterval(index, index);
+					
+					if (contextMenu == null) {
+						createContextMenu();
+					}
+					boolean enabled = getSelectedFile() != null && getSelectedFile().isDirectory();
+					contextMenu.setAddToBookmarkMenuItemEnabled(enabled);
+					contextMenu.show(evt.getComponent(), evt.getX(), evt.getY());
+				}
+			}			
+		});		
 	}
 
 	/**
@@ -254,5 +287,54 @@ public class FileBrowserPane extends FilesListPane {
 	 */
 	public void rescanCurrentDirectory() {
 		listDirectory(getCurrentDir(), currentFilter);
+	}
+
+	private void createContextMenu() {
+		// lazy init the popup
+		contextMenu = new ContextMenu();
+		ContextMenuListener contextMenuListener = new ContextMenuListener();
+		contextMenu.addPropertyChangeListener(contextMenuListener);
+		contextMenu.addActionListener(contextMenuListener);		
+	}
+	
+	/**
+	 * Inner class
+	 */
+	private class ContextMenuListener implements PropertyChangeListener, ActionListener {
+
+		@Override
+		public void propertyChange(PropertyChangeEvent evt) {
+			String property = evt.getPropertyName();
+			Object value = evt.getNewValue();
+
+			Log.debug(property, " = ", value);	
+			if (SHOW_SIZE_COLUMN_CHANGED_PROPERTY.equals(property)) {
+				boolean showSizeColumn = (Boolean) value;
+				GtkFileChooserSettings.get().setShowSizeColumn(showSizeColumn);
+				setShowSizeColumn(showSizeColumn);
+				
+//				List<SortKey> sortKeys = new ArrayList<SortKey>();
+//				// The filename column has index 0
+//				SortKey sortKey = new RowSorter.SortKey(0, SortOrder.ASCENDING);
+//				sortKeys.add(sortKey);
+//				// Reset sorting settings
+//				rowSorter.setSortKeys(sortKeys);
+//
+//				table.getModel().
+//				getDetailsTableModel().updateColumnInfo();
+			} else if (FILE_HIDING_CHANGED_PROPERTY.equals(property)) {
+				//TODO FILE_HIDING_CHANGED_PROPERTY
+			}					
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Log.debug("Action: ", e.getActionCommand());	
+			String cmd = e.getActionCommand();
+			if (ACTION_ADD_BOOKMARK.equals(cmd)){
+				
+			}
+		}
+		
 	}
 }

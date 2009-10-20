@@ -83,7 +83,7 @@ public class FileBrowserPaneTestGui implements PropertyChangeListener {
 
 		fileBrowser.addPropertyChangeListener(this);
 
-		fileBrowser.addActionListeners(new ActionListener() {
+		fileBrowser.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {

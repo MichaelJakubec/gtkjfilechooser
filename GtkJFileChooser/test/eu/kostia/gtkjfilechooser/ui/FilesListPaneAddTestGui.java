@@ -18,7 +18,7 @@ public class FilesListPaneAddTestGui {
 
 	private FilesListPane testAddFiles() throws Exception {
 		FilesListPane pane = new FilesListPane();
-		pane.addActionListeners(new ActionListener() {
+		pane.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				FilesListPane p = (FilesListPane)e.getSource();
