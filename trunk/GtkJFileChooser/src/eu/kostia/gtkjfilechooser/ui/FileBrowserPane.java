@@ -36,7 +36,6 @@ import eu.kostia.gtkjfilechooser.FreeDesktopUtil.WellKnownDir;
  * 
  */
 
-// TODO add popup here?
 public class FileBrowserPane extends FilesListPane {
 
 	private File currentDir;
@@ -297,6 +296,8 @@ public class FileBrowserPane extends FilesListPane {
 		contextMenu.addActionListener(contextMenuListener);		
 	}
 	
+
+	
 	/**
 	 * Inner class
 	 */
@@ -310,9 +311,8 @@ public class FileBrowserPane extends FilesListPane {
 			Log.debug(property, " = ", value);	
 			if (SHOW_SIZE_COLUMN_CHANGED_PROPERTY.equals(property)) {
 				boolean showSizeColumn = (Boolean) value;
-				GtkFileChooserSettings.get().setShowSizeColumn(showSizeColumn);
 				setShowSizeColumn(showSizeColumn);
-				
+				rescanCurrentDirectory();
 //				List<SortKey> sortKeys = new ArrayList<SortKey>();
 //				// The filename column has index 0
 //				SortKey sortKey = new RowSorter.SortKey(0, SortOrder.ASCENDING);
@@ -323,9 +323,14 @@ public class FileBrowserPane extends FilesListPane {
 //				table.getModel().
 //				getDetailsTableModel().updateColumnInfo();
 			} else if (FILE_HIDING_CHANGED_PROPERTY.equals(property)) {
-				//TODO FILE_HIDING_CHANGED_PROPERTY
+				boolean hide = (Boolean) value;
+				GtkFileChooserSettings.get().setShowHidden(!hide);
+				setShowHidden(!hide);
+				rescanCurrentDirectory();
 			}					
 		}
+
+
 
 		@Override
 		public void actionPerformed(ActionEvent e) {

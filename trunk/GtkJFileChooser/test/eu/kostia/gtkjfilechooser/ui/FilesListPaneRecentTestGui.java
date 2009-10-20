@@ -29,7 +29,7 @@ public class FilesListPaneRecentTestGui {
 		});
 
 		List<File> fileEntries = new RecentlyUsedManager(30).getRecentFiles();
-		pane.setModel(fileEntries);
+		pane.setModel(fileEntries, false);
 		return pane;
 	}
 

@@ -442,10 +442,17 @@ PropertyChangeListener, ActionListener {
 		addBookmarkButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				File path = fileBrowserPane.getSelectedFile();
-				locationsPane.addBookmark(path);
+				File[] paths = fileBrowserPane.getSelectedFiles();
+				if (paths == null) {
+					locationsPane.addBookmark(fileBrowserPane.getSelectedFile());
+				} else {
+					for (File path : paths) {
+						locationsPane.addBookmark(path);
+					}	
+				}			
 			}
 		});
+		addBookmarkButton.setEnabled(false);
 
 		removeBookmarkButton = new JButton("Remove"); // TODO I18N
 		// it will be enabled, when we select a bookmark.
@@ -789,33 +796,6 @@ PropertyChangeListener, ActionListener {
 				removeBookmarkButton.setEnabled(path instanceof GtkBookmark);
 			}
 		});
-
-		// TODO add popup for bookmarks
-		// fileBrowserPane.getDetailsTable().addPropertyChangeListener(
-		// new PropertyChangeListener() {
-		// @Override
-		// public void propertyChange(PropertyChangeEvent evt) {
-		//
-		// addBookmarkButton
-		// .setEnabled(fileBrowserPane.getSelectedPath() != null
-		// && fileBrowserPane.getSelectedPath()
-		// .isDirectory());
-		// }
-		// });
-		//
-		// fileBrowserPane.getDetailsTable().addMouseListener(new MouseAdapter()
-		// {
-		// @Override
-		// public void mousePressed(MouseEvent e) {
-		// enableAddButton();
-		// }
-		//
-		// private void enableAddButton() {
-		// addBookmarkButton.setEnabled(fileBrowserPane.getSelectedPath() !=
-		// null
-		// && fileBrowserPane.getSelectedPath().isDirectory());
-		// }
-		// });
 	}
 
 	@Override
@@ -988,6 +968,9 @@ PropertyChangeListener, ActionListener {
 
 			setFileName(fileNameString(file));
 		}
+						
+		// Enable/disable the "Add to Bookamark" button
+		addBookmarkButton.setEnabled(file != null && file.isDirectory());
 	}
 
 	private void doSelectedFilesChanged(File[] files) {
@@ -997,6 +980,19 @@ PropertyChangeListener, ActionListener {
 				&& (files.length > 1 || fc.isDirectorySelectionEnabled() || !files[0]
 				                                                                   .isDirectory())) {
 			setFileName(fileNameString(files));
+		}
+		
+		// Enable/disable the "Add to Bookamark" button
+		if (files != null) {
+			boolean enable = true;
+			for (File file : files) {
+				if (!file.isDirectory()) {
+					enable = false;
+					break;
+				}
+			}
+			
+			addBookmarkButton.setEnabled(enable);
 		}
 	}
 
