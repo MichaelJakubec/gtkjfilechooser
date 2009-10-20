@@ -303,7 +303,7 @@ PropertyChangeListener, ActionListener {
 		fileBrowserPane = new FileBrowserPane(getFileChooser().getCurrentDirectory());
 		fc.addPropertyChangeListener(this);
 		fileBrowserPane.addPropertyChangeListener(this);
-		fileBrowserPane.addActionListeners(this);
+		fileBrowserPane.addActionListener(this);
 
 
 		// ********************************* //
@@ -660,7 +660,7 @@ PropertyChangeListener, ActionListener {
 		int selectionMode = getFileChooser().isMultiSelectionEnabled() ? MULTIPLE_INTERVAL_SELECTION
 				: SINGLE_SELECTION;
 		searchFilesPane.setSelectionMode(selectionMode);
-		searchFilesPane.addActionListeners(new ActionListener() {
+		searchFilesPane.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (getFileChooser().isMultiSelectionEnabled()) {
@@ -677,7 +677,7 @@ PropertyChangeListener, ActionListener {
 		});
 
 		// add listener on ENTER pressed for select/browse
-		searchFilesPane.addActionListeners(new SelectPathAction() {
+		searchFilesPane.addActionListener(new SelectPathAction() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -707,7 +707,7 @@ PropertyChangeListener, ActionListener {
 		int selectionMode = getFileChooser().isMultiSelectionEnabled() ? MULTIPLE_INTERVAL_SELECTION
 				: SINGLE_SELECTION;
 		recentlyUsedPane.setSelectionMode(selectionMode);
-		recentlyUsedPane.addActionListeners(new ActionListener() {
+		recentlyUsedPane.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (getFileChooser().isMultiSelectionEnabled()) {
@@ -727,7 +727,7 @@ PropertyChangeListener, ActionListener {
 		rightPanel.add(addFilterCombobox(recentlyUsedPane), RECENTLY_USED_PANEL);
 
 		// add listener on ENTER pressed for select/browse
-		recentlyUsedPane.addActionListeners(new SelectPathAction() {
+		recentlyUsedPane.addActionListener(new SelectPathAction() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {

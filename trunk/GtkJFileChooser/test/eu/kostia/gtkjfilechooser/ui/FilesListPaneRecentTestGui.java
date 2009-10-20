@@ -20,7 +20,7 @@ public class FilesListPaneRecentTestGui {
 
 	private FilesListPane testShowRecentUsedFiles() {
 		FilesListPane pane = new FilesListPane();
-		pane.addActionListeners(new ActionListener() {
+		pane.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				FilesListPane p = (FilesListPane)e.getSource();
