@@ -3,10 +3,21 @@ package eu.kostia.gtkjfilechooser;
 import java.lang.reflect.Array;
 
 
-//TODO remove this class in the releases
+/**
+ * Naive logger with stack strace.
+ * Set DEBUG to false for production code.
+ * 
+ * @author c.cerbo
+ *
+ */
 public class Log {
+	/**
+	 * Set false for production code
+	 */
+	private static final boolean DEBUG = true;
+
 	static public void debug(Object... msgs) {
-		if (true) {
+		if (DEBUG) {
 			String location = getInvokingLocation();
 
 			System.out.print(location);

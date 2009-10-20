@@ -1,5 +1,6 @@
 package eu.kostia.gtkjfilechooser.ui;
 
+import static eu.kostia.gtkjfilechooser.ui.ContextMenu.ACTION_ADD_BOOKMARK;
 import static eu.kostia.gtkjfilechooser.ui.JPanelUtil.createPanel;
 import static javax.swing.JFileChooser.*;
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
@@ -19,6 +20,8 @@ import java.awt.LayoutManager;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
@@ -85,18 +88,19 @@ PropertyChangeListener, ActionListener {
 	public GtkFileChooserUI(JFileChooser chooser) {
 		super(chooser);
 		chooser.setFileHidingEnabled(!GtkFileChooserSettings.get().getShowHidden());
-		chooser.addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				if ("JFileChooserDialogIsClosingProperty".equals(evt.getPropertyName())) {
-					onClosing();
-				}
-			}
-		});
 
 		if (chooser.getCurrentDirectory() == null) {
 			chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
 		}
+		
+		// Persist component bounds and sizes
+		chooser.addComponentListener(new ComponentAdapter(){
+			@Override
+			public void componentResized(ComponentEvent e) {
+				Rectangle bound = e.getComponent().getBounds();
+				GtkFileChooserSettings.get().setBound(bound);
+			}
+		});
 	}
 
 	/**
@@ -230,11 +234,6 @@ PropertyChangeListener, ActionListener {
 	}
 
 	@Override
-	public void installUI(JComponent c) {
-		super.installUI(c);
-	}
-
-	@Override
 	public void uninstallComponents(JFileChooser fc) {
 		fc.removeAll();
 		buttonPanel = null;
@@ -340,14 +339,9 @@ PropertyChangeListener, ActionListener {
 				BorderLayout.LINE_START), new PanelElement(comboButtons,
 						BorderLayout.CENTER)), BorderLayout.CENTER);
 		if (fc.getDialogType() == JFileChooser.SAVE_DIALOG) {
-			// New Directory Button
-			// TODO
-			JButton newDirButton = null; // new
-			// JButton(fileBrowserPane.getNewFolderAction());
-			newDirButton.setText("New Directory"); // TODO I18N
+			JButton newDirButton = new JButton(newFolderAccessibleName);
 			newDirButton.setToolTipText(newFolderToolTipText);
-			newDirButton.putClientProperty(AccessibleContext.ACCESSIBLE_NAME_PROPERTY,
-					newFolderAccessibleName);
+			newDirButton.putClientProperty(AccessibleContext.ACCESSIBLE_NAME_PROPERTY,	newFolderAccessibleName);
 			newDirButton.setAlignmentX(JComponent.LEFT_ALIGNMENT);
 			newDirButton.setAlignmentY(JComponent.CENTER_ALIGNMENT);
 			newDirButton.setMargin(shrinkwrap);
@@ -356,6 +350,8 @@ PropertyChangeListener, ActionListener {
 			// topPanel1.add(JPanelUtil.createPanel(new
 			// FlowLayout(FlowLayout.RIGHT), newDirButton),
 			// BorderLayout.LINE_END);
+			
+			//TODO add action
 		}
 
 		/**
@@ -442,14 +438,7 @@ PropertyChangeListener, ActionListener {
 		addBookmarkButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				File[] paths = fileBrowserPane.getSelectedFiles();
-				if (paths == null) {
-					locationsPane.addBookmark(fileBrowserPane.getSelectedFile());
-				} else {
-					for (File path : paths) {
-						locationsPane.addBookmark(path);
-					}	
-				}			
+				addToBookmarks();			
 			}
 		});
 		addBookmarkButton.setEnabled(false);
@@ -830,8 +819,7 @@ PropertyChangeListener, ActionListener {
 		fileNameLabelText = UIManager.getString("FileChooser.fileNameLabelText", l);
 		filesOfTypeLabelText = UIManager.getString("FileChooser.filesOfTypeLabelText", l);
 		newFolderToolTipText = UIManager.getString("FileChooser.newFolderToolTipText", l);
-		newFolderAccessibleName = UIManager.getString(
-				"FileChooser.newFolderAccessibleName", l);
+		newFolderAccessibleName = UIManager.getString("FileChooser.newFolderAccessibleName", l);
 	}
 
 	/**
@@ -968,6 +956,10 @@ PropertyChangeListener, ActionListener {
 
 			setFileName(fileNameString(file));
 		}
+		
+		if (file != null && !file.equals(fc.getSelectedFile())){
+			fc.setSelectedFile(file);
+		}
 						
 		// Enable/disable the "Add to Bookamark" button
 		addBookmarkButton.setEnabled(file != null && file.isDirectory());
@@ -980,6 +972,10 @@ PropertyChangeListener, ActionListener {
 				&& (files.length > 1 || fc.isDirectorySelectionEnabled() || !files[0]
 				                                                                   .isDirectory())) {
 			setFileName(fileNameString(files));
+		}
+		
+		if (files != null && !files.equals(fc.getSelectedFiles())){
+			fc.setSelectedFiles(files);
 		}
 		
 		// Enable/disable the "Add to Bookamark" button
@@ -1254,7 +1250,8 @@ PropertyChangeListener, ActionListener {
 		String property = e.getPropertyName();
 		Object value = e.getNewValue();
 
-		Log.debug("Property: ", property, " = ", value);
+		Log.debug("Property: ", property, " = ", value, " ; source :", e.getSource().getClass());
+		
 		if (DIRECTORY_CHANGED_PROPERTY.equals(property)) {
 			doDirectoryChanged((File) value);
 		} else if (SELECTED_FILE_CHANGED_PROPERTY.equals(property)) {
@@ -1281,6 +1278,10 @@ PropertyChangeListener, ActionListener {
 			doApproveButtonTextChanged(e);
 		} else if (DIALOG_TYPE_CHANGED_PROPERTY.equals(property)) {
 			doDialogTypeChanged(e);
+		} else if ("JFileChooserDialogIsClosingProperty".equals(property)) {
+			onClosing();
+		} else if(CONTROL_BUTTONS_ARE_SHOWN_CHANGED_PROPERTY.equals(property)){
+			getButtonPanel().setVisible((Boolean) value);
 		} else if (COMPONENT_ORIENTATION_PROPERTY.equals(property)) {
 			ComponentOrientation o = (ComponentOrientation) e.getNewValue();
 			JFileChooser cc = (JFileChooser) e.getSource();
@@ -1318,10 +1319,22 @@ PropertyChangeListener, ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		String cmd = e.getActionCommand();
-		Log.debug("Action: ", e.getActionCommand());
-		if (cmd.equals(JFileChooser.APPROVE_SELECTION)) {
-			Log.debug("fileBrowserPane.getSelectedFile(): ", fileBrowserPane.getSelectedFile());
+		Log.debug("GtkFileChooserUI: Action: ", e.getActionCommand());
+		if (APPROVE_SELECTION.equals(cmd)) {
 			approveSelection(fileBrowserPane.getSelectedFile());
+		} else if(ACTION_ADD_BOOKMARK.equals(cmd)){
+			addToBookmarks();
+		}
+	}
+
+	private void addToBookmarks() {
+		File[] paths = fileBrowserPane.getSelectedFiles();
+		if (paths == null) {
+			locationsPane.addBookmark(fileBrowserPane.getSelectedFile());
+		} else {
+			for (File path : paths) {
+				locationsPane.addBookmark(path);
+			}	
 		}
 	}
 }
