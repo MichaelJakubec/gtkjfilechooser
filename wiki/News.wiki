@@ -1,7 +1,7 @@
 #summary The lastest news on the project
 
 = Latest News =
-=== 21.10.2009 Support key binding ===
+=== 21.10.2009 Key Binding Support ===
 Read more details in this [http://code.google.com/p/gtkjfilechooser/wiki/KeyBinding wiki page]
 
 === 14.10.2009 Added incremental search ===
