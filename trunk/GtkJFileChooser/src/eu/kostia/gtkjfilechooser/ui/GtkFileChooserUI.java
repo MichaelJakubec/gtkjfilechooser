@@ -57,6 +57,7 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicFileChooserUI;
 
 import eu.kostia.gtkjfilechooser.ActionPath;
+import eu.kostia.gtkjfilechooser.FileFilterWrapper;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
 import eu.kostia.gtkjfilechooser.Log;
@@ -964,6 +965,11 @@ PropertyChangeListener, ActionListener {
 		if (recentlyUsedPane != null) {
 			new RecentlyUsedFileWorker(this).execute();	
 		}		
+		
+		// Set the new filter in the Search panel
+		if (searchPanel != null){
+			searchPanel.setFileFilter(new FileFilterWrapper(filter));
+		}		
 	}
 
 	private void doFileSelectionModeChanged(Integer fileSelectionMode) {
@@ -1316,11 +1322,12 @@ PropertyChangeListener, ActionListener {
 			Log.debug("   >>> Panel: ", SEARCH_PANEL);
 			if (searchFilesPane == null) {
 				createSearchPane();
-			}
+			}			
 			filenamePanel.setVisible(false);
 			topPanel.setVisible(true);
 			top.show(topPanel, TOP_SEARCH_PANEL);
 			right.show(rightPanel, SEARCH_PANEL);
+			searchPanel.setFileFilter(new FileFilterWrapper(getFileChooser().getFileFilter()));
 			searchPanel.requestFocusInWindow();
 			break;
 		}
