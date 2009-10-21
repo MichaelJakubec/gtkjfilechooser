@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileFilter;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -37,6 +38,8 @@ public class SearchPanel extends JPanel {
 	private JTextField searchTextField;
 
 	private JButton stopButton;
+	
+	private FileFilter fileFilter;
 
 	public SearchPanel(FilesListPane pane) {		
 		this.filesPane = pane;
@@ -66,7 +69,7 @@ public class SearchPanel extends JPanel {
 				stopSearch();
 				fileSearch = new FileSearch(System.getProperty("user.home"), searchTextField.getText(), new ThisFileSearchHandler());
 				fileSearch.setSearchHidden(GtkFileChooserSettings.get().getShowHidden());
-				fileSearch.setFileFilter();
+				fileSearch.setFileFilter(fileFilter);
 				fileSearch.start();					
 			}
 		});
@@ -85,6 +88,11 @@ public class SearchPanel extends JPanel {
 		add(stopButton);
 	}
 
+	
+	public void setFileFilter(FileFilter fileFilter) {
+		this.fileFilter = fileFilter;
+	}
+	
 	@Override
 	public boolean requestFocusInWindow(){
 		return searchTextField.requestFocusInWindow();

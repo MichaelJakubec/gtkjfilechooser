@@ -1,6 +1,7 @@
 package eu.kostia.gtkjfilechooser;
 
 import java.io.File;
+import java.io.FileFilter;
 
 import eu.kostia.gtkjfilechooser.FileSearch.FileSearchHandler.Status;
 
@@ -13,6 +14,7 @@ import eu.kostia.gtkjfilechooser.FileSearch.FileSearchHandler.Status;
 public class FileSearch {
 	private String targetdir;
 	private String searchterm;
+	private FileFilter fileFilter;
 	private FileSearchHandler handler;
 
 	private boolean searchHidden = false;
@@ -33,6 +35,14 @@ public class FileSearch {
 	 */
 	public void setSearchHidden(boolean searchHidden) {
 		this.searchHidden = searchHidden;
+	}
+	
+	/**
+	 * Set a file filter for the search. If {@code null}, all files are accepted.
+	 * @param fileFilter
+	 */
+	public void setFileFilter(FileFilter fileFilter) {
+		this.fileFilter = fileFilter;		
 	}
 
 	/**
@@ -84,7 +94,8 @@ public class FileSearch {
 		}
 
 		if (file.getName().toLowerCase().contains(searchterm)
-				&& (searchHidden || !isHidden(file))) {
+				&& (searchHidden || !isHidden(file))
+				&& (fileFilter != null && fileFilter.accept(file))) {
 			handler.found(file);
 		}
 
@@ -130,4 +141,6 @@ public class FileSearch {
 		 */
 		public void finished(Status status);
 	}
+
+
 }

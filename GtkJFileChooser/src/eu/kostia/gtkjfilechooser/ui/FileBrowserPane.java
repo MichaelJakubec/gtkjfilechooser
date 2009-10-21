@@ -8,7 +8,6 @@ import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -26,9 +25,7 @@ import javax.swing.event.ListSelectionListener;
 
 import eu.kostia.gtkjfilechooser.AcceptAllFileFilter;
 import eu.kostia.gtkjfilechooser.FileFilterWrapper;
-import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
-import eu.kostia.gtkjfilechooser.FreeDesktopUtil.WellKnownDir;
 
 /**
  * File browser
@@ -107,18 +104,6 @@ public class FileBrowserPane extends FilesListPane {
 		});
 	}
 
-	/**
-	 * The following action are binded to the following keys
-	 * <ul>
-	 * <li><i>up-folder:</i> Alt+Up</li>
-	 * <li><i>down-folder:</i> Alt+Down</li>
-	 * <li><i>home-folder:</i> Alt+Home</li>
-	 * <li><i>location-popup:</i> Control+L (empty path); / (path of "/")[a]; ~
-	 * (path of "~")</li>
-	 * <li><i>desktop-folder:</i> Alt+D</li>
-	 * <li><i>quick-bookmark:</i> Alt+1 through Alt+0</li>
-	 * </ul>
-	 */
 	private void bindKeyAction() {
 		// On enter pressed, approve the selection or go into the selected dir.
 		bind(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), new AbstractAction(
@@ -126,26 +111,6 @@ public class FileBrowserPane extends FilesListPane {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				maybeApproveSelection();
-			}
-		});
-
-		// Desktop-folder: Alt+D
-		// TODO disable incremental search
-		KeyStroke altD = KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.ALT_DOWN_MASK);
-		bind(altD, new AbstractAction("Go to Desktop") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				setCurrentDir(FreeDesktopUtil.getWellKnownDirPath(WellKnownDir.DESKTOP));
-			}
-		});
-
-		// Home-folder: Alt+Home
-		KeyStroke altHome = KeyStroke.getKeyStroke(KeyEvent.VK_HOME,
-				InputEvent.ALT_DOWN_MASK);
-		bind(altHome, new AbstractAction("Go to Home folder") {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				setCurrentDir(new File(System.getProperty("user.home")));
 			}
 		});
 	}
