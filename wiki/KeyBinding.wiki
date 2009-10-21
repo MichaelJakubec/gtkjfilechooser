@@ -1,0 +1,17 @@
+#summary Key Binding
+
+= Key Binding =
+
+Analog to gnome, our FileChooser support the following key bindings:
+
+||Control L||hide/show the location text field||
+||Alt Up||go to next folder in the path bar||
+||Alt Down||go to previous folder in the path bar||
+||Alt Home||go to the home directory||
+||Alt D||go to the desktop directory||
+||Alt 1 .. 9||go to the first, second... an so on bookmark||
+||Alt 0||go to the flast bookmark||
+
+
+See also
+http://library.gnome.org/devel/gtk/2.15/GtkFileChooser.html#gtkfilechooser-key-bindings
