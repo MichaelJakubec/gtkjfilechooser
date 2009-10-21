@@ -1,6 +1,9 @@
 #summary The lastest news on the project
 
 = Latest News =
+=== 21.10.2009 Support key binding ===
+Read more details in this [http://code.google.com/p/gtkjfilechooser/wiki/KeyBinding wiki page]
+
 === 14.10.2009 Added incremental search ===
 When the focus in on the table and you press a key, an interactive incremental search will be started:
 
