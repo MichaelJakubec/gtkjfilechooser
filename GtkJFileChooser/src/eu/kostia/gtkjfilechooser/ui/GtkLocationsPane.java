@@ -42,13 +42,15 @@ public class GtkLocationsPane extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	private final BookmarkManager manager;
+
 	private JTable bookmarksTable;
-	//	private Path path;
-	// Necessary to avoid the exception: java.lang.ClassCastException:
-	// eu.kostia.gtkjfilechooser.ui.GtkLocationsPane$2 cannot be cast to
-	// eu.kostia.gtkjfilechooser.ui.GtkLocationsPane
 
 	private List<ActionListener> actionListeners = new ArrayList<ActionListener>();
+
+	/**
+	 * Sum this 'augend' value to translate the bookmark indexes.
+	 */
+	private int augend;
 
 	public GtkLocationsPane() {
 		if (UIManager.getLookAndFeel().getName().indexOf("GTK") == -1) {
@@ -133,6 +135,23 @@ public class GtkLocationsPane extends JPanel {
 	public Object getCurrentSelection(){
 		int row = bookmarksTable.getSelectedRow();
 		return row != -1 ? bookmarksTable.getValueAt(row, 0) : null;
+	}
+
+	/**
+	 * Select a bookmark in the current pane. The numeration begins from 1.
+	 * 
+	 * @param id
+	 *            The position of the bookmark (first bookmark has position 1).
+	 *            The id 0 selects the last bookmark in list.
+	 */
+	public void selectBookmark(int id) {
+		int index = id + augend;
+		if (id == 0) {
+			// alt 0 select the last bookmark
+			index = bookmarksTable.getRowCount() - 1;
+		}
+
+		bookmarksTable.getSelectionModel().setSelectionInterval(index, index);
 	}
 
 	public void refreshBookmarks() {
@@ -370,6 +389,10 @@ public class GtkLocationsPane extends JPanel {
 
 			locations.addAll(FreeDesktopUtil.getBasicLocations());
 			locations.addAll(FreeDesktopUtil.getRemovableDevices());
+
+			// to sum to translate the bookmark indexes.
+			augend = locations.size() - 1;
+
 			locations.addAll(bookmarks);
 		}
 
@@ -436,5 +459,4 @@ public class GtkLocationsPane extends JPanel {
 		}
 
 	}
-
 }

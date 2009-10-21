@@ -13,8 +13,6 @@ import javax.swing.UIManager;
 
 import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
 
-import eu.kostia.gtkjfilechooser.ui.GtkPathBar;
-
 
 
 public class GtkPathBarTestGui {
@@ -31,6 +29,23 @@ public class GtkPathBarTestGui {
 			}			
 		});
 
+
+		JButton downButton = new JButton("<<");
+		downButton.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				pane.downFolder();
+			}
+		});
+
+		JButton upButton = new JButton(">>");
+		upButton.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				pane.upFolder();
+			}
+		});
+
 		JButton changeDirButton = new JButton("Change Dir");
 		changeDirButton.addActionListener(new ActionListener(){
 			@Override
@@ -40,6 +55,6 @@ public class GtkPathBarTestGui {
 			}
 		});
 
-		show(createPanel(new GridLayout(2,1) , pane, createPanel(changeDirButton)));
+		show(createPanel(new GridLayout(2,1) , pane, createPanel(downButton, upButton, changeDirButton)));
 	}
 }

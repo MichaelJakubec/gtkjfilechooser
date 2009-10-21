@@ -2,6 +2,7 @@ package eu.kostia.gtkjfilechooser.ui;
 
 import static eu.kostia.gtkjfilechooser.ActionPath.RECENTLY_USED_PANEL_ID;
 import static eu.kostia.gtkjfilechooser.ActionPath.SEARCH_PANEL_ID;
+import static eu.kostia.gtkjfilechooser.NavigationKeyBinding.*;
 import static eu.kostia.gtkjfilechooser.ui.ContextMenu.ACTION_ADD_BOOKMARK;
 import static eu.kostia.gtkjfilechooser.ui.JPanelUtil.createPanel;
 import static javax.swing.JFileChooser.*;
@@ -58,11 +59,14 @@ import javax.swing.plaf.basic.BasicFileChooserUI;
 
 import eu.kostia.gtkjfilechooser.ActionPath;
 import eu.kostia.gtkjfilechooser.FileFilterWrapper;
+import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
 import eu.kostia.gtkjfilechooser.Log;
+import eu.kostia.gtkjfilechooser.NavigationKeyBinding;
 import eu.kostia.gtkjfilechooser.Path;
 import eu.kostia.gtkjfilechooser.BookmarkManager.GtkBookmark;
+import eu.kostia.gtkjfilechooser.FreeDesktopUtil.WellKnownDir;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings.Mode;
 import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
 import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
@@ -75,6 +79,8 @@ import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
  */
 public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable,
 PropertyChangeListener, ActionListener {
+
+	private static final String ACTION_SELECTED_BOOKMARK = "selected bookmark";
 
 	private static final String ANCESTOR_PROPERTY = "ancestor";
 
@@ -101,6 +107,10 @@ PropertyChangeListener, ActionListener {
 				GtkFileChooserSettings.get().setBound(bound);
 			}
 		});
+
+		// Add key binding
+		NavigationKeyBinding keyBinding = new NavigationKeyBinding(chooser);
+		keyBinding.addActionListener(this);
 	}
 
 	/**
@@ -483,7 +493,9 @@ PropertyChangeListener, ActionListener {
 				getFileChooser().firePropertyChange(CURRENT_PANEL_CHANGED, currentPanelId, FILEBROWSER_PANEL_ID);				
 
 				if (entry != null && entry.getLocation() != null) {
-					doDirectoryChanged(new File(entry.getLocation()));
+					ActionEvent evt = new ActionEvent(locationsPane, -1, ACTION_SELECTED_BOOKMARK);
+					// fire an action event on the current ActionListener (GtkFileChooser)
+					GtkFileChooserUI.this.actionPerformed(evt);					
 				}
 			}
 		});
@@ -939,7 +951,6 @@ PropertyChangeListener, ActionListener {
 		JFileChooser fc = getFileChooser();
 		FileSystemView fsv = fc.getFileSystemView();
 
-		clearIconCache();
 		if (dir != null) {
 			getFileChooser().setCurrentDirectory(dir);
 			comboButtons.setCurrentDirectory(dir);
@@ -965,7 +976,7 @@ PropertyChangeListener, ActionListener {
 		if (recentlyUsedPane != null) {
 			new RecentlyUsedFileWorker(this).execute();	
 		}		
-		
+
 		// Set the new filter in the Search panel
 		if (searchPanel != null){
 			searchPanel.setFileFilter(new FileFilterWrapper(filter));
@@ -1256,6 +1267,24 @@ PropertyChangeListener, ActionListener {
 			approveSelection(fileBrowserPane.getSelectedFile());
 		} else if(ACTION_ADD_BOOKMARK.equals(cmd)){
 			addToBookmarks();
+		} else if(ACTION_SELECTED_BOOKMARK.equals(cmd)) {	
+			File location = new File(locationsPane.getCurrentPath().getLocation());
+			doDirectoryChanged(location);
+		} else if (LOCATION_POPUP.equals(cmd)) {
+			showPositionButton.doClick();
+		} else if (UP_FOLDER.equals(cmd)) {
+			comboButtons.upFolder();
+		} else if (DOWN_FOLDER.equals(cmd)) {
+			comboButtons.downFolder();
+		} else if (HOME_FOLDER.equals(cmd)) {
+			doDirectoryChanged(new File(System.getProperty("user.home")));
+		} else if (DESKTOP_FOLDER.equals(cmd)) {
+			doDirectoryChanged(FreeDesktopUtil.getWellKnownDirPath(WellKnownDir.DESKTOP));
+		} else if (QUICK_BOOKMARK.equals(cmd)) {
+			int id = e.getID();
+			locationsPane.selectBookmark(id);		
+			File location = new File(locationsPane.getCurrentPath().getLocation());
+			doDirectoryChanged(location);
 		}
 	}
 
