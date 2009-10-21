@@ -276,7 +276,33 @@ public class GtkPathBar extends JPanel {
 		}
 	}
 
+	public void upFolder() {
+		Enumeration<AbstractButton> buttons = dirButtonsgroup.getElements();
+		while (buttons.hasMoreElements()) {
+			AbstractButton button = buttons.nextElement();
+			if (button.isSelected()){
+				if (buttons.hasMoreElements()) {
+					AbstractButton nextButton = buttons.nextElement();
+					nextButton.doClick();
+				}
+			}
+		}
+	}
 
+	public void downFolder() {
+		Enumeration<AbstractButton> buttons = dirButtonsgroup.getElements();
+		AbstractButton previousButton = null;
+		while (buttons.hasMoreElements()) {
+			AbstractButton button = buttons.nextElement();
+			if (button.isSelected()){
+				if (previousButton != null) {
+					previousButton.doClick();
+				}
+			}
+
+			previousButton = button;
+		}
+	}
 
 	private void setDirectories(File location) throws IOError {
 		if (location == null){

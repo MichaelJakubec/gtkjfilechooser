@@ -1,8 +1,10 @@
 package eu.kostia.gtkjfilechooser;
 
+import static java.awt.event.InputEvent.ALT_DOWN_MASK;
+import static java.awt.event.InputEvent.CTRL_DOWN_MASK;
+import static java.awt.event.KeyEvent.*;
+
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
@@ -73,27 +75,51 @@ public class NavigationKeyBinding extends BasicActionDispatcher {
 	}
 
 	private void bindKeyAction() {
+		// location-popup Control+L
+		KeyStroke ctrlL = KeyStroke.getKeyStroke(VK_L, CTRL_DOWN_MASK);
+		bind(ctrlL, -1, LOCATION_POPUP);
 
-		// Desktop-folder: Alt+D
-		// TODO disable incremental search
-		KeyStroke altD = KeyStroke.getKeyStroke(KeyEvent.VK_D, InputEvent.ALT_DOWN_MASK);
-		bind(altD, DESKTOP_FOLDER);
+		// up-folder Alt+Up
+		KeyStroke altUp = KeyStroke.getKeyStroke(VK_UP, ALT_DOWN_MASK);
+		bind(altUp, -1, UP_FOLDER);
+
+		// down-folder Alt+Down
+		KeyStroke altDown = KeyStroke.getKeyStroke(VK_DOWN, ALT_DOWN_MASK);
+		bind(altDown, -1, DOWN_FOLDER);
 
 		// Home-folder: Alt+Home
-		KeyStroke altHome = KeyStroke.getKeyStroke(KeyEvent.VK_HOME, InputEvent.ALT_DOWN_MASK);
-		bind(altHome, HOME_FOLDER);
+		KeyStroke altHome = KeyStroke.getKeyStroke(VK_HOME, ALT_DOWN_MASK);
+		bind(altHome, -1, HOME_FOLDER);
+
+		// Desktop-folder: Alt+D
+		KeyStroke altD = KeyStroke.getKeyStroke(VK_D, ALT_DOWN_MASK);
+		bind(altD, -1, DESKTOP_FOLDER);
+
+		// quick-bookmark Alt+1 through Alt+0
+		for (int i = VK_0; i <= VK_9; i++) {
+			KeyStroke altDigit = KeyStroke.getKeyStroke(i, ALT_DOWN_MASK);
+			bind(altDigit, i - VK_0, QUICK_BOOKMARK);
+		}
+
+		for (int i = VK_NUMPAD0; i <= VK_NUMPAD9; i++) {
+			KeyStroke altDigit = KeyStroke.getKeyStroke(i, ALT_DOWN_MASK);
+			bind(altDigit, i - VK_NUMPAD0, QUICK_BOOKMARK);
+		}
+
 	}
 
-	private void bind(KeyStroke key, String actionName) {
+	private void bind(KeyStroke key, final int id, final String actionName) {
 		if (actionName == null) {
 			throw new IllegalArgumentException("The action must have a name.");
 		}
 
-		this.component.getInputMap().put(key, actionName);
-		this.component.getActionMap().put(actionName, new AbstractAction(actionName) {
+		this.component.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, actionName + "_" + id);
+		this.component.getActionMap().put(actionName + "_" + id, new AbstractAction(actionName) {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				fireActionEvent(e);
+				ActionEvent evt = new ActionEvent(NavigationKeyBinding.this, id,
+						actionName);
+				fireActionEvent(evt);
 			}
 		});
 	}
