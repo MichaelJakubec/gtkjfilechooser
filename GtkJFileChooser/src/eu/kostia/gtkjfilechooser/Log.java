@@ -14,7 +14,7 @@ public class Log {
 	/**
 	 * Set false for production code
 	 */
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	static public void debug(Object... msgs) {
 		if (DEBUG) {
