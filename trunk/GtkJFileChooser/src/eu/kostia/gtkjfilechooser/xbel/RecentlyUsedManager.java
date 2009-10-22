@@ -3,7 +3,9 @@ package eu.kostia.gtkjfilechooser.xbel;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOError;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -49,12 +52,22 @@ public class RecentlyUsedManager {
 	 */
 	public RecentlyUsedManager(int n) {
 		try {
+			init(n);
+		} catch (Exception e) {
+			throw new IOError(e);
+		} 
+	}
+
+	private void init(int n) throws ParserConfigurationException, SAXException,
+	FileNotFoundException, IOException {
+		BufferedInputStream stream = null;
+		try {
 			// Performance note: SAX is here about 2x faster that JAXB.
 			SAXParserFactory factory = SAXParserFactory.newInstance();
 			SAXParser saxParser = factory.newSAXParser();
 			RecentFilesHandler handler = new RecentFilesHandler();
-			InputSource is = new InputSource(new BufferedInputStream(new FileInputStream(
-					getRecentlyUsedFile())));
+			stream = new BufferedInputStream(new FileInputStream(getRecentlyUsedFile()));
+			InputSource is = new InputSource(stream);
 			saxParser.parse(is, handler);
 
 			recentFiles = handler.getAllRecentFiles();
@@ -72,8 +85,10 @@ public class RecentlyUsedManager {
 			if (n < recentFiles.size()) {
 				recentFiles = recentFiles.subList(0, n);
 			}			
-		} catch (Exception e) {
-			throw new IOError(e);
+		} finally {
+			if (stream != null){
+				stream.close();
+			}
 		}
 	}
 
