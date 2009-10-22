@@ -126,14 +126,14 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 				}
 			}
 		});
-	
+
 
 		// Add interactive file search support
 		new FileFindAction().install(table);
 
 		add(new JScrollPane(table), BorderLayout.CENTER);
 	}
-	
+
 	public void setShowSizeColumn(boolean showSizeColumn) {
 		GtkFileChooserSettings.get().setShowSizeColumn(showSizeColumn);
 		setModel(new ArrayList<File>(), showSizeColumn);
@@ -188,10 +188,10 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		FilesListTableRowSorter sorter = new FilesListTableRowSorter();
 		sorter.setSortKeys(sortKeys);
 		table.setRowSorter(sorter);
-		
+
 		createColumnsFromModel();
 	}
-	
+
 	private void createColumnsFromModel() {
 		FilesListTableModel m = (FilesListTableModel) table.getModel();
 		if (m != null) {
@@ -262,7 +262,7 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 	 * Model
 	 */
 	protected class FilesListTableModel extends AbstractTableModel implements
-			Serializable, TableModelListener {
+	Serializable, TableModelListener {
 
 		private static final long serialVersionUID = 1L;
 
@@ -270,22 +270,22 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 
 		private String[] columnNames;
 		private String[] columnIds;
-		
+
 		private boolean showSizeColumn;
 
 		public FilesListTableModel(List<File> fileEntries, boolean showSizeColumn) {
 			this.data = new ArrayList<Object[]>();
 			this.showSizeColumn = showSizeColumn;
-			
+
 			addTableModelListener(this);
-			
+
 			if (getShowSizeColumn()) {
 				this.columnIds = new String[] { FILE_NAME_COLUMN_ID, FILE_SIZE_COLUMN_ID, FILE_DATE_COLUMN_ID };
 			} else {
 				this.columnIds = new String[] { FILE_NAME_COLUMN_ID, FILE_DATE_COLUMN_ID };
 			}
-			
-			
+
+
 			this.columnNames = new String[columnIds.length];
 			for (int i = 0; i < columnIds.length; i++) {
 				String columnId = columnIds[i];
@@ -310,9 +310,9 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		private void addFileEntryInternal(File file) {
 			Object[] row = new Object[getColumnCount()];
 			row[0] = file;
-			
+
 			if (getShowSizeColumn()) {
-				row[1] = file != null ? file.length() : 0L;
+				row[1] = file != null && !file.isDirectory() ? file.length() : -1L;
 				row[2] = new Date(file.lastModified());
 			} else {
 				row[1] = new Date(file.lastModified());
@@ -334,7 +334,7 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 			fireTableRowsInserted(row, row);
 		}
 
-		
+
 		// *** TABLE MODEL METHODS ***
 
 		public int getColumnCount() {
@@ -371,7 +371,7 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		@Override
 		public Class<?> getColumnClass(int col) {
 			checkColumnIndex(col);
-			
+
 			if (!data.isEmpty() && data.get(0)[col] != null) {
 				return data.get(0)[col].getClass();
 			}
@@ -413,8 +413,8 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 				setIcon(GtkStockIcon.get(file, Size.GTK_ICON_SIZE_MENU));
 			} else if (value instanceof Long) {
 				// size column
-				Long bytes = (Long) value;
-				setText(FreeDesktopUtil.humanreadble(bytes, 0));
+				Long bytes = (Long) value;				
+				setText(bytes != -1 ? FreeDesktopUtil.humanreadble(bytes, 0) : "");
 			} else if (value instanceof Date) {
 				// last modified column
 				Date date = (Date) value;

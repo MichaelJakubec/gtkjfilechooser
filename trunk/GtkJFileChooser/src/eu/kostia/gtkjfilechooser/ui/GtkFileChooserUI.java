@@ -126,8 +126,6 @@ PropertyChangeListener, ActionListener {
 
 	private GtkPathBar comboButtons;
 
-	// private FilterComboBoxChangeListener filterComboBoxModel;
-
 	private JTextField fileNameTextField;
 
 	/**
@@ -212,8 +210,6 @@ PropertyChangeListener, ActionListener {
 
 	private JButton addBookmarkButton;
 	private JButton removeBookmarkButton;
-
-	private static final Insets shrinkwrap = new Insets(0, 0, 0, 0);
 
 	// Preferred and Minimum sizes for the dialog box
 	private static int PREF_WIDTH = 700;
@@ -354,9 +350,7 @@ PropertyChangeListener, ActionListener {
 			JButton newDirButton = new JButton(newFolderAccessibleName);
 			newDirButton.setToolTipText(newFolderToolTipText);
 			newDirButton.putClientProperty(AccessibleContext.ACCESSIBLE_NAME_PROPERTY,	newFolderAccessibleName);
-			newDirButton.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-			newDirButton.setAlignmentY(JComponent.CENTER_ALIGNMENT);
-			newDirButton.setMargin(shrinkwrap);
+
 
 			// TODO add to panel in the right position
 			// topPanel1.add(JPanelUtil.createPanel(new
@@ -387,7 +381,7 @@ PropertyChangeListener, ActionListener {
 
 		topPanel = new JPanel(new CardLayout());
 		topPanel.add(topPanelDefault, TOP_PATHBAR_PANEL);
-		// Add the top panel to the fileChooser
+		// Add the top panel to the fileChooser		
 		fc.add(topPanel, BorderLayout.NORTH);
 
 		/***********************************************
@@ -495,19 +489,19 @@ PropertyChangeListener, ActionListener {
 				new PanelElement(buttonPanel, BorderLayout.PAGE_END)
 		);
 		installListenersForBookmarksButtons();
-		
-		
+
+
 		// Right Panel (file browser)
 		fileBrowserPane.setPreferredSize(LIST_PREF_SIZE);
 		cardPanel.add(fileBrowserPane, FILEBROWSER_PANEL);
-		
+
 		JPanel rightPane = new JPanel(new BorderLayout());
 		rightPane.add(cardPanel, BorderLayout.CENTER);
 		if (filterComboBox == null) {
 			createFilterComboBox();
 		}
 		rightPane.add(createPanelBoxLayout(Box.createHorizontalGlue(), filterComboBox), BorderLayout.PAGE_END);
-		
+
 
 		// ad to the file chooser
 		JSplitPane splitPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPane, rightPane);
@@ -525,7 +519,7 @@ PropertyChangeListener, ActionListener {
 		filterComboBox.setPreferredSize(size);
 		filterComboBox.setMaximumSize(size);
 		filterComboBox.setMinimumSize(size);
-		
+
 		filterComboBox.addActionListener(new ActionListener() {
 
 			@Override
