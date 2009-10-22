@@ -8,6 +8,7 @@ import java.awt.LayoutManager;
 import java.awt.Toolkit;
 
 import javax.swing.BoxLayout;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -86,7 +87,7 @@ public class JPanelUtil {
 		}
 	}
 
-	static public void show(JPanel panel){
+	static public void show(JComponent panel){
 		JFrame f = new JFrame();
 		f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		f.getContentPane().add(panel);	
