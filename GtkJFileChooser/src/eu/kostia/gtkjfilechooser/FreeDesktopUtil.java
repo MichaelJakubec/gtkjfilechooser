@@ -54,7 +54,15 @@ public class FreeDesktopUtil {
 				+ "/.config/user-dirs.dirs");
 		Properties props = new Properties();
 		try {
-			props.load(new FileInputStream(userDirs));
+			FileInputStream is = null;
+			try {
+				is = new FileInputStream(userDirs);
+				props.load(is);
+			} finally {
+				if (is != null){
+					is.close();
+				}
+			}
 		} catch (IOException e) {
 			throw new IOError(e);
 		}
