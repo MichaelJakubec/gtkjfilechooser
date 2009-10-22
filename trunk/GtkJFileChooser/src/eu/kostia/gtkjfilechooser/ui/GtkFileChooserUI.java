@@ -5,6 +5,7 @@ import static eu.kostia.gtkjfilechooser.ActionPath.SEARCH_PANEL_ID;
 import static eu.kostia.gtkjfilechooser.NavigationKeyBinding.*;
 import static eu.kostia.gtkjfilechooser.ui.ContextMenu.ACTION_ADD_BOOKMARK;
 import static eu.kostia.gtkjfilechooser.ui.JPanelUtil.createPanel;
+import static eu.kostia.gtkjfilechooser.ui.JPanelUtil.createPanelBoxLayout;
 import static javax.swing.JFileChooser.*;
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.accessibility.AccessibleContext;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -164,7 +166,7 @@ PropertyChangeListener, ActionListener {
 	 * Panel mit CardLayout used to show one of the following three panels: the
 	 * File-Browser panel, the Recently-Used panel and the Search panel.
 	 */
-	private JPanel rightPanel = new JPanel(new CardLayout());
+	private JPanel cardPanel = new JPanel(new CardLayout());
 
 	/**
 	 * Names of the "cards" in the rightPanel.
@@ -407,15 +409,6 @@ PropertyChangeListener, ActionListener {
 		// Buttons
 		getButtonPanel().setLayout(new ButtonAreaLayout());
 
-		/************************
-		 * File Filter Combobox *
-		 ************************/
-		if (filterComboBox == null) {
-			createFilterComboBox();
-		}	
-		//TODO move to other position
-		getButtonPanel().add(filterComboBox);
-
 		cancelButton = new JButton(cancelButtonText);
 		cancelButton.setIcon(GtkStockIcon.get("gtk-cancel", Size.GTK_ICON_SIZE_BUTTON));
 		cancelButton.setToolTipText(cancelButtonToolTipText);
@@ -448,9 +441,6 @@ PropertyChangeListener, ActionListener {
 	}
 
 	private void addFileBrowserPane(final JFileChooser fc) {
-		JSplitPane mainPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		mainPanel.setContinuousLayout(true);
-
 		// Left Panel (Bookmarks)
 		addBookmarkButton = new JButton("Add"); // TODO I18N
 		addBookmarkButton.setIcon(GtkStockIcon.get("gtk-add", Size.GTK_ICON_SIZE_BUTTON));
@@ -500,45 +490,42 @@ PropertyChangeListener, ActionListener {
 			}
 		});
 
-		mainPanel.add(JPanelUtil.createPanel(new PanelElement(locationsPane,
-				BorderLayout.CENTER),
-				new PanelElement(buttonPanel, BorderLayout.PAGE_END)));
-
+		JPanel leftPane = createPanel(
+				new PanelElement(locationsPane, BorderLayout.CENTER),
+				new PanelElement(buttonPanel, BorderLayout.PAGE_END)
+		);
+		installListenersForBookmarksButtons();
+		
+		
 		// Right Panel (file browser)
 		fileBrowserPane.setPreferredSize(LIST_PREF_SIZE);
-
-		rightPanel.add(fileBrowserPane, FILEBROWSER_PANEL);
-		mainPanel.add(rightPanel);
-
-		installListenersForBookmarksButtons();
+		cardPanel.add(fileBrowserPane, FILEBROWSER_PANEL);
+		
+		JPanel rightPane = new JPanel(new BorderLayout());
+		rightPane.add(cardPanel, BorderLayout.CENTER);
+		if (filterComboBox == null) {
+			createFilterComboBox();
+		}
+		rightPane.add(createPanelBoxLayout(Box.createHorizontalGlue(), filterComboBox), BorderLayout.PAGE_END);
+		
 
 		// ad to the file chooser
-		fc.add(mainPanel, BorderLayout.CENTER);
+		JSplitPane splitPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPane, rightPane);
+		splitPanel.setContinuousLayout(true);
+		fc.add(splitPanel, BorderLayout.CENTER);
 	}
 
-	//	/**
-	//	 * Add on the botton-right corner a combobox for file filtering.
-	//	 */
-	//	private JPanel addFilterCombobox(JComponent component) {
-	//		if (filterComboBox == null) {
-	//			createFilterComboBox();
-	//		}		
-	//
-	//		JPanel fileBrowserSubPanel = JPanelUtil.createPanel(new PanelElement(component,
-	//				BorderLayout.CENTER), new PanelElement(JPanelUtil.createPanel(
-	//						new GridLayout(1, 3), new JLabel(), new JLabel(), filterComboBox),
-	//						BorderLayout.PAGE_END));
-	//
-	//		return fileBrowserSubPanel;
-	//	}
 
 	private void createFilterComboBox() {
 		filterComboBox = new JComboBox();
 		filterComboBox.putClientProperty(
 				AccessibleContext.ACCESSIBLE_DESCRIPTION_PROPERTY, filesOfTypeLabelText);
 
-		filterComboBox.setPreferredSize(new Dimension(150, (int) removeBookmarkButton
-				.getPreferredSize().getHeight()));
+		Dimension size = new Dimension(150, (int) removeBookmarkButton.getPreferredSize().getHeight());
+		filterComboBox.setPreferredSize(size);
+		filterComboBox.setMaximumSize(size);
+		filterComboBox.setMinimumSize(size);
+		
 		filterComboBox.addActionListener(new ActionListener() {
 
 			@Override
@@ -653,7 +640,7 @@ PropertyChangeListener, ActionListener {
 		searchPanel = new SearchPanel(searchFilesPane);
 
 		topPanel.add(searchPanel, TOP_SEARCH_PANEL);
-		rightPanel.add(searchFilesPane, SEARCH_PANEL);
+		cardPanel.add(searchFilesPane, SEARCH_PANEL);
 	}
 
 	FilesListPane getRecentlyUsedPane() {
@@ -685,7 +672,7 @@ PropertyChangeListener, ActionListener {
 			}
 		});
 
-		rightPanel.add(recentlyUsedPane, RECENTLY_USED_PANEL);
+		cardPanel.add(recentlyUsedPane, RECENTLY_USED_PANEL);
 
 		// add listener on ENTER pressed for select/browse
 		recentlyUsedPane.addActionListener(new SelectPathAction() {
@@ -1326,7 +1313,7 @@ PropertyChangeListener, ActionListener {
 		CardLayout top = (CardLayout) topPanel.getLayout();
 
 		// Right panel
-		CardLayout right = (CardLayout) rightPanel.getLayout();
+		CardLayout right = (CardLayout) cardPanel.getLayout();
 
 		switch (id) {
 		case FILEBROWSER_PANEL_ID:
@@ -1334,7 +1321,7 @@ PropertyChangeListener, ActionListener {
 			topPanel.setVisible(true);
 			filenamePanel.setVisible(showPositionButton.isSelected());
 			top.show(topPanel, TOP_PATHBAR_PANEL);
-			right.show(rightPanel, FILEBROWSER_PANEL);
+			right.show(cardPanel, FILEBROWSER_PANEL);
 			break;
 
 		case RECENTLY_USED_PANEL_ID:
@@ -1344,7 +1331,7 @@ PropertyChangeListener, ActionListener {
 				createRecentlyUsedPane();
 			}
 			topPanel.setVisible(false);
-			right.show(rightPanel, RECENTLY_USED_PANEL);
+			right.show(cardPanel, RECENTLY_USED_PANEL);
 			break;
 
 		case SEARCH_PANEL_ID:
@@ -1355,7 +1342,7 @@ PropertyChangeListener, ActionListener {
 			filenamePanel.setVisible(false);
 			topPanel.setVisible(true);
 			top.show(topPanel, TOP_SEARCH_PANEL);
-			right.show(rightPanel, SEARCH_PANEL);
+			right.show(cardPanel, SEARCH_PANEL);
 			searchPanel.setFileFilter(new FileFilterWrapper(getFileChooser().getFileFilter()));
 			searchPanel.requestFocusInWindow();
 			break;
