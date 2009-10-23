@@ -1,6 +1,7 @@
-package eu.kostia.gtkjfilechooser;
+package eu.kostia.gtkjfilechooser.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -20,34 +21,32 @@ public class Expander extends JComponent implements PropertyChangeListener {
 		this.component = aComponent;
 		addPropertyChangeListener(this);
 
-		setLayout(new BorderLayout());		
+		setLayout(new BorderLayout());
 
 		label = new JLabel(text);
 		label.setIcon(new ExpanderIcon(false, false));
 
-
 		label.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				Log.debug("mouseClicked");
 				expanded = !expanded;
 				firePropertyChange(EXPANDED_STATUS_CHANGED, !expanded, expanded);
 			}
 
 			@Override
 			public void mouseEntered(MouseEvent e) {
-				Log.debug("mouseEntered");
-				//label.setOpaque(true);
-				//label.setBackground(new Color(230, 230, 230));			
-				label.setIcon(expanded ? new ExpanderIcon(true, true) : new ExpanderIcon(false, true));
+				label.setOpaque(true);
+				label.setBackground(new Color(241, 238, 233));
+				label.setIcon(expanded ? new ExpanderIcon(true, true) : new ExpanderIcon(
+						false, true));
 			}
 
 			@Override
 			public void mouseExited(MouseEvent e) {
-				Log.debug("mouseExited");
 				label.setOpaque(false);
 				label.setBackground(UIManager.getColor("Label.background"));
-				label.setIcon(expanded ? new ExpanderIcon(true, false) : new ExpanderIcon(false, false));
+				label.setIcon(expanded ? new ExpanderIcon(true, false)
+						: new ExpanderIcon(false, false));
 			}
 		});
 
@@ -61,15 +60,24 @@ public class Expander extends JComponent implements PropertyChangeListener {
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		String property = evt.getPropertyName();
-		Object value = evt.getNewValue();
-		Log.debug(property, " = ", value);
 
-		if (EXPANDED_STATUS_CHANGED.equals(property)){
-			component.setVisible(expanded);
-
-			label.setIcon(expanded ? new ExpanderIcon(true, true) : new ExpanderIcon(false, true));
-
+		if (EXPANDED_STATUS_CHANGED.equals(property)) {
+			doStatusChanged();
 		}
 	}
-}
 
+	public void setExpanded(boolean expanded) {
+		this.expanded = expanded;
+		firePropertyChange(EXPANDED_STATUS_CHANGED, !expanded, expanded);
+	}
+	
+	public boolean isExpanded() {
+		return expanded;
+	}
+
+	private void doStatusChanged() {
+		component.setVisible(expanded);
+		label.setIcon(expanded ? new ExpanderIcon(true, true) : new ExpanderIcon(false,
+				true));
+	}
+}
