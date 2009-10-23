@@ -25,7 +25,7 @@ public class SaveDialogPanel extends JPanel implements PropertyChangeListener {
 	private JLabel saveFolderLabel;
 	private JComboBox foldersComboBox;
 	private Expander expander;
-	
+
 	public SaveDialogPanel(JComponent fileExplorerPanel) {
 		super(new BorderLayout());
 
@@ -38,7 +38,7 @@ public class SaveDialogPanel extends JPanel implements PropertyChangeListener {
 		nameTextField = new JTextField();
 		saveFolderLabel = new JLabel("Save in folder:");
 		initFoldersComboBox();
-		
+
 		saveTopPanel.add(nameLabel);
 		saveTopPanel.add(nameTextField);
 
@@ -65,13 +65,22 @@ public class SaveDialogPanel extends JPanel implements PropertyChangeListener {
 		foldersComboBox = new JComboBox();
 		foldersComboBox.setMaximumRowCount(30);
 		foldersComboBox.setRenderer(new FileComboBoxRenderer(foldersComboBox));
-				
+
+		List<Path> locations = getLocations();
+
+		foldersComboBox.setModel(new DefaultComboBoxModel(locations.toArray()));				
+	}
+
+	/**
+	 * The default locations: Home, Desktop, File System and all the removable devices.
+	 * @return
+	 */
+	private List<Path> getLocations() {
 		List<Path> locations = new ArrayList<Path>();
 		locations.addAll(FreeDesktopUtil.getBasicLocations());
 		locations.addAll(FreeDesktopUtil.getRemovableDevices());
 		locations.addAll(new BookmarkManager().getAll());
-			
-		foldersComboBox.setModel(new DefaultComboBoxModel(locations.toArray()));				
+		return locations;
 	}
 
 	public boolean isExpanded() {
@@ -81,7 +90,7 @@ public class SaveDialogPanel extends JPanel implements PropertyChangeListener {
 	public void setExpanded(boolean expanded) {
 		expander.setExpanded(expanded);
 	}
-	
+
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		String property = evt.getPropertyName();

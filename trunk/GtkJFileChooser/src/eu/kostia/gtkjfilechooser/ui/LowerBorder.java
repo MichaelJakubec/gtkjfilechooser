@@ -13,7 +13,7 @@ public class LowerBorder extends AbstractBorder {
 
 	protected int thickness;
 	protected Color lineColor;
-	
+
 	static final public Insets INSETS = new Insets(1,5,1,5);
 
 	/**
@@ -29,17 +29,20 @@ public class LowerBorder extends AbstractBorder {
 		this.thickness = thickness;		
 	}
 
-	
+	protected Insets getBorderInsets() {
+		return INSETS;
+	}
+
 	@Override
 	public Insets getBorderInsets(Component c) {
-		return INSETS;
+		return getBorderInsets();
 	}
-	
+
 	@Override
 	public Insets getBorderInsets(Component c, Insets insets) {
-		return INSETS;
+		return getBorderInsets();
 	}
-	
+
 	@Override
 	public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
 		Color oldColor = g.getColor();
@@ -49,7 +52,7 @@ public class LowerBorder extends AbstractBorder {
 					height - y + i, 
 					width - i - i - 1, 
 					height - i - i - 1);
-			
+
 			g.setColor(oldColor);
 		}
 	}

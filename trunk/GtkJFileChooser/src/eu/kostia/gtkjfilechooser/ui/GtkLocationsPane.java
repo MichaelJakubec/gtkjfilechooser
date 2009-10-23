@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -292,13 +293,19 @@ public class GtkLocationsPane extends JPanel {
 
 			if ((row + 1) < table.getRowCount()) { // if has next row
 				Object nextValue = table.getValueAt(row + 1, 0);
+				LowerBorder border = new LowerBorder(Color.GRAY, 1) {
+					@Override
+					protected Insets getBorderInsets() {
+						return new Insets(1,1,1,1);
+					}
+				};
 				if (!(value instanceof BasicPath) && nextValue instanceof BasicPath) {
 					// border between Actions and Places
-					setBorder(new LowerBorder(Color.GRAY, 1));
+					setBorder(border);
 				}
 				if (!(value instanceof GtkBookmark) && nextValue instanceof GtkBookmark) {
 					// border between Places and Bookmarks
-					setBorder(new LowerBorder(Color.GRAY, 1));
+					setBorder(border);
 				}
 			}
 
