@@ -137,9 +137,10 @@ public class FreeDesktopUtil {
 					String location = lineScanner.next();
 					if (location.startsWith("/media/")) {
 						RemovableDevice device = new RemovableDevice();
-						device.setLocation(location);
+						device.setLocation(escapes(location));
 						device.setType(RemovableDeviceType.getType(dev));
-						String name = location.substring("/media/".length());
+						String name = location.substring("/media/".length());						
+						name = escapes(name);
 						if (Arrays.binarySearch(diskUUIDs, name) >= 0) {
 							// Removable device without name.
 							// Set a generic name with size
@@ -169,6 +170,14 @@ public class FreeDesktopUtil {
 		}
 
 		return devices;
+	}
+
+	/**
+	 * Replace space escape sequences.
+	 */
+	private static String escapes(String name) {
+		name = name.replace("\\040", " ");
+		return name;
 	}
 
 	/**
