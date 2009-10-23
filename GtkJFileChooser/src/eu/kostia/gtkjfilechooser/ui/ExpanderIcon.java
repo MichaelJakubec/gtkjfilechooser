@@ -1,4 +1,4 @@
-package eu.kostia.gtkjfilechooser;
+package eu.kostia.gtkjfilechooser.ui;
 
 import java.awt.Component;
 import java.awt.Graphics;
@@ -45,15 +45,18 @@ public class ExpanderIcon implements Icon {
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON);
 
-		if (down) {
-			g2d.rotate(0.5 * Math.PI, 15, 15);
-		}
-
 		GeneralPath triangle = new GeneralPath();
-		triangle.moveTo(mx, my);
-		triangle.lineTo(w - mx, h / 2);
-		triangle.lineTo(mx, h - my);
-		triangle.closePath();
+		if (down) {
+			triangle.moveTo(my, mx);
+			triangle.lineTo(w - my, mx);
+			triangle.lineTo(w/2, h-mx);
+			triangle.closePath();
+		} else {
+			triangle.moveTo(mx, my);
+			triangle.lineTo(w - mx, h / 2);
+			triangle.lineTo(mx, h - my);
+			triangle.closePath();	
+		}
 
 		if (filled) {
 			g2d.fill(triangle);

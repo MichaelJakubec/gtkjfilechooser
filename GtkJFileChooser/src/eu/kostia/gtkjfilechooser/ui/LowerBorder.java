@@ -3,6 +3,7 @@ package eu.kostia.gtkjfilechooser.ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
+import java.awt.Insets;
 
 import javax.swing.border.AbstractBorder;
 
@@ -12,6 +13,8 @@ public class LowerBorder extends AbstractBorder {
 
 	protected int thickness;
 	protected Color lineColor;
+	
+	static final public Insets INSETS = new Insets(1,5,1,5);
 
 	/**
 	 * Creates a line border with the specified color and thickness.
@@ -23,9 +26,20 @@ public class LowerBorder extends AbstractBorder {
 	 */
 	public LowerBorder(Color color, int thickness) {
 		this.lineColor = color;
-		this.thickness = thickness;
+		this.thickness = thickness;		
 	}
 
+	
+	@Override
+	public Insets getBorderInsets(Component c) {
+		return INSETS;
+	}
+	
+	@Override
+	public Insets getBorderInsets(Component c, Insets insets) {
+		return INSETS;
+	}
+	
 	@Override
 	public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
 		Color oldColor = g.getColor();
@@ -35,7 +49,7 @@ public class LowerBorder extends AbstractBorder {
 					height - y + i, 
 					width - i - i - 1, 
 					height - i - i - 1);
-			//g.drawRect(x + i, y + i, width - i - i - 1, height - i - i - 1);
+			
 			g.setColor(oldColor);
 		}
 	}
