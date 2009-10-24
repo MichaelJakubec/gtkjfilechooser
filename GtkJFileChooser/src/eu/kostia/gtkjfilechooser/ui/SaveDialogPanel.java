@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,7 @@ public class SaveDialogPanel extends JPanel implements PropertyChangeListener {
 	private JLabel saveFolderLabel;
 	private JComboBox foldersComboBox;
 	private Expander expander;
+	private String externalPath;
 
 	public SaveDialogPanel(JComponent fileExplorerPanel) {
 		super(new BorderLayout());
@@ -33,7 +35,7 @@ public class SaveDialogPanel extends JPanel implements PropertyChangeListener {
 		SpringLayout layout = new SpringLayout();
 		saveTopPanel.setLayout(layout);
 
-		//TODO I18N
+		// TODO I18N
 		JLabel nameLabel = new JLabel("Name:");
 		nameTextField = new JTextField();
 		saveFolderLabel = new JLabel("Save in folder:");
@@ -55,24 +57,26 @@ public class SaveDialogPanel extends JPanel implements PropertyChangeListener {
 		saveTopPanel.setPreferredSize(size);
 		add(saveTopPanel, BorderLayout.PAGE_START);
 
-		//TODO I18N
+		// TODO I18N
 		expander = new Expander("Browse for other folders", fileExplorerPanel);
 		expander.addPropertyChangeListener(this);
-		add(expander, BorderLayout.CENTER);		
+		add(expander, BorderLayout.CENTER);
 	}
 
-	private void initFoldersComboBox() {		
+	private void initFoldersComboBox() {
 		foldersComboBox = new JComboBox();
 		foldersComboBox.setMaximumRowCount(30);
 		foldersComboBox.setRenderer(new FileComboBoxRenderer(foldersComboBox));
 
 		List<Path> locations = getLocations();
 
-		foldersComboBox.setModel(new DefaultComboBoxModel(locations.toArray()));				
+		foldersComboBox.setModel(new DefaultComboBoxModel(locations.toArray()));
 	}
 
 	/**
-	 * The default locations: Home, Desktop, File System and all the removable devices.
+	 * The default locations: Home, Desktop, File System and all the removable
+	 * devices.
+	 * 
 	 * @return
 	 */
 	private List<Path> getLocations() {
@@ -91,13 +95,44 @@ public class SaveDialogPanel extends JPanel implements PropertyChangeListener {
 		expander.setExpanded(expanded);
 	}
 
+	/**
+	 * External path typicall set in the file browser panel.
+	 * 
+	 * @param externalPath
+	 */
+	public void setExternalPath(String externalPath) {
+		this.externalPath = externalPath;
+	}
+
+	public File getFilename() {
+		String name = nameTextField.getText();
+		if (name == null || name.isEmpty()) {
+			return null;
+		}
+
+		String path = isExpanded() ? externalPath : ((Path) foldersComboBox
+				.getSelectedItem()).getLocation();
+
+		return new File(path + File.separator + name);
+	}
+
+	/**
+	 * Set the content of the text field. This setter does't influence the
+	 * method {@link #getFilename()}.
+	 * 
+	 * @param simplyname
+	 */
+	public void setFilenameText(String simplyname) {
+		nameTextField.setText(simplyname);
+	}
+
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		String property = evt.getPropertyName();
 		if (Expander.EXPANDED_STATUS_CHANGED.equals(property)) {
 			saveFolderLabel.setEnabled(!expander.isExpanded());
-			foldersComboBox.setEnabled(!expander.isExpanded());			
+			foldersComboBox.setEnabled(!expander.isExpanded());
 		}
-		firePropertyChange(property, evt.getOldValue(), evt.getNewValue());		
+		firePropertyChange(property, evt.getOldValue(), evt.getNewValue());
 	}
 }
