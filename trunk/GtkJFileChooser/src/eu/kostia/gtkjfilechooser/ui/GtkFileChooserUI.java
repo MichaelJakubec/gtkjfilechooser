@@ -4,6 +4,7 @@ import static eu.kostia.gtkjfilechooser.ActionPath.RECENTLY_USED_PANEL_ID;
 import static eu.kostia.gtkjfilechooser.ActionPath.SEARCH_PANEL_ID;
 import static eu.kostia.gtkjfilechooser.NavigationKeyBinding.*;
 import static eu.kostia.gtkjfilechooser.ui.ContextMenu.ACTION_ADD_BOOKMARK;
+import static eu.kostia.gtkjfilechooser.ui.Expander.EXPANDED_STATUS_CHANGED;
 import static eu.kostia.gtkjfilechooser.ui.JPanelUtil.createPanel;
 import static eu.kostia.gtkjfilechooser.ui.JPanelUtil.createPanelBoxLayout;
 import static javax.swing.JFileChooser.*;
@@ -13,6 +14,7 @@ import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.ComponentOrientation;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
@@ -36,6 +38,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -135,10 +138,21 @@ PropertyChangeListener, ActionListener {
 	private final JPanel openDialogPanel;
 
 	/**
+	 * Panel for the save dialog. It contains the {@code openDialogPanel} in an 
+	 * expandable container.
+	 */
+	private SaveDialogPanel saveDialogPanel;
+
+	/**
 	 * Panel mit CardLayout used to show one of the following three panels: the
 	 * File-Browser panel, the Recently-Used panel and the Search panel.
 	 */
 	private JPanel cardPanel = new JPanel(new CardLayout());
+
+	/**
+	 * Button to enable/disable the location text field.
+	 */
+	private JToggleButton showPositionButton;
 
 	private GtkPathBar comboButtons;
 
@@ -190,18 +204,21 @@ PropertyChangeListener, ActionListener {
 	private SearchPanel searchPanel;
 
 	/**
-	 * Button to enable/disable the location text field.
-	 */
-	private JToggleButton showPositionButton;
-
-	/**
 	 * The panel on the top with the button to show/hide the location textfield,
 	 * the combo buttons for the path and the textfield for the location.
 	 */
 	private JPanel topPanel;
 
+	private JFileChooser chooser;
+
+	/**
+	 * The height of the dialog in save mode, when the folder view is expanded.
+	 */
+	private transient int expandedHeight;
+
 	public GtkFileChooserUI(JFileChooser chooser) {
 		super(chooser);
+		this.chooser = chooser;
 		openDialogPanel = new JPanel();
 		openDialogPanel.setLayout(new BorderLayout(0, 11));
 
@@ -209,7 +226,7 @@ PropertyChangeListener, ActionListener {
 		chooser.setLayout(new BorderLayout());
 		chooser.setBorder(new EmptyBorder(12, 11, 11, 11));
 
-		chooser.add(openDialogPanel, BorderLayout.CENTER);
+		doDialogTypeChanged(chooser.getDialogType());
 
 		chooser.setFileHidingEnabled(!GtkFileChooserSettings.get().getShowHidden());
 
@@ -221,14 +238,23 @@ PropertyChangeListener, ActionListener {
 		chooser.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentResized(ComponentEvent e) {
-				Rectangle bound = e.getComponent().getBounds();
-				GtkFileChooserSettings.get().setBound(bound);
+				if (saveDialogPanel != null && saveDialogPanel.isExpanded()) {
+					// Do not persist the size when we are in save 
+					// mode and the folders aren't expanded.
+					Rectangle bound = e.getComponent().getBounds();
+					GtkFileChooserSettings.get().setBound(bound);	
+				}				
 			}
 		});
 
 		// Add key binding
 		NavigationKeyBinding keyBinding = new NavigationKeyBinding(chooser);
 		keyBinding.addActionListener(this);
+	}
+
+	@Override
+	public JFileChooser getFileChooser() {
+		return chooser;
 	}
 
 	@Override
@@ -267,10 +293,10 @@ PropertyChangeListener, ActionListener {
 		/**
 		 * Pathbar
 		 */
-		JPanel pathbar = new JPanel(new BorderLayout());
-		pathbar.add(createPanel(new PanelElement(createPanel(showPositionButton),
-				BorderLayout.LINE_START), new PanelElement(comboButtons,
-						BorderLayout.CENTER)), BorderLayout.CENTER);
+		JPanel pathbar = new JPanel();
+		pathbar.setLayout(new BoxLayout(pathbar, BoxLayout.LINE_AXIS));
+		pathbar.add(showPositionButton);
+		pathbar.add(comboButtons);
 		if (fc.getDialogType() == JFileChooser.SAVE_DIALOG) {
 			JButton newDirButton = new JButton(newFolderAccessibleName);
 			newDirButton.setToolTipText(newFolderToolTipText);
@@ -429,11 +455,12 @@ PropertyChangeListener, ActionListener {
 
 	@Override
 	public String getFileName() {
-		if (fileNameTextField != null) {
-			return fileNameTextField.getText();
-		} else {
-			return null;
+		if (getFileChooser().getDialogType() == SAVE_DIALOG) {
+			File filename = saveDialogPanel.getFilename();
+			return filename != null ? filename.getAbsolutePath() : null;
 		}
+
+		return fileNameTextField.getText();
 	}
 
 	/**
@@ -862,10 +889,45 @@ PropertyChangeListener, ActionListener {
 		}
 	}
 
-	private void doDialogTypeChanged(PropertyChangeEvent e) {
+	private void doDialogTypeChanged(int dialogType) {
 		JFileChooser chooser = getFileChooser();
-		approveButton.setText(getApproveButtonText(chooser));
-		approveButton.setToolTipText(getApproveButtonToolTipText(chooser));
+
+		if (chooser.getDialogType() == JFileChooser.SAVE_DIALOG) {
+			if (saveDialogPanel == null) {
+				createSaveDialogPanel();
+			}
+			chooser.add(saveDialogPanel, BorderLayout.CENTER);			
+			//TODO add listener, pref for expanded, etc...
+
+			// Hide Location button and text field
+			if (showPositionButton != null) {
+				showPositionButton.setVisible(false);
+				filenamePanel.setVisible(false);
+			}
+		} else {
+			chooser.add(openDialogPanel, BorderLayout.CENTER);
+			// Hide Location button and text field
+			if (showPositionButton != null) {
+				showPositionButton.setVisible(true);
+				filenamePanel.setVisible(true);
+			}
+		}
+
+		// Button to approve the selection (Open, Save or custom text)
+		if (approveButton != null) {
+			approveButton.setText(getApproveButtonText(chooser));
+			approveButton.setToolTipText(getApproveButtonToolTipText(chooser));	
+		}		
+
+
+
+	}
+
+	private void createSaveDialogPanel() {
+		saveDialogPanel = new SaveDialogPanel(openDialogPanel);
+		saveDialogPanel.addPropertyChangeListener(this);		
+		saveDialogPanel.setExpanded(GtkFileChooserSettings.get().getExpandFolders());
+		saveDialogPanel.setExternalPath(getFileChooser().getCurrentDirectory().getAbsolutePath());		
 	}
 
 	private void doDirectoryChanged(File dir) {
@@ -889,6 +951,10 @@ PropertyChangeListener, ActionListener {
 				} else {
 					setFileName(null);
 				}
+			}
+
+			if (saveDialogPanel != null){
+				saveDialogPanel.setExternalPath(dir.getAbsolutePath());
 			}
 		}
 	}
@@ -959,6 +1025,10 @@ PropertyChangeListener, ActionListener {
 
 		// Enable/disable the "Add to Bookamark" button
 		addBookmarkButton.setEnabled(file != null && file.isDirectory());
+
+		if (saveDialogPanel != null && file != null && !file.isDirectory()){
+			saveDialogPanel.setFilenameText(file.getName());
+		}
 	}
 
 	private void doSelectedFilesChanged(File[] files) {
@@ -1142,23 +1212,94 @@ PropertyChangeListener, ActionListener {
 		} else if (APPROVE_BUTTON_TOOL_TIP_TEXT_CHANGED_PROPERTY.equals(property)) {
 			doApproveButtonTextChanged(e);
 		} else if (DIALOG_TYPE_CHANGED_PROPERTY.equals(property)) {
-			doDialogTypeChanged(e);
+			doDialogTypeChanged((Integer)value);
 		} else if ("JFileChooserDialogIsClosingProperty".equals(property)) {
 			onClosing();
 		} else if (CONTROL_BUTTONS_ARE_SHOWN_CHANGED_PROPERTY.equals(property)) {
 			getButtonPanel().setVisible((Boolean) value);
 		} else if (COMPONENT_ORIENTATION_PROPERTY.equals(property)) {
-			ComponentOrientation o = (ComponentOrientation) e.getNewValue();
-			JFileChooser cc = (JFileChooser) e.getSource();
-			if (o != (ComponentOrientation) e.getOldValue()) {
-				cc.applyComponentOrientation(o);
-			}
+			doComponentOrientationChanged(e);
 		} else if (ANCESTOR_PROPERTY.equals(property)) {
-			if (e.getOldValue() == null && e.getNewValue() != null) {
-				// Ancestor was added, set initial focus
-				fileNameTextField.selectAll();
-				fileNameTextField.requestFocus();
+			doAncestorChanged(e);
+		} else if (EXPANDED_STATUS_CHANGED.equals(property)) {
+			boolean expanded = (Boolean)value;
+			GtkFileChooserSettings.get().setExpandFolders(expanded);
+			Log.debug(EXPANDED_STATUS_CHANGED, 
+					"\npref size: ", getFileChooser().getPreferredSize(), 
+					"\nsize:", getFileChooser().getSize());
+
+			//--
+			pack(expanded);
+			//--
+		}
+	}
+
+	//TODO implement
+	private void pack(boolean expanded) {
+		//		try {
+		JFileChooser fc = getFileChooser();
+		//			Field  field = fc.getClass().getDeclaredField("dialog");
+		//			field.setAccessible(true);
+		//			JDialog dialog = (JDialog) field.get(fc);
+		//			dialog.pack();
+		//			Dimension size = dialog.getPreferredSize();
+		//			if (expanded) {
+		//				size.height = expandedHeight;
+		//				//size.height = 500;
+		//			} else {
+		//				expandedHeight = size.height;
+		//				size.height = 200;
+		//			}
+		//
+		//			dialog.setPreferredSize(size);
+		//			dialog.setSize(size);
+
+
+		Dimension size = fc.getPreferredSize();
+		if (expanded) {
+			size.height = expandedHeight;
+			//size.height = 500;
+		} else {
+			expandedHeight = size.height;
+			size.height = 200;
+		}
+
+		Container parent = fc.getParent();
+		JDialog dialog = null;
+		while (parent != null) {
+			parent = parent.getParent();
+			if (parent instanceof JDialog) {
+				dialog = (JDialog) parent;	
+				break;
 			}
+
+		}
+		System.err.println(dialog);
+
+		if (dialog != null) {
+			dialog.setPreferredSize(size);
+			dialog.setSize(size);
+		}
+
+
+		//		} catch (Exception e) {
+		//			throw new RuntimeException(e);
+		//		}
+	}
+
+	private void doAncestorChanged(PropertyChangeEvent e) {
+		if (e.getOldValue() == null && e.getNewValue() != null) {
+			// Ancestor was added, set initial focus
+			fileNameTextField.selectAll();
+			fileNameTextField.requestFocus();
+		}
+	}
+
+	private void doComponentOrientationChanged(PropertyChangeEvent e) {
+		ComponentOrientation o = (ComponentOrientation) e.getNewValue();
+		JFileChooser cc = (JFileChooser) e.getSource();
+		if (o != (ComponentOrientation) e.getOldValue()) {
+			cc.applyComponentOrientation(o);
 		}
 	}
 
@@ -1174,7 +1315,9 @@ PropertyChangeListener, ActionListener {
 			File location = new File(locationsPane.getCurrentPath().getLocation());
 			doDirectoryChanged(location);
 		} else if (LOCATION_POPUP.equals(cmd)) {
-			showPositionButton.doClick();
+			if (getFileChooser().getDialogType() != SAVE_DIALOG) {
+				showPositionButton.doClick();
+			}			
 		} else if (UP_FOLDER.equals(cmd)) {
 			comboButtons.upFolder();
 		} else if (DOWN_FOLDER.equals(cmd)) {
