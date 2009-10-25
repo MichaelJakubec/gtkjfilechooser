@@ -59,7 +59,7 @@ public class TableFindActionTestGui extends JFrame {
 				{ "Davide", "Cerbo", "Roma" },
 				{ "Federico", "Cerbo", "Salerno" } }, 
 
-				new String[] { "Nome", "Cognome", "Cittá" }));
+				new String[] { "Name", "Surname", "City" }));
 
 		Log.debug(table.getSelectionModel().getClass());
 		new TableFindAction().install(table);
