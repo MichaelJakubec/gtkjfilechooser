@@ -1,5 +1,8 @@
 package eu.kostia.gtkjfilechooser.ui;
 
+import static eu.kostia.gtkjfilechooser.I18N._;
+import static eu.kostia.gtkjfilechooser.I18N.getMnemonic;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -25,18 +28,17 @@ public class ContextMenu extends JPopupMenu implements PropertyChangeListener, A
 	static final public String ACTION_REFRESH = "refresh";
 
 	static final public String ACTION_NEW_FOLDER = "New Folder";
-	
+
 	private ActionDispatcher actionDispatcher = new BasicActionDispatcher();
-	
+
 	private JMenuItem addToBookmarkMenuItem;
-	
+
 	public ContextMenu() {
 		addPropertyChangeListener(this);
 
-
 		addToBookmarkMenuItem = new JMenuItem();
-		// TODO I18N
-		addToBookmarkMenuItem.setText("Add to Bookmark");
+		addToBookmarkMenuItem.setText(_("_Add to Bookmarks"));
+		addToBookmarkMenuItem.setMnemonic(getMnemonic("_Add to Bookmarks"));
 		addToBookmarkMenuItem.setIcon(GtkStockIcon.get("gtk-add", Size.GTK_ICON_SIZE_MENU));
 		addToBookmarkMenuItem.addActionListener(new ActionListener(){
 			@Override
@@ -44,15 +46,15 @@ public class ContextMenu extends JPopupMenu implements PropertyChangeListener, A
 				fireActionEvent(new ActionEvent(ContextMenu.this, ACTION_ADD_BOOKMARK.hashCode(), ACTION_ADD_BOOKMARK));				
 			}			
 		});
-		
+
 		add(addToBookmarkMenuItem);
 
 		addSeparator();
 
 		// Add "show hidden files" CheckBoxMenuItem
 		JCheckBoxMenuItem showHiddenCheckBoxItem = new JCheckBoxMenuItem();
-		// TODO I18N
-		showHiddenCheckBoxItem.setText("Show hidden files");
+		showHiddenCheckBoxItem.setText(_("Show _Hidden Files"));
+		showHiddenCheckBoxItem.setMnemonic(getMnemonic("Show _Hidden Files"));
 		showHiddenCheckBoxItem.setSelected(GtkFileChooserSettings.get().getShowHidden());
 		showHiddenCheckBoxItem.addActionListener(new ActionListener() {
 			@Override
@@ -72,8 +74,8 @@ public class ContextMenu extends JPopupMenu implements PropertyChangeListener, A
 
 		// Add "show file size column" CheckBoxMenuItem
 		JCheckBoxMenuItem showFileSizeCheckBoxItem = new JCheckBoxMenuItem();
-		// TODO I18N
-		showFileSizeCheckBoxItem.setText("Show size column");
+		showFileSizeCheckBoxItem.setText(_("Show _Size Column"));
+		showFileSizeCheckBoxItem.setMnemonic(getMnemonic("Show _Size Column"));
 		showFileSizeCheckBoxItem.setSelected(GtkFileChooserSettings.get()
 				.getShowSizeColumn());
 		showFileSizeCheckBoxItem.addActionListener(new ActionListener() {
@@ -86,8 +88,8 @@ public class ContextMenu extends JPopupMenu implements PropertyChangeListener, A
 		});
 		add(showFileSizeCheckBoxItem);
 	}
-	
-	
+
+
 	public void setAddToBookmarkMenuItemEnabled(boolean enabled) {
 		// enable if path != null && path.isDirectory()
 		addToBookmarkMenuItem.setEnabled(enabled);
@@ -98,7 +100,7 @@ public class ContextMenu extends JPopupMenu implements PropertyChangeListener, A
 	public void propertyChange(PropertyChangeEvent evt) {
 		String property = evt.getPropertyName();
 		Object value = evt.getNewValue();
-		
+
 		Log.debug(property, " = ", value);		
 	}
 
@@ -106,24 +108,24 @@ public class ContextMenu extends JPopupMenu implements PropertyChangeListener, A
 	@Override
 	public void addActionListener(ActionListener l) {
 		actionDispatcher.addActionListener(l);
-		
+
 	}
 
 	@Override
 	public void fireActionEvent(ActionEvent e) {
 		actionDispatcher.fireActionEvent(e);
-		
+
 	}
 
 	@Override
 	public void removeActionListener(ActionListener l) {
 		actionDispatcher.removeActionListener(l);
-		
+
 	}
 
 	@Override
 	public void removeAllActionListeners() {
 		actionDispatcher.removeAllActionListeners();		
 	}
-	
+
 }

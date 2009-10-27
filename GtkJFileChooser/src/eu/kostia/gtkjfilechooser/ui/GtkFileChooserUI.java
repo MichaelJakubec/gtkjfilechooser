@@ -2,6 +2,8 @@ package eu.kostia.gtkjfilechooser.ui;
 
 import static eu.kostia.gtkjfilechooser.ActionPath.RECENTLY_USED_PANEL_ID;
 import static eu.kostia.gtkjfilechooser.ActionPath.SEARCH_PANEL_ID;
+import static eu.kostia.gtkjfilechooser.I18N._;
+import static eu.kostia.gtkjfilechooser.I18N.getMnemonic;
 import static eu.kostia.gtkjfilechooser.NavigationKeyBinding.*;
 import static eu.kostia.gtkjfilechooser.ui.ContextMenu.ACTION_ADD_BOOKMARK;
 import static eu.kostia.gtkjfilechooser.ui.Expander.EXPANDED_STATUS_CHANGED;
@@ -181,8 +183,6 @@ PropertyChangeListener, ActionListener {
 	 * The panel on the left with locations and bookmarks
 	 */
 	private GtkLocationsPane locationsPane;
-	private String newFolderAccessibleName ;
-	private String newFolderToolTipText;
 
 	/**
 	 * Decorator for auto completion for #fileNameTextField
@@ -280,6 +280,8 @@ PropertyChangeListener, ActionListener {
 				GtkFileChooserSettings.get().setLocationMode(mode);
 			}
 		});
+		showPositionButton.setToolTipText(_("Type a file name"));
+
 
 		// CurrentDir Combo Buttons
 		comboButtons = new GtkPathBar(getFileChooser().getCurrentDirectory());
@@ -298,10 +300,8 @@ PropertyChangeListener, ActionListener {
 		pathbar.add(showPositionButton);
 		pathbar.add(comboButtons);
 		if (fc.getDialogType() == JFileChooser.SAVE_DIALOG) {
-			JButton newDirButton = new JButton(newFolderAccessibleName);
-			newDirButton.setToolTipText(newFolderToolTipText);
-			newDirButton.putClientProperty(AccessibleContext.ACCESSIBLE_NAME_PROPERTY,
-					newFolderAccessibleName);
+			JButton newDirButton = new JButton(_("Create Fo_lder"));
+			newDirButton.setMnemonic(getMnemonic("Create Fo_lder"));
 
 			// TODO add to panel in the right position
 			// topPanel1.add(JPanelUtil.createPanel(new
@@ -357,8 +357,9 @@ PropertyChangeListener, ActionListener {
 
 	private void addFileBrowserPane() {
 		// Left Panel (Bookmarks)
-		addBookmarkButton = new JButton("Add"); // TODO I18N
-		addBookmarkButton.setIcon(GtkStockIcon.get("gtk-add", Size.GTK_ICON_SIZE_BUTTON));
+		addBookmarkButton = new JButton(_("_Add"));		
+		addBookmarkButton.setMnemonic(getMnemonic("_Add"));
+		addBookmarkButton.setIcon(GtkStockIcon.get("gtk-add", Size.GTK_ICON_SIZE_BUTTON));		
 		addBookmarkButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -367,7 +368,8 @@ PropertyChangeListener, ActionListener {
 		});
 		addBookmarkButton.setEnabled(false);
 
-		removeBookmarkButton = new JButton("Remove"); // TODO I18N
+		removeBookmarkButton = new JButton(_("_Remove"));
+		removeBookmarkButton.setMnemonic(getMnemonic("_Remove"));
 		// it will be enabled, when we select a bookmark.
 		removeBookmarkButton.setEnabled(false);
 		removeBookmarkButton.setIcon(GtkStockIcon.get("gtk-remove",
@@ -568,11 +570,6 @@ PropertyChangeListener, ActionListener {
 		}
 	}
 
-	@Override
-	protected JButton getApproveButton(JFileChooser fc) {
-		return approveButton;
-	}
-
 	/**
 	 * The Button panel to cancel, open/save or custom names.
 	 */
@@ -586,17 +583,20 @@ PropertyChangeListener, ActionListener {
 			cancelButton.setIcon(GtkStockIcon.get("gtk-cancel", Size.GTK_ICON_SIZE_BUTTON));
 			cancelButton.setToolTipText(cancelButtonToolTipText);
 			cancelButton.addActionListener(getCancelSelectionAction());
+			cancelButton.setMnemonic(getMnemonic("Stock label|_Cancel"));
 			buttonPanel.add(cancelButton);
 
 			approveButton = new JButton(getApproveButtonText(getFileChooser()));
-			if (getFileChooser().getDialogType() == JFileChooser.OPEN_DIALOG) {
-				approveButton.setIcon(GtkStockIcon.get("gtk-open", Size.GTK_ICON_SIZE_BUTTON));
-			} else if (getFileChooser().getDialogType() == JFileChooser.SAVE_DIALOG) {
-				approveButton.setIcon(GtkStockIcon.get("gtk-save", Size.GTK_ICON_SIZE_BUTTON));
-			}
-
 			approveButton.addActionListener(getApproveSelectionAction());
 			approveButton.setToolTipText(getApproveButtonToolTipText(getFileChooser()));
+			if (JFileChooser.OPEN_DIALOG == getFileChooser().getDialogType()) {
+				approveButton.setIcon(GtkStockIcon.get("gtk-open", Size.GTK_ICON_SIZE_BUTTON));
+				approveButton.setMnemonic(getMnemonic("Stock label|_Open"));
+			} else if (JFileChooser.SAVE_DIALOG == getFileChooser().getDialogType()) {
+				approveButton.setIcon(GtkStockIcon.get("gtk-save", Size.GTK_ICON_SIZE_BUTTON));
+				approveButton.setMnemonic(getMnemonic("Stock label|_Save"));
+			}
+
 			buttonPanel.add(approveButton);
 		}
 
@@ -604,17 +604,26 @@ PropertyChangeListener, ActionListener {
 	}
 
 	@Override
+	protected JButton getApproveButton(JFileChooser fc) {
+		return approveButton;
+	}
+
+
+	@Override
 	protected void installStrings(JFileChooser fc) {
 		super.installStrings(fc);
 
 		Locale l = fc.getLocale();
 
-		fileNameLabelMnemonic = UIManager.getInt("FileChooser.fileNameLabelMnemonic");
-		fileNameLabelText = UIManager.getString("FileChooser.fileNameLabelText", l);
+		fileNameLabelText = _("_Location:");
+		fileNameLabelMnemonic = getMnemonic("_Location:");
+
 		filesOfTypeLabelText = UIManager.getString("FileChooser.filesOfTypeLabelText", l);
-		newFolderToolTipText = UIManager.getString("FileChooser.newFolderToolTipText", l);
-		newFolderAccessibleName = UIManager.getString(
-				"FileChooser.newFolderAccessibleName", l);
+
+		// Use gnome l10n resources
+		openButtonText   = _("Stock label|_Open");	
+		saveButtonText   = _("Stock label|_Save");		
+		cancelButtonText = _("Stock label|_Cancel");
 	}
 
 	FilesListPane getRecentlyUsedPane() {
@@ -840,8 +849,7 @@ PropertyChangeListener, ActionListener {
 
 		if (filterComboBox.getItemCount() == 0) {
 			// Add Default AcceptAll file filter
-			filterComboBox.addItem(wrapFileFilter(getFileChooser()
-					.getAcceptAllFileFilter()));
+			filterComboBox.addItem(wrapFileFilter(getFileChooser().getAcceptAllFileFilter()));
 		}
 	}
 
@@ -1023,8 +1031,15 @@ PropertyChangeListener, ActionListener {
 			fc.setSelectedFile(file);
 		}
 
-		// Enable/disable the "Add to Bookamark" button
-		addBookmarkButton.setEnabled(file != null && file.isDirectory());
+		// Enable/disable the "Add to Bookmark" button and update tooltip
+		if (file != null && file.isDirectory()) {
+			addBookmarkButton.setEnabled(true);
+			addBookmarkButton.setToolTipText(_("Add the folder '%s' to the bookmarks", file.getName()));
+		} else {
+			addBookmarkButton.setEnabled(false);
+			addBookmarkButton.setToolTipText(null);
+		}
+
 
 		if (saveDialogPanel != null && file != null && !file.isDirectory()){
 			saveDialogPanel.setFilenameText(file.getName());
@@ -1067,6 +1082,7 @@ PropertyChangeListener, ActionListener {
 			}
 
 			addBookmarkButton.setEnabled(enable);
+			addBookmarkButton.setToolTipText(_("Add the selected folders to the bookmarks"));
 		}
 	}
 
@@ -1113,7 +1129,13 @@ PropertyChangeListener, ActionListener {
 			public void actionPerformed(ActionEvent e) {
 				Path path = locationsPane.getCurrentPath();
 				// Enable only if a bookmark is selected.
-				removeBookmarkButton.setEnabled(path instanceof GtkBookmark);
+				if(path instanceof GtkBookmark) {
+					removeBookmarkButton.setEnabled(true);	
+					removeBookmarkButton.setToolTipText(_("Remove the bookmark '%s'", path.getName()));
+				} else {
+					removeBookmarkButton.setEnabled(false);
+					removeBookmarkButton.setToolTipText(null);
+				}
 			}
 		});
 	}

@@ -42,6 +42,14 @@ public class GettextResourceTest {
 	}
 
 	@Test
+	public void testMoReaderGtk20() throws Exception {
+		GettextResource r = new GettextResource("gtk20");
+		assertEquals("Impossibile recuperare informazioni sul file", r._("Could not retrieve information about the file"));
+		assertEquals("Impossibile recuperare informazioni sul file", r._("Recently Used"));
+	}
+
+
+	@Test
 	public void testMoReaderGtk0() throws Exception {		
 		assertEquals("Nome del file non valido: %s", r1._("Invalid filename: %s"));
 		assertEquals("Invio dati", r1._("print operation status|Sending data"));
@@ -63,11 +71,7 @@ public class GettextResourceTest {
 		assertEquals("ieri", r._("yesterday"));
 	}
 
-	@Test
-	public void testMoReaderGtk20() throws Exception {
-		GettextResource r = new GettextResource("gtk20");
-		assertEquals("Impossibile recuperare informazioni sul file", r._("Could not retrieve information about the file"));
-	}
+
 
 	@Test
 	public void testMoReaderGtk20Properties() throws Exception {

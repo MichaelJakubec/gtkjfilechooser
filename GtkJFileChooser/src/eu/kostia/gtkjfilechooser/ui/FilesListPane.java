@@ -1,5 +1,7 @@
 package eu.kostia.gtkjfilechooser.ui;
 
+import static eu.kostia.gtkjfilechooser.I18N._;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -44,10 +46,10 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 
 	public static final Color PEARL_GRAY = new Color(238, 238, 238);
 
-	private static final String FILE_NAME_COLUMN_ID = "FileChooser.fileNameHeaderText";
-	private static final String FILE_SIZE_COLUMN_ID = "FileChooser.fileSizeHeaderText";
+	private static final String FILE_NAME_COLUMN_ID = "Name";
+	private static final String FILE_SIZE_COLUMN_ID = "Size";
 	private static final int FILE_SIZE_COLUMN_WIDTH = 100;
-	private static final String FILE_DATE_COLUMN_ID = "FileChooser.fileDateHeaderText";
+	private static final String FILE_DATE_COLUMN_ID = "Modified";
 	private static final int FILE_DATE_COLUMN_WIDTH = 125;
 
 	public static final String SELECTED = "selected";
@@ -289,7 +291,7 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 			this.columnNames = new String[columnIds.length];
 			for (int i = 0; i < columnIds.length; i++) {
 				String columnId = columnIds[i];
-				columnNames[i] = UIManager.getString(columnId);
+				columnNames[i] = _(columnId);
 			}
 
 

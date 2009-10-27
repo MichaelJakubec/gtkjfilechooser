@@ -63,4 +63,15 @@ public class DateUtilTest {
 		assertEquals("10/13/09", DateUtil.toPrettyFormat(sevenDaysAgo, TODAY));
 	}
 
+	@Test
+	public void testStringFormat() throws Exception {
+		String fmtEn = "Yesterday at %H:%M\n";
+		System.out.printf(fmtEn, new Date());
+
+		String fmtIt = "Ieri alle %k.%M\n";
+		System.out.printf(fmtIt, new Date());
+
+
+	}
+
 }

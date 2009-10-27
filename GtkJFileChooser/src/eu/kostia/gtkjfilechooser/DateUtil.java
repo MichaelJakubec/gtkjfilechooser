@@ -1,5 +1,7 @@
 package eu.kostia.gtkjfilechooser;
 
+import static eu.kostia.gtkjfilechooser.I18N._;
+
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -37,7 +39,8 @@ public class DateUtil {
 
 		if (days_diff == 1) {
 			// Yesterday
-			return String.format("Yesterday at %tR", d); // TODO I18N
+			String mgsstr = _("Yesterday at %H:%M");
+			return new Strftime(mgsstr).format(d);
 		}
 
 		if (days_diff > 1 && days_diff < 7) {
