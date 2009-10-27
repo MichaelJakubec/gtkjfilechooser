@@ -1,5 +1,6 @@
 package eu.kostia.gtkjfilechooser.ui;
 
+import static eu.kostia.gtkjfilechooser.I18N._;
 import static eu.kostia.gtkjfilechooser.ui.ContextMenu.ACTION_ADD_BOOKMARK;
 import static eu.kostia.gtkjfilechooser.ui.ContextMenu.SHOW_SIZE_COLUMN_CHANGED_PROPERTY;
 import static javax.swing.JFileChooser.*;
@@ -18,10 +19,14 @@ import java.io.FileFilter;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableCellEditor;
 
 import eu.kostia.gtkjfilechooser.AcceptAllFileFilter;
 import eu.kostia.gtkjfilechooser.FileFilterWrapper;
@@ -186,8 +191,6 @@ public class FileBrowserPane extends FilesListPane {
 		doFileFilerChanged(swingFileFilter);
 	}
 
-
-	// TODO move to FilesListpane?
 	public void setFileSelectionMode(int fileSelectionMode) {
 		this.fileSelectionMode = fileSelectionMode;
 		doFileSelectionModeChanged(fileSelectionMode);
@@ -270,6 +273,77 @@ public class FileBrowserPane extends FilesListPane {
 			if (ACTION_ADD_BOOKMARK.equals(cmd)) {
 				fireActionEvent(e);
 			}
+		}
+
+	}
+
+	public void createFolder() {
+		FilesListTableModel model = (FilesListTableModel) table.getModel();
+
+		model.addEmtpyRow();
+
+		int row = 0;
+		model.setEditableRow(row);
+		boolean success = table.editCellAt(row, 0);
+		model.setEditableRow(-1);
+
+		if (table.getEditorComponent() != null) {
+			table.getEditorComponent().requestFocusInWindow();
+			//TODO fire the event editingCanceled when ESC is pressed on the EditorComponent 
+		}
+
+		if (success) {
+			table.changeSelection(row, 0, false, false);
+		}
+
+		final TableCellEditor cellEditor = table.getCellEditor();
+		if (cellEditor != null) {			
+			CellEditorListener cellEditorListener = new CellEditorListener() {
+
+				@Override
+				public void editingStopped(ChangeEvent e) {
+					// remove before adding to avoid to trigger more times the same event.
+					cellEditor.removeCellEditorListener(this);
+
+					// Note that the getCellEditorValue() returns a instance of File 
+					// even for empty row if there other files in a dir. Otherwise an
+					// instance of String is returned. The reason for this particular
+					// behavior is in the method FilesListTableModel#getColumnClass(int).
+					Object cellValue = cellEditor.getCellEditorValue();
+					String newFolderName = null;
+					if (cellValue instanceof File) {
+						newFolderName = ((File) cellValue).getName();						
+					} else if (cellValue instanceof String) {
+						newFolderName = (String) cellValue;
+					}
+					File newFolder = new File (getCurrentDir().getAbsolutePath() + File.separator + newFolderName);
+					if (newFolder.exists()) {
+						JOptionPane.showMessageDialog(FileBrowserPane.this,
+								_("The folder could not be created"),
+								"",
+								JOptionPane.ERROR_MESSAGE);	
+						removeEmtpyRow();
+					} else {
+						newFolder.mkdir();
+						setCurrentDir(newFolder);						
+					}
+				}
+
+				@Override
+				public void editingCanceled(ChangeEvent e) {
+					// remove before adding to avoid to trigger more times the same event.
+					cellEditor.removeCellEditorListener(this);
+
+					removeEmtpyRow();
+				}
+
+				private void removeEmtpyRow() {
+					((FilesListTableModel) table.getModel()).removeEmtpyRow();
+
+				}
+			};
+
+			cellEditor.addCellEditorListener(cellEditorListener);
 		}
 
 	}

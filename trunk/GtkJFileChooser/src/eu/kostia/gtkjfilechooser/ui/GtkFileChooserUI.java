@@ -80,6 +80,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable
 PropertyChangeListener, ActionListener {
 
 	private static final String ACTION_SELECTED_BOOKMARK = "selected bookmark";
+	private static final String ACTION_CREATE_FOLDER = "createFolder";
 
 	private static final String ANCESTOR_PROPERTY = "ancestor";
 
@@ -156,7 +157,9 @@ PropertyChangeListener, ActionListener {
 	 */
 	private JToggleButton showPositionButton;
 
-	private GtkPathBar comboButtons;
+	private GtkPathBar pathBarButtons;
+
+	private JButton createFolderButton;
 
 	private int currentPanelId = FILEBROWSER_PANEL_ID;
 	/**
@@ -284,11 +287,11 @@ PropertyChangeListener, ActionListener {
 
 
 		// CurrentDir Combo Buttons
-		comboButtons = new GtkPathBar(getFileChooser().getCurrentDirectory());
-		comboButtons.addActionListener(new ActionListener() {
+		pathBarButtons = new GtkPathBar(getFileChooser().getCurrentDirectory());
+		pathBarButtons.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				doDirectoryChanged(comboButtons.getCurrentDirectory());
+				doDirectoryChanged(pathBarButtons.getCurrentDirectory());
 			}
 		});
 
@@ -298,18 +301,20 @@ PropertyChangeListener, ActionListener {
 		JPanel pathbar = new JPanel();
 		pathbar.setLayout(new BoxLayout(pathbar, BoxLayout.LINE_AXIS));
 		pathbar.add(showPositionButton);
-		pathbar.add(comboButtons);
-		if (fc.getDialogType() == JFileChooser.SAVE_DIALOG) {
-			JButton newDirButton = new JButton(_("Create Fo_lder"));
-			newDirButton.setMnemonic(getMnemonic("Create Fo_lder"));
+		pathbar.add(pathBarButtons);		
 
-			// TODO add to panel in the right position
-			// topPanel1.add(JPanelUtil.createPanel(new
-			// FlowLayout(FlowLayout.RIGHT), newDirButton),
-			// BorderLayout.LINE_END);
-
-			// TODO add action
-		}
+		// Create folder button
+		createFolderButton = new JButton(_("Create Fo_lder"));
+		createFolderButton.setVisible(false);
+		createFolderButton.setMnemonic(getMnemonic("Create Fo_lder"));
+		createFolderButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ActionEvent evt = new ActionEvent(GtkFileChooserUI.this, ACTION_CREATE_FOLDER.hashCode(), ACTION_CREATE_FOLDER);
+				GtkFileChooserUI.this.actionPerformed(evt);
+			}
+		});
+		pathbar.add(createFolderButton);
 
 		/**
 		 * Filename textfield
@@ -900,7 +905,7 @@ PropertyChangeListener, ActionListener {
 	private void doDialogTypeChanged(int dialogType) {
 		JFileChooser chooser = getFileChooser();
 
-		if (chooser.getDialogType() == JFileChooser.SAVE_DIALOG) {
+		if (SAVE_DIALOG == chooser.getDialogType()) {
 			if (saveDialogPanel == null) {
 				createSaveDialogPanel();
 			}
@@ -912,12 +917,25 @@ PropertyChangeListener, ActionListener {
 				showPositionButton.setVisible(false);
 				filenamePanel.setVisible(false);
 			}
+
+			// Show the "Create Folder" button
+			if (createFolderButton != null) {
+				createFolderButton.setVisible(true);
+			}
+
 		} else {
+			// Open dialog						
 			chooser.add(openDialogPanel, BorderLayout.CENTER);
-			// Hide Location button and text field
+
+			// Show Location button and text field
 			if (showPositionButton != null) {
 				showPositionButton.setVisible(true);
-				filenamePanel.setVisible(true);
+				filenamePanel.setVisible(true);				
+			}
+
+			// Hide the "Create Folder" button
+			if (createFolderButton != null) {
+				createFolderButton.setVisible(false);
 			}
 		}
 
@@ -949,7 +967,7 @@ PropertyChangeListener, ActionListener {
 
 		if (dir != null) {
 			getFileChooser().setCurrentDirectory(dir);
-			comboButtons.setCurrentDirectory(dir);
+			pathBarButtons.setCurrentDirectory(dir);
 			updateFileNameField();
 			fileBrowserPane.setCurrentDir(dir);
 
@@ -1341,9 +1359,9 @@ PropertyChangeListener, ActionListener {
 				showPositionButton.doClick();
 			}			
 		} else if (UP_FOLDER.equals(cmd)) {
-			comboButtons.upFolder();
+			pathBarButtons.upFolder();
 		} else if (DOWN_FOLDER.equals(cmd)) {
-			comboButtons.downFolder();
+			pathBarButtons.downFolder();
 		} else if (HOME_FOLDER.equals(cmd)) {
 			doDirectoryChanged(new File(System.getProperty("user.home")));
 		} else if (DESKTOP_FOLDER.equals(cmd)) {
@@ -1353,6 +1371,9 @@ PropertyChangeListener, ActionListener {
 			locationsPane.selectBookmark(id);
 			File location = new File(locationsPane.getCurrentPath().getLocation());
 			doDirectoryChanged(location);
+		} else if (ACTION_CREATE_FOLDER.equals(cmd)){
+			//TODO create new folder
+			Log.debug("TODO: create new folder");
 		}
 	}
 

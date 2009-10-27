@@ -60,6 +60,14 @@ public class FileBrowserPaneTestGui implements PropertyChangeListener {
 			}
 		});
 
+		JButton createFolderButton = new JButton("Create folder");
+		createFolderButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				fileBrowser.createFolder();
+			}
+		});
+
 		JCheckBox multiSelection = new JCheckBox("Multi");
 		multiSelection.addActionListener(new ActionListener() {
 
@@ -95,7 +103,7 @@ public class FileBrowserPaneTestGui implements PropertyChangeListener {
 		show(createPanel(
 				new PanelElement(fileBrowser, BorderLayout.CENTER),
 				new PanelElement(createPanelBoxLayout(locationField, goButton), BorderLayout.PAGE_START),
-				new PanelElement(createPanel(showSelectionsButton, multiSelection, fileSelectionModeComboBox), BorderLayout.PAGE_END)
+				new PanelElement(createPanel(showSelectionsButton, createFolderButton, multiSelection, fileSelectionModeComboBox), BorderLayout.PAGE_END)
 		));
 	}
 

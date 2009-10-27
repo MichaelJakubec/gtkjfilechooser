@@ -130,6 +130,8 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		});
 
 
+
+
 		// Add interactive file search support
 		new FileFindAction().install(table);
 
@@ -219,6 +221,10 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 	}
 
 	private boolean isRowEnabled(File file) {
+		if (file == null) {
+			return false;
+		}
+
 		// Directory are always enabled
 		if (file.isDirectory()) {
 			return true;
@@ -274,6 +280,8 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		private String[] columnIds;
 
 		private boolean showSizeColumn;
+
+		private int editableCellRowIndex = -1;
 
 		public FilesListTableModel(List<File> fileEntries, boolean showSizeColumn) {
 			this.data = new ArrayList<Object[]>();
@@ -336,8 +344,43 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 			fireTableRowsInserted(row, row);
 		}
 
+		/**
+		 * Add an empty row as first row in the table. This row is editable
+		 * and it's used when a new folder is created.
+		 */
+		void addEmtpyRow() {
+			Object[] row = new Object[getColumnCount()];
+
+			data.add(0, row);
+
+			int rowcount = getRowCount() - 1;
+			fireTableRowsInserted(rowcount, rowcount);
+		}
+
+		/**
+		 * Remove the first row in the table, if it's an empty row.
+		 */
+		void removeEmtpyRow(){
+			if (data != null && !data.isEmpty() && data.get(0)[0] == null) {
+				data.remove(0);
+				int rowcount = getRowCount() - 1;
+				fireTableRowsDeleted(rowcount, rowcount);
+			}
+		}
 
 		// *** TABLE MODEL METHODS ***
+
+		/**
+		 * Set the coordinates of an editable cell. Use the value -1 to disable edit at all.
+		 */
+		public void setEditableRow(int row) {
+			editableCellRowIndex = row != -1 ? table.convertRowIndexToModel(row) : -1;
+		}
+
+		@Override
+		public boolean isCellEditable(int row, int column) {
+			return row == editableCellRowIndex && column == 0;
+		}
 
 		public int getColumnCount() {
 			return getShowSizeColumn() ? 3 : 2;
@@ -374,8 +417,14 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		public Class<?> getColumnClass(int col) {
 			checkColumnIndex(col);
 
-			if (!data.isEmpty() && data.get(0)[col] != null) {
-				return data.get(0)[col].getClass();
+			if (!data.isEmpty()) {
+				if (data.get(0)[col] != null) {
+					return data.get(0)[col].getClass();
+				} else if(data.size() > 1 && data.get(1) != null && data.get(1)[col] != null){
+					// it happens when the first row in the empty row (for create folder).
+					return data.get(1)[col].getClass();
+				}
+
 			}
 
 			return Object.class;
@@ -403,16 +452,19 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value,
 				boolean isSelected, boolean hasFocus, int row, int column) {
+
 			// reset the icon for all columns
 			setIcon(null);
 
-			File file = (File) table.getValueAt(row, 0);
-			setToolTipText(file.getAbsolutePath());
-
-			if (value instanceof File) {
+			if (value == null) {
+				// It can be null only for the editable cell when
+				// we create a new folder in the save mode.
+				setText("");
+			} else if (value instanceof File) {
 				// filename column
+				File file = (File) value;
 				setText(file.getName());
-				setIcon(GtkStockIcon.get(file, Size.GTK_ICON_SIZE_MENU));
+				setIcon(GtkStockIcon.get(file, Size.GTK_ICON_SIZE_MENU));	
 			} else if (value instanceof Long) {
 				// size column
 				Long bytes = (Long) value;				
@@ -421,7 +473,7 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 				// last modified column
 				Date date = (Date) value;
 				setText(DateUtil.toPrettyFormat(date));
-			}
+			} 
 
 			if (isSelected) {
 				setForeground(table.getSelectionForeground());
@@ -433,7 +485,14 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 				setBackground(rowcolor);
 			}
 
-			setEnabled(FilesListPane.this.isRowEnabled(file));
+			if (table.getValueAt(row, 0) instanceof File) {
+				File file = (File) table.getValueAt(row, 0);
+				setToolTipText(file.getAbsolutePath());
+
+				// enable/disable according to the FileSelectionMode
+				setEnabled(FilesListPane.this.isRowEnabled(file));
+			}
+
 
 			return this;
 		}
@@ -478,7 +537,7 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 			if (columnClass.equals(File.class)) {
 				return new Comparator<File>() {
 					@Override
-					public int compare(File o1, File o2) {
+					public int compare(File o1, File o2) {	
 						// directories go first
 						if (o1.isDirectory() && !o2.isDirectory()) {
 							return -1;
@@ -495,6 +554,7 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 			return new Comparator<Comparable>() {
 				@Override
 				public int compare(Comparable o1, Comparable o2) {
+
 					return o1.compareTo(o2);
 				}
 			};

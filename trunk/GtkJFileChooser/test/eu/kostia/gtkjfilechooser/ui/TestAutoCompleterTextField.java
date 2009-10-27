@@ -3,11 +3,11 @@ package eu.kostia.gtkjfilechooser.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.text.JTextComponent;
+import javax.swing.JTextField;
 
 public class TestAutoCompleterTextField extends Autocompleter {
 	private List<String> list;
-	public TestAutoCompleterTextField(JTextComponent comp) {
+	public TestAutoCompleterTextField(JTextField comp) {
 		super(comp);
 		list = new ArrayList<String>();
 		list.add("alabama");
