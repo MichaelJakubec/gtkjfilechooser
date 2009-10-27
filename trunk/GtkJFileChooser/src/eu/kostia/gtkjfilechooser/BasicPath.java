@@ -1,5 +1,6 @@
 package eu.kostia.gtkjfilechooser;
 
+import static eu.kostia.gtkjfilechooser.I18N._;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil.WellKnownDir;
 
 /**
@@ -13,8 +14,7 @@ public class BasicPath implements Path {
 	static public final BasicPath HOME = new BasicPath(System.getProperty("user.name"), System.getProperty("user.home"), "places/user-home");
 	static public final BasicPath DESKTOP = new BasicPath(FreeDesktopUtil.getWellKnownDirPath(WellKnownDir.DESKTOP).getName(), FreeDesktopUtil.getWellKnownDirPath(WellKnownDir.DESKTOP).getAbsolutePath(), "places/user-desktop");
 
-	//TODO I18N
-	static public final BasicPath ROOT = new BasicPath("File system", "/", "gtk-harddisk"); 
+	static public final BasicPath ROOT = new BasicPath(_("File System"), "/", "gtk-harddisk"); 
 
 	private static final long serialVersionUID = 1L;
 

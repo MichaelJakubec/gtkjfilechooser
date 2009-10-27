@@ -1,5 +1,7 @@
 package eu.kostia.gtkjfilechooser.ui;
 
+import static eu.kostia.gtkjfilechooser.I18N._;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
@@ -35,10 +37,9 @@ public class SaveDialogPanel extends JPanel implements PropertyChangeListener {
 		SpringLayout layout = new SpringLayout();
 		saveTopPanel.setLayout(layout);
 
-		// TODO I18N
-		JLabel nameLabel = new JLabel("Name:");
+		JLabel nameLabel = new JLabel(_("_Name:"));
 		nameTextField = new JTextField();
-		saveFolderLabel = new JLabel("Save in folder:");
+		saveFolderLabel = new JLabel(_("Save in _folder:"));
 		initFoldersComboBox();
 
 		saveTopPanel.add(nameLabel);
@@ -57,8 +58,7 @@ public class SaveDialogPanel extends JPanel implements PropertyChangeListener {
 		saveTopPanel.setPreferredSize(size);
 		add(saveTopPanel, BorderLayout.PAGE_START);
 
-		// TODO I18N
-		expander = new Expander("Browse for other folders", fileExplorerPanel);
+		expander = new Expander(_("_Browse for other folders"), fileExplorerPanel);
 		expander.addPropertyChangeListener(this);
 		add(expander, BorderLayout.CENTER);
 	}

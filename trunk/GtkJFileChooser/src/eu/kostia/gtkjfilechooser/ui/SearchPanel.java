@@ -1,5 +1,7 @@
 package eu.kostia.gtkjfilechooser.ui;
 
+import static eu.kostia.gtkjfilechooser.I18N._;
+
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -38,7 +40,7 @@ public class SearchPanel extends JPanel {
 	private JTextField searchTextField;
 
 	private JButton stopButton;
-	
+
 	private FileFilter fileFilter;
 
 	public SearchPanel(FilesListPane pane) {		
@@ -50,8 +52,7 @@ public class SearchPanel extends JPanel {
 		/**
 		 * Search label
 		 */
-		// TODO I18N
-		searchLabel = new JLabel("Search:");
+		searchLabel = new JLabel(_("_Search:"));
 		add(searchLabel);
 		add(Box.createRigidArea(new Dimension(10,0)));
 
@@ -88,11 +89,11 @@ public class SearchPanel extends JPanel {
 		add(stopButton);
 	}
 
-	
+
 	public void setFileFilter(FileFilter fileFilter) {
 		this.fileFilter = fileFilter;
 	}
-	
+
 	@Override
 	public boolean requestFocusInWindow(){
 		return searchTextField.requestFocusInWindow();

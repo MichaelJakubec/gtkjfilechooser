@@ -1,5 +1,8 @@
 package eu.kostia.gtkjfilechooser.ui;
 
+import static eu.kostia.gtkjfilechooser.I18N._;
+import static eu.kostia.gtkjfilechooser.I18N.getMnemonic;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -190,8 +193,8 @@ public class GtkLocationsPane extends JPanel {
 
 	private JPopupMenu createEditPopup(final MouseEvent evt, final GtkBookmark bookmark) {
 		JPopupMenu popup = new JPopupMenu();
-		// TODO I18N
-		JMenuItem removeItem = new JMenuItem("Remove");
+		JMenuItem removeItem = new JMenuItem(_("_Remove"));
+		removeItem.setMnemonic(getMnemonic("_Remove"));
 		removeItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -201,8 +204,7 @@ public class GtkLocationsPane extends JPanel {
 		removeItem.setIcon(GtkStockIcon.get("gtk-remove", Size.GTK_ICON_SIZE_MENU));
 		popup.add(removeItem);
 
-		// TODO I18N
-		JMenuItem renameItem = new JMenuItem("Rename...");
+		JMenuItem renameItem = new JMenuItem(_("Rename..."));
 		renameItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -430,8 +432,7 @@ public class GtkLocationsPane extends JPanel {
 
 		@Override
 		public String getColumnName(int columnIndex) {
-			// TODO I18N
-			return "Places";
+			return _("Places");
 		}
 
 		@Override

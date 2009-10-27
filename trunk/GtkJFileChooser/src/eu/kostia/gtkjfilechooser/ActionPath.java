@@ -1,5 +1,7 @@
 package eu.kostia.gtkjfilechooser;
 
+import static eu.kostia.gtkjfilechooser.I18N._;
+
 /**
  * To an {@link ActionPath} corresponds no location, but is like an button to
  * execute an action.
@@ -14,11 +16,8 @@ public class ActionPath implements Path {
 	static final public int RECENTLY_USED_PANEL_ID = 1001;
 	static final public int SEARCH_PANEL_ID = 1002;
 
-	//TODO I18N
-	static public final ActionPath SEARCH = new ActionPath("Search", SEARCH_PANEL_ID, "search", "actions/stock_search");
-
-	//TODO I18N
-	static public final ActionPath RECENTLY_USED = new ActionPath("Recently Used", RECENTLY_USED_PANEL_ID, "recently_used", "actions/document-open-recent");
+	static public final ActionPath SEARCH = new ActionPath(_("Search"), SEARCH_PANEL_ID, "search", "actions/stock_search");
+	static public final ActionPath RECENTLY_USED = new ActionPath(_("Recently Used"), RECENTLY_USED_PANEL_ID, "recently_used", "actions/document-open-recent");
 
 	private String name;
 	private int id;

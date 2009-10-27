@@ -1,5 +1,7 @@
 package eu.kostia.gtkjfilechooser;
 
+import static eu.kostia.gtkjfilechooser.I18N._;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOError;
@@ -146,8 +148,7 @@ public class FreeDesktopUtil {
 							// Set a generic name with size
 							name = humanreadble(new File(location).getTotalSpace(),
 									GB / 2)
-									+ " Filesystem";
-							// TODO I18N ?
+									+ " " + _("File System");
 						}
 
 						device.setName(name);
