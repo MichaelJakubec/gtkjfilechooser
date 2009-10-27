@@ -12,8 +12,8 @@ import java.util.List;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JFileChooser;
 import javax.swing.JList;
+import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
-import javax.swing.text.JTextComponent;
 
 /**
  * Autocompleter decorator for path locations
@@ -28,7 +28,7 @@ public class PathAutoCompleter extends Autocompleter {
 	private int fileSelectionMode = JFileChooser.FILES_AND_DIRECTORIES;
 	private javax.swing.filechooser.FileFilter currentFilter;
 
-	public PathAutoCompleter(JTextComponent comp) {
+	public PathAutoCompleter(JTextField comp) {
 		super(comp);
 		setCurrentPath(System.getProperty("user.dir"));
 	}

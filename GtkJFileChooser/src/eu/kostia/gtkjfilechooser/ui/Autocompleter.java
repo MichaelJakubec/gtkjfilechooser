@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -41,8 +40,6 @@ import javax.swing.text.JTextComponent;
  * @author Costantino Cerbo
  * 
  */
-// TODO All works right for JTextFiels but not yet for the other
-// JTextComponents.
 public abstract class Autocompleter {
 	public static final String ACTION_PERFORMED_ACCEPT_SUGGESTION = "accept_suggestion";
 	private static final String AUTOCOMPLETER = "AUTOCOMPLETER"; // NOI18N
@@ -52,20 +49,17 @@ public abstract class Autocompleter {
 
 	private JPopupMenu popup;
 
-	private JTextComponent textComp;
+	private JTextField textComp;
 
-	public Autocompleter(JTextComponent comp) {
+	public Autocompleter(JTextField comp) {
 		textComp = comp;
 		textComp.putClientProperty(AUTOCOMPLETER, this);
 		list = new JList() {
 			@Override
 			public Dimension getPreferredSize() {
 				Dimension dim = super.getPreferredSize();
-				if (textComp instanceof JTextField) {
-					// In case of JTextFiled use always the same width as the
-					// underlying JTextField.
-					dim.width = textComp.getWidth() - textComp.getInsets().right;
-				}
+				//We use always the same width as the underlying JTextField.
+				dim.width = textComp.getWidth() - textComp.getInsets().right;
 				return dim;
 			}
 		};
@@ -97,47 +91,44 @@ public abstract class Autocompleter {
 				}
 			}
 		};
-		if (textComp instanceof JTextField) {
-			textComp.registerKeyboardAction(showAction, KeyStroke.getKeyStroke(
-					KeyEvent.VK_DOWN, 0), JComponent.WHEN_FOCUSED);
 
-			documentListener = new DocumentListener() {
+		textComp.registerKeyboardAction(showAction, KeyStroke.getKeyStroke(
+				KeyEvent.VK_DOWN, 0), JComponent.WHEN_FOCUSED);
 
-				public void changedUpdate(DocumentEvent e) {
+		documentListener = new DocumentListener() {
+
+			public void changedUpdate(DocumentEvent e) {
+			}
+
+			public void insertUpdate(DocumentEvent e) {
+				// to avoid auto completion when the text is
+				// programmatically set.
+				if (!textComp.hasFocus()) {
+					return;
 				}
 
-				public void insertUpdate(DocumentEvent e) {
-					// to avoid auto completion when the text is
-					// programmatically set.
-					if (!textComp.hasFocus()) {
-						return;
-					}
+				showPopup(true);
+			}
 
-					showPopup(true);
+			public void removeUpdate(DocumentEvent e) {
+				// to avoid auto completion when the text is
+				// programmatically set.
+				if (!textComp.hasFocus()) {
+					return;
 				}
 
-				public void removeUpdate(DocumentEvent e) {
-					// to avoid auto completion when the text is
-					// programmatically set.
-					if (!textComp.hasFocus()) {
-						return;
-					}
-
-					if (e.getDocument().getLength() > 0) {
-						// show the popup for the autocompletion
-						// only if the text isn't empty.
-						showPopup(false);
-					} else {
-						popup.setVisible(false);
-					}
+				if (e.getDocument().getLength() > 0) {
+					// show the popup for the autocompletion
+					// only if the text isn't empty.
+					showPopup(false);
+				} else {
+					popup.setVisible(false);
 				}
-			};
-			textComp.getDocument().addDocumentListener(documentListener);
+			}
+		};
+		textComp.getDocument().addDocumentListener(documentListener);
 
-		} else {
-			textComp.registerKeyboardAction(showAction, KeyStroke.getKeyStroke(
-					KeyEvent.VK_SPACE, InputEvent.CTRL_MASK), JComponent.WHEN_FOCUSED);
-		}
+
 
 		Action upAction = new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
@@ -356,19 +347,10 @@ public abstract class Autocompleter {
 			list.setVisibleRowCount(size < 10 ? size : 10);
 
 			try {
-				if (textComp instanceof JTextField) {
-					int pos = (int) textComp.getAlignmentX();
-					int offset = textComp.getInsets().left;
-					int x = textComp.getUI().modelToView(textComp, pos).x - offset;
-					popup.show(textComp, x, textComp.getHeight());
-				} else {
-					int pos = Math.min(textComp.getCaret().getDot(), textComp.getCaret()
-							.getMark());
-					int x = textComp.getUI().modelToView(textComp, pos).x;
-					popup
-					.show(textComp, x, textComp.getCaret()
-							.getMagicCaretPosition().y);
-				}
+				int pos = (int) textComp.getAlignmentX();
+				int offset = textComp.getInsets().left;
+				int x = textComp.getUI().modelToView(textComp, pos).x - offset;
+				popup.show(textComp, x, textComp.getHeight());
 			} catch (BadLocationException e) {
 				// this should never happen!!!
 				e.printStackTrace();
