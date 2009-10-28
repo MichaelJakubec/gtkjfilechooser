@@ -200,7 +200,6 @@ public class FileBrowserPane extends FilesListPane {
 		doFileSelectionModeChanged(fileSelectionMode);
 	}
 
-
 	private void doFileSelectionModeChanged(Integer value) {
 		setFilesSelectable(DIRECTORIES_ONLY != value);
 

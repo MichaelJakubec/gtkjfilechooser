@@ -4,6 +4,8 @@ import static eu.kostia.gtkjfilechooser.I18N._;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -18,17 +20,24 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
+import eu.kostia.gtkjfilechooser.ActionDispatcher;
+import eu.kostia.gtkjfilechooser.BasicActionDispatcher;
 import eu.kostia.gtkjfilechooser.BookmarkManager;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.Path;
 import eu.kostia.gtkjfilechooser.SpringLayoutUtil;
 
-public class SaveDialogPanel extends JPanel implements PropertyChangeListener {
+public class SaveDialogPanel extends JPanel implements PropertyChangeListener, ActionDispatcher {
+
+	static public final String ACTION_SAVE = "Action Save";
+
 	private JTextField nameTextField;
 	private JLabel saveFolderLabel;
 	private JComboBox foldersComboBox;
 	private Expander expander;
 	private String externalPath;
+
+	private ActionDispatcher actionDispatcher = new BasicActionDispatcher();
 
 	public SaveDialogPanel(JComponent fileExplorerPanel) {
 		super(new BorderLayout());
@@ -39,6 +48,13 @@ public class SaveDialogPanel extends JPanel implements PropertyChangeListener {
 
 		JLabel nameLabel = new JLabel(_("_Name:"));
 		nameTextField = new JTextField();
+		nameTextField.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ActionEvent evt = new ActionEvent(SaveDialogPanel.this, -1, ACTION_SAVE);
+				fireActionEvent(evt);
+			}
+		});
 		saveFolderLabel = new JLabel(_("Save in _folder:"));
 		initFoldersComboBox();
 
@@ -134,5 +150,28 @@ public class SaveDialogPanel extends JPanel implements PropertyChangeListener {
 			foldersComboBox.setEnabled(!expander.isExpanded());
 		}
 		firePropertyChange(property, evt.getOldValue(), evt.getNewValue());
+	}
+
+	@Override
+	public void addActionListener(ActionListener l) {
+		actionDispatcher.addActionListener(l);
+
+	}
+
+	@Override
+	public void fireActionEvent(ActionEvent e) {
+		actionDispatcher.fireActionEvent(e);
+
+	}
+
+	@Override
+	public void removeActionListener(ActionListener l) {
+		actionDispatcher.removeActionListener(l);
+
+	}
+
+	@Override
+	public void removeAllActionListeners() {
+		actionDispatcher.removeAllActionListeners();		
 	}
 }

@@ -34,7 +34,7 @@ public class I18N {
 	 * @param msgid
 	 * @return the mnemonic associate with this message, or 0 if none.
 	 */
-	static final public char getMnemonic(String msgid) {
+	static final public int getMnemonic(String msgid) {
 		String msg = getString(msgid);
 		int indexOf = msg.indexOf('_');
 		if (indexOf >= 0) {

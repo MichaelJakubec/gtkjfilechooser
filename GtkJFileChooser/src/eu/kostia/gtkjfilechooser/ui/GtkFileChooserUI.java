@@ -9,6 +9,7 @@ import static eu.kostia.gtkjfilechooser.ui.ContextMenu.ACTION_ADD_BOOKMARK;
 import static eu.kostia.gtkjfilechooser.ui.Expander.EXPANDED_STATUS_CHANGED;
 import static eu.kostia.gtkjfilechooser.ui.JPanelUtil.createPanel;
 import static eu.kostia.gtkjfilechooser.ui.JPanelUtil.createPanelBoxLayout;
+import static eu.kostia.gtkjfilechooser.ui.SaveDialogPanel.ACTION_SAVE;
 import static javax.swing.JFileChooser.*;
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
@@ -35,6 +36,8 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.accessibility.AccessibleContext;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -43,6 +46,7 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
@@ -556,7 +560,10 @@ PropertyChangeListener, ActionListener {
 		}
 
 		cancelButton.removeActionListener(getCancelSelectionAction());
-		approveButton.removeActionListener(getApproveSelectionAction());
+		for (ActionListener l : approveButton.getActionListeners()){
+			approveButton.removeActionListener(l);
+		}
+
 		fileNameTextField.removeActionListener(getApproveSelectionAction());
 
 		if (fileBrowserPane != null) {
@@ -591,21 +598,50 @@ PropertyChangeListener, ActionListener {
 			cancelButton.setMnemonic(getMnemonic("Stock label|_Cancel"));
 			buttonPanel.add(cancelButton);
 
-			approveButton = new JButton(getApproveButtonText(getFileChooser()));
-			approveButton.addActionListener(getApproveSelectionAction());
+			approveButton = new JButton();
+			approveButton.setAction(getOpenClickedAction());
 			approveButton.setToolTipText(getApproveButtonToolTipText(getFileChooser()));
-			if (JFileChooser.OPEN_DIALOG == getFileChooser().getDialogType()) {
-				approveButton.setIcon(GtkStockIcon.get("gtk-open", Size.GTK_ICON_SIZE_BUTTON));
-				approveButton.setMnemonic(getMnemonic("Stock label|_Open"));
-			} else if (JFileChooser.SAVE_DIALOG == getFileChooser().getDialogType()) {
-				approveButton.setIcon(GtkStockIcon.get("gtk-save", Size.GTK_ICON_SIZE_BUTTON));
-				approveButton.setMnemonic(getMnemonic("Stock label|_Save"));
-			}
 
 			buttonPanel.add(approveButton);
 		}
 
 		return buttonPanel;
+	}
+
+	/**
+	 * Action when the button "Open" is pressed to approve the selection.
+	 */
+	private Action getOpenClickedAction(){
+		Action action = getApproveSelectionAction();
+		action.putValue(Action.LARGE_ICON_KEY, GtkStockIcon.get("gtk-open", Size.GTK_ICON_SIZE_BUTTON));
+		action.putValue(Action.NAME, getApproveButtonText(getFileChooser()));
+		action.putValue(Action.MNEMONIC_KEY, getMnemonic("Stock label|_Open"));
+		return action;
+	}
+
+	/**
+	 * Action when the button "Save" is pressed to approve the selection.
+	 * If the file to save already exists, it asks before override.
+	 */
+	private Action getSaveClickedAction(){
+		// In the Save mode, we can use a SelectPathAction because only a single
+		// file can be saved (multiselection disabled).
+		Action action = new SelectPathAction(){
+
+			@Override
+			protected File getSelectedPath() {
+				if (saveDialogPanel != null) {
+					return saveDialogPanel.getFilename();
+				}
+
+				return null;				
+			}
+		};
+
+		action.putValue(Action.LARGE_ICON_KEY, GtkStockIcon.get("gtk-save", Size.GTK_ICON_SIZE_BUTTON));
+		action.putValue(Action.NAME, getApproveButtonText(getFileChooser()));
+		action.putValue(Action.MNEMONIC_KEY, getMnemonic("Stock label|_Save"));
+		return action;
 	}
 
 	@Override
@@ -646,9 +682,46 @@ PropertyChangeListener, ActionListener {
 		}
 	}
 
-	private void approveSelection(File path) {
-		getFileChooser().setSelectedFile(path);
-		getFileChooser().approveSelection();
+	private void approveSelection() {
+		if(askOverride()) {
+			getFileChooser().approveSelection();	
+		}		
+	}
+
+	/**
+	 * Ask if to override, when necessary.
+	 * 
+	 * @return {@code true} when we can save or override, else {@code false}.
+	 */
+	private boolean askOverride(){
+		// Override behavior
+		if (SAVE_DIALOG == getFileChooser().getDialogType()) {			
+			File selectedFile = getFileChooser().getSelectedFile();
+			if (selectedFile == null) {
+				return false;
+			}
+			if (selectedFile.exists()) {
+				String head = _("A file named \"%s\" already exists.  Do you want to replace it?", selectedFile.getName());
+				String foot = _("The file already exists in \"%s\".  Replacing it will overwrite its contents.", selectedFile.getParentFile().getName());
+
+				String msg = "<html><p width='400px'>"+
+				"<span style='font-weight: bold; font-size: 18pt;'>" + 
+				head + 
+				"</span></p><br /><p>" + 
+				foot + 
+				"</p></html>";
+
+				int n = JOptionPane.showConfirmDialog(
+						getFileChooser(),
+						msg,
+						"",
+						JOptionPane.OK_CANCEL_OPTION);
+
+				return n == JOptionPane.OK_OPTION;
+			}
+		}
+
+		return true;
 	}
 
 	private void createFilenamePanel(JFileChooser fc) {
@@ -905,6 +978,8 @@ PropertyChangeListener, ActionListener {
 	private void doDialogTypeChanged(int dialogType) {
 		JFileChooser chooser = getFileChooser();
 
+		//		fileBrowserPane.setDialogType(dialogType);
+
 		if (SAVE_DIALOG == chooser.getDialogType()) {
 			if (saveDialogPanel == null) {
 				createSaveDialogPanel();
@@ -937,22 +1012,22 @@ PropertyChangeListener, ActionListener {
 			// Hide the "Create Folder" button
 			if (createFolderButton != null) {
 				createFolderButton.setVisible(false);
-			}
+			}		
 		}
 
 		// Button to approve the selection (Open, Save or custom text)
 		if (approveButton != null) {
 			approveButton.setText(getApproveButtonText(chooser));
 			approveButton.setToolTipText(getApproveButtonToolTipText(chooser));	
+			// Set the corresponding action for the "Open" or "Save" button
+			approveButton.setAction(SAVE_DIALOG == chooser.getDialogType() ? getSaveClickedAction() : getOpenClickedAction());
 		}		
-
-
-
 	}
 
 	private void createSaveDialogPanel() {
 		saveDialogPanel = new SaveDialogPanel(openDialogPanel);
-		saveDialogPanel.addPropertyChangeListener(this);		
+		saveDialogPanel.addPropertyChangeListener(this);
+		saveDialogPanel.addActionListener(this);
 		saveDialogPanel.setExpanded(GtkFileChooserSettings.get().getExpandFolders());
 		saveDialogPanel.setExternalPath(getFileChooser().getCurrentDirectory().getAbsolutePath());		
 	}
@@ -1353,7 +1428,10 @@ PropertyChangeListener, ActionListener {
 		String cmd = e.getActionCommand();
 		Log.debug("GtkFileChooserUI: Action: ", e.getActionCommand());
 		if (APPROVE_SELECTION.equals(cmd)) {
-			approveSelection(fileBrowserPane.getSelectedFile());
+			getFileChooser().setSelectedFile(fileBrowserPane.getSelectedFile());
+			approveSelection();
+		} else if (ACTION_SAVE.equals(cmd)) {
+			approveButton.doClick();
 		} else if (ACTION_ADD_BOOKMARK.equals(cmd)) {
 			addToBookmarks();
 		} else if (ACTION_SELECTED_BOOKMARK.equals(cmd)) {
@@ -1393,7 +1471,7 @@ PropertyChangeListener, ActionListener {
 	 * Action to select a file or select/browse a directory (according to the
 	 * FileSelectionMode).
 	 */
-	private abstract class SelectPathAction implements ActionListener {
+	private abstract class SelectPathAction extends AbstractAction {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -1406,10 +1484,12 @@ PropertyChangeListener, ActionListener {
 			if (path.isDirectory()) {
 				doDirectoryChanged(path);
 				if (getFileChooser().getFileSelectionMode() == JFileChooser.DIRECTORIES_ONLY) {
-					approveSelection(path);
+					getFileChooser().setSelectedFile(path);
+					approveSelection();
 				}
 			} else {
-				approveSelection(path);
+				getFileChooser().setSelectedFile(path);
+				approveSelection();
 			}
 		}
 
