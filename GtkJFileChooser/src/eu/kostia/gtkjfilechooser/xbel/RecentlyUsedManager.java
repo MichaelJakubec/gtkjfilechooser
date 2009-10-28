@@ -166,8 +166,10 @@ public class RecentlyUsedManager {
 					try {
 						modified = fmt.parse(attr.getValue(i));
 					} catch (ParseException e) {
-						// TODO exception handling
-						e.printStackTrace();
+						// modified date attribute is corrupted, set a very  old date
+						// as workaround, so that this file is postponed in the recent
+						// used files list.
+						modified = new Date(0);
 					}
 
 					// stop the loop, we have that we need (href and modified)!
