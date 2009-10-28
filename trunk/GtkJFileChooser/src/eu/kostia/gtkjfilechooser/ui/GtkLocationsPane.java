@@ -390,7 +390,7 @@ public class GtkLocationsPane extends JPanel {
 			this.locations = new ArrayList<Path>();
 			this.tableModelListeners = new ArrayList<TableModelListener>();
 
-			//Button Search
+			//Button Search (it appears also in the Save mode)
 			locations.add(ActionPath.SEARCH); 
 
 			//Button Recent files
