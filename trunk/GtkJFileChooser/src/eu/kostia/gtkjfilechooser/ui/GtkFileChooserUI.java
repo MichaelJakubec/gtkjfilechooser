@@ -31,6 +31,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -1304,8 +1305,7 @@ PropertyChangeListener, ActionListener {
 		String property = e.getPropertyName();
 		Object value = e.getNewValue();
 
-		Log.debug("Property: ", property, " = ", value, " ; source :", e.getSource()
-				.getClass());
+		Log.debug("Property: ", property, " = ", value, " ; source :", e.getSource().getClass());
 
 		if (DIRECTORY_CHANGED_PROPERTY.equals(property)) {
 			doDirectoryChanged((File) value);
@@ -1356,34 +1356,31 @@ PropertyChangeListener, ActionListener {
 
 	//TODO implement
 	private void pack(boolean expanded) {
-		//		try {
-		JFileChooser fc = getFileChooser();
-		//			Field  field = fc.getClass().getDeclaredField("dialog");
-		//			field.setAccessible(true);
-		//			JDialog dialog = (JDialog) field.get(fc);
-		//			dialog.pack();
-		//			Dimension size = dialog.getPreferredSize();
-		//			if (expanded) {
-		//				size.height = expandedHeight;
-		//				//size.height = 500;
-		//			} else {
-		//				expandedHeight = size.height;
-		//				size.height = 200;
-		//			}
-		//
-		//			dialog.setPreferredSize(size);
-		//			dialog.setSize(size);
+		//TODO what is faster reflection or while?
 
+		//		JDialog dialog = getAncestorDialogReflection();
+		JDialog dialog = getAncestorDialog();
 
-		Dimension size = fc.getPreferredSize();
+		if (dialog == null) {
+			return;
+		}
+
+		Dimension size = dialog.getPreferredSize();
 		if (expanded) {
 			size.height = expandedHeight;
-			//size.height = 500;
 		} else {
 			expandedHeight = size.height;
 			size.height = 200;
 		}
 
+		if (dialog != null) {
+			dialog.setPreferredSize(size);
+			dialog.setSize(size);
+		}
+	}
+
+	private JDialog getAncestorDialog() {
+		JFileChooser fc = getFileChooser();
 		Container parent = fc.getParent();
 		JDialog dialog = null;
 		while (parent != null) {
@@ -1394,17 +1391,20 @@ PropertyChangeListener, ActionListener {
 			}
 
 		}
-		System.err.println(dialog);
 
-		if (dialog != null) {
-			dialog.setPreferredSize(size);
-			dialog.setSize(size);
+		return dialog;
+	}
+
+	private JDialog getAncestorDialogReflection() {
+		try {
+			JFileChooser fc = getFileChooser();			
+			Field field = fc.getClass().getDeclaredField("dialog");
+			field.setAccessible(true);
+			return (JDialog) field.get(fc);
+		} catch (Exception e) {
+			e.printStackTrace(); //TODO Log
+			return null;
 		}
-
-
-		//		} catch (Exception e) {
-		//			throw new RuntimeException(e);
-		//		}
 	}
 
 	private void doAncestorChanged(PropertyChangeEvent e) {
