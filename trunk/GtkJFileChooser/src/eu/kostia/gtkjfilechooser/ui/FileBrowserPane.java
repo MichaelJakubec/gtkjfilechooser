@@ -9,6 +9,8 @@ import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -19,7 +21,9 @@ import java.io.FileFilter;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.event.CellEditorListener;
@@ -282,18 +286,40 @@ public class FileBrowserPane extends FilesListPane {
 
 		model.addEmtpyRow();
 
-		int row = 0;
-		model.setEditableRow(row);
-		boolean success = table.editCellAt(row, 0);
+		// Make the just added first empty cell editable
+		model.setEditableRow(0);
+		boolean success = table.editCellAt(0, 0);
 		model.setEditableRow(-1);
 
-		if (table.getEditorComponent() != null) {
-			table.getEditorComponent().requestFocusInWindow();
-			//TODO fire the event editingCanceled when ESC is pressed on the EditorComponent 
+		JTextField editorComponent = (JTextField) table.getEditorComponent();
+		if (editorComponent != null) {
+			editorComponent.setText(_("Type name of new folder"));
+			editorComponent.selectAll();
+			editorComponent.requestFocusInWindow();
+
+			// Cancel editing when ESC pressed.
+			editorComponent.registerKeyboardAction(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					if (table.getCellEditor() != null) {
+						table.getCellEditor().cancelCellEditing();
+					}
+				}
+			}, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_FOCUSED);
+
+			// Cancel editing when focus lost.
+			editorComponent.addFocusListener(new FocusAdapter() {
+				@Override
+				public void focusLost(FocusEvent e) {
+					if (table.getCellEditor() != null) {
+						table.getCellEditor().cancelCellEditing();
+					}
+				}
+			});			
 		}
 
 		if (success) {
-			table.changeSelection(row, 0, false, false);
+			table.changeSelection(0, 0, false, false);
 		}
 
 		final TableCellEditor cellEditor = table.getCellEditor();
@@ -316,12 +342,21 @@ public class FileBrowserPane extends FilesListPane {
 					} else if (cellValue instanceof String) {
 						newFolderName = (String) cellValue;
 					}
+
+					if (_("Type name of new folder").equals(newFolderName)) {
+						// Avoid to create folder with the tip text.
+						removeEmtpyRow();
+						return;
+					}
+
 					File newFolder = new File (getCurrentDir().getAbsolutePath() + File.separator + newFolderName);
 					if (newFolder.exists()) {
 						JOptionPane.showMessageDialog(FileBrowserPane.this,
-								_("The folder could not be created"),
+								"<html><p width='250px'>" + 
+								_("The folder could not be created, as a file with the same name already exists.  Try using a different name for the folder, or rename the file first.") + 
+								"</p></html>",
 								"",
-								JOptionPane.ERROR_MESSAGE);	
+								JOptionPane.ERROR_MESSAGE);
 						removeEmtpyRow();
 					} else {
 						newFolder.mkdir();

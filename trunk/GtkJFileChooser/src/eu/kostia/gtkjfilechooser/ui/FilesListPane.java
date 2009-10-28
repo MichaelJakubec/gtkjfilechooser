@@ -351,10 +351,14 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		void addEmtpyRow() {
 			Object[] row = new Object[getColumnCount()];
 
+			//FIXME When sorting ASC, the row isn't on the top.
+			// Empty cell goes always first
 			data.add(0, row);
 
-			int rowcount = getRowCount() - 1;
-			fireTableRowsInserted(rowcount, rowcount);
+			fireTableRowsInserted(0, 0);
+
+			// Scroll to the first empty row just added
+			table.scrollRectToVisible(table.getCellRect(0, 0, true)); 
 		}
 
 		/**
@@ -363,8 +367,7 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		void removeEmtpyRow(){
 			if (data != null && !data.isEmpty() && data.get(0)[0] == null) {
 				data.remove(0);
-				int rowcount = getRowCount() - 1;
-				fireTableRowsDeleted(rowcount, rowcount);
+				fireTableRowsDeleted(0, 0);
 			}
 		}
 
@@ -438,7 +441,9 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 
 		@Override
 		public void tableChanged(TableModelEvent e) {
-			table.getRowSorter().allRowsChanged();
+			if (table.getRowSorter() != null) {
+				table.getRowSorter().allRowsChanged();
+			}			
 		}
 	}
 
@@ -537,7 +542,7 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 			if (columnClass.equals(File.class)) {
 				return new Comparator<File>() {
 					@Override
-					public int compare(File o1, File o2) {	
+					public int compare(File o1, File o2) {
 						// directories go first
 						if (o1.isDirectory() && !o2.isDirectory()) {
 							return -1;
@@ -554,7 +559,6 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 			return new Comparator<Comparable>() {
 				@Override
 				public int compare(Comparable o1, Comparable o2) {
-
 					return o1.compareTo(o2);
 				}
 			};

@@ -1372,8 +1372,7 @@ PropertyChangeListener, ActionListener {
 			File location = new File(locationsPane.getCurrentPath().getLocation());
 			doDirectoryChanged(location);
 		} else if (ACTION_CREATE_FOLDER.equals(cmd)){
-			//TODO create new folder
-			Log.debug("TODO: create new folder");
+			fileBrowserPane.createFolder();
 		}
 	}
 
