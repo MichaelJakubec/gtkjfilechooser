@@ -923,6 +923,7 @@ PropertyChangeListener, ActionListener {
 				createFolderButton.setVisible(true);
 			}
 
+			doMultiSelectionEnabledChanged(false);
 		} else {
 			// Open dialog						
 			chooser.add(openDialogPanel, BorderLayout.CENTER);
@@ -1024,8 +1025,12 @@ PropertyChangeListener, ActionListener {
 	}
 
 	private void doMultiSelectionEnabledChanged(Boolean multiSelectionEnabled) {
-		int selectionMode = multiSelectionEnabled ? MULTIPLE_INTERVAL_SELECTION
-				: SINGLE_SELECTION;
+		if (getFileChooser().getDialogType() == SAVE_DIALOG && multiSelectionEnabled) {
+			// Multi selection is not allowed in the Save Modus.
+			return;
+		}
+
+		int selectionMode = multiSelectionEnabled ? MULTIPLE_INTERVAL_SELECTION	: SINGLE_SELECTION;
 		if (getRecentlyUsedPane() != null) {
 			getRecentlyUsedPane().setSelectionMode(selectionMode);
 		}

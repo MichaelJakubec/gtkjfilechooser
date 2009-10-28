@@ -495,7 +495,7 @@ public class GettextResource extends ResourceBundle {
 	private String toString(ByteBuffer buf) {
 		byte[] array = new byte[buf.limit()];
 
-		//TODO buf.position(0) necessary?
+		// Reset the position before and after reading
 		buf.position(0);
 		buf.get(array);
 		buf.position(0);
