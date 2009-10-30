@@ -46,7 +46,7 @@ public class Expander extends JComponent implements PropertyChangeListener {
 				label.setOpaque(false);
 				label.setBackground(UIManager.getColor("Label.background"));
 				label.setIcon(expanded ? new ExpanderIcon(true, false)
-						: new ExpanderIcon(false, false));
+				: new ExpanderIcon(false, false));
 			}
 		});
 
@@ -67,10 +67,13 @@ public class Expander extends JComponent implements PropertyChangeListener {
 	}
 
 	public void setExpanded(boolean expanded) {
+		boolean oldValue = this.expanded;
+		boolean newValue = expanded;
 		this.expanded = expanded;
-		firePropertyChange(EXPANDED_STATUS_CHANGED, !expanded, expanded);
+
+		firePropertyChange(EXPANDED_STATUS_CHANGED, oldValue, newValue);
 	}
-	
+
 	public boolean isExpanded() {
 		return expanded;
 	}

@@ -31,7 +31,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.Serializable;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -84,14 +83,15 @@ import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
 public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable,
 PropertyChangeListener, ActionListener {
 
-	private static final String ACTION_SELECTED_BOOKMARK = "selected bookmark";
-	private static final String ACTION_CREATE_FOLDER = "createFolder";
+	static private final String ACTION_SELECTED_BOOKMARK = "selected bookmark";
 
-	private static final String ANCESTOR_PROPERTY = "ancestor";
+	static private final String ACTION_CREATE_FOLDER = "createFolder";
 
-	private static final String COMPONENT_ORIENTATION_PROPERTY = "componentOrientation";
+	static private final String ANCESTOR_PROPERTY = "ancestor";
 
-	private static final String CURRENT_PANEL_CHANGED = "CurrentPanelChanged";
+	static private final String COMPONENT_ORIENTATION_PROPERTY = "componentOrientation";
+
+	static private final String CURRENT_PANEL_CHANGED = "CurrentPanelChanged";
 
 	/**
 	 * Names of the "cards" in the rightPanel.
@@ -107,11 +107,13 @@ PropertyChangeListener, ActionListener {
 	private static Dimension LIST_PREF_SIZE = new Dimension(LIST_PREF_WIDTH,
 			LIST_PREF_HEIGHT);
 
-	private static int MIN_HEIGHT = 326;
+	private static int MIN_HEIGHT = 200;
+
+	private static int MIN_EXPANDED_HEIGHT = 500;
 
 	private static int MIN_WIDTH = 700;
 
-	private static Dimension MIN_SIZE = new Dimension(MIN_WIDTH, MIN_HEIGHT);
+	private static Dimension MIN_SIZE = new Dimension(MIN_WIDTH, MIN_EXPANDED_HEIGHT);
 
 	// Preferred and Minimum sizes for the dialog box
 	private static int PREF_WIDTH = 700;
@@ -222,11 +224,12 @@ PropertyChangeListener, ActionListener {
 	/**
 	 * The height of the dialog in save mode, when the folder view is expanded.
 	 */
-	private transient int expandedHeight;
+	private transient int expandedHeight = -1;
 
 	public GtkFileChooserUI(JFileChooser chooser) {
 		super(chooser);
 		this.chooser = chooser;
+
 		openDialogPanel = new JPanel();
 		openDialogPanel.setLayout(new BorderLayout(0, 11));
 
@@ -1028,9 +1031,9 @@ PropertyChangeListener, ActionListener {
 	private void createSaveDialogPanel() {
 		saveDialogPanel = new SaveDialogPanel(openDialogPanel);
 		saveDialogPanel.addPropertyChangeListener(this);
-		saveDialogPanel.addActionListener(this);
+		saveDialogPanel.addActionListener(this);		
+		saveDialogPanel.setExternalPath(getFileChooser().getCurrentDirectory().getAbsolutePath());
 		saveDialogPanel.setExpanded(GtkFileChooserSettings.get().getExpandFolders());
-		saveDialogPanel.setExternalPath(getFileChooser().getCurrentDirectory().getAbsolutePath());		
 	}
 
 	private void doDirectoryChanged(File dir) {
@@ -1344,33 +1347,44 @@ PropertyChangeListener, ActionListener {
 		} else if (EXPANDED_STATUS_CHANGED.equals(property)) {
 			boolean expanded = (Boolean)value;
 			GtkFileChooserSettings.get().setExpandFolders(expanded);
-			Log.debug(EXPANDED_STATUS_CHANGED, 
-					"\npref size: ", getFileChooser().getPreferredSize(), 
-					"\nsize:", getFileChooser().getSize());
-
-			//--
 			pack(expanded);
-			//--
 		}
 	}
 
-	//TODO implement
-	private void pack(boolean expanded) {
-		//TODO what is faster reflection or while?
-
-		//		JDialog dialog = getAncestorDialogReflection();
+	private void pack(boolean expand) {
 		JDialog dialog = getAncestorDialog();
 
 		if (dialog == null) {
 			return;
 		}
 
-		Dimension size = dialog.getPreferredSize();
-		if (expanded) {
+		Dimension size = dialog.getSize();
+		if (size.width == 0 && size.height == 0 ){
+			// the size wasn't yet initialized, use the .ini file size
+			Rectangle bound = GtkFileChooserSettings.get().getBound();
+			if (bound != null) {
+				size = new Dimension(bound.width, bound.height);
+			} else {
+				//... or the the preferred size
+				size = dialog.getPreferredSize();
+			}
+		}
+
+		if (expand) {
+			if (expandedHeight == -1) {
+				expandedHeight = GtkFileChooserSettings.get().getBound().height;
+			}
+			if (expandedHeight < MIN_EXPANDED_HEIGHT) {
+				expandedHeight = MIN_EXPANDED_HEIGHT;
+			}
 			size.height = expandedHeight;
 		} else {
-			expandedHeight = size.height;
-			size.height = 200;
+			if (expandedHeight != -1) {
+				expandedHeight = size.height;
+			}
+
+			// 200px is size when the folder view isn'expanded.
+			size.height = MIN_HEIGHT;
 		}
 
 		if (dialog != null) {
@@ -1379,7 +1393,12 @@ PropertyChangeListener, ActionListener {
 		}
 	}
 
+	/**
+	 * Retrieve the ancestor dialog.
+	 */
 	private JDialog getAncestorDialog() {
+		//Note: If done with reflection, it's 6 time slower.
+
 		JFileChooser fc = getFileChooser();
 		Container parent = fc.getParent();
 		JDialog dialog = null;
@@ -1395,23 +1414,17 @@ PropertyChangeListener, ActionListener {
 		return dialog;
 	}
 
-	private JDialog getAncestorDialogReflection() {
-		try {
-			JFileChooser fc = getFileChooser();			
-			Field field = fc.getClass().getDeclaredField("dialog");
-			field.setAccessible(true);
-			return (JDialog) field.get(fc);
-		} catch (Exception e) {
-			e.printStackTrace(); //TODO Log
-			return null;
-		}
-	}
-
 	private void doAncestorChanged(PropertyChangeEvent e) {
-		if (e.getOldValue() == null && e.getNewValue() != null) {
-			// Ancestor was added, set initial focus
+		if (e.getOldValue() == null && e.getNewValue() != null && e.getSource() instanceof JFileChooser) {
+			// Ancestor was added, the file chooser is visible.
+
+			// set initial focus
 			fileNameTextField.selectAll();
 			fileNameTextField.requestFocus();
+
+			if (saveDialogPanel != null) {
+				pack(GtkFileChooserSettings.get().getExpandFolders());
+			}
 		}
 	}
 
