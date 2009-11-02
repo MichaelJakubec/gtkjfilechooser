@@ -309,9 +309,6 @@ public class FileChooserDemo extends JPanel implements ActionListener {
 		control4.add(Box.createRigidArea(vpad20));
 		control4.add(Box.createGlue());
 
-		// ********************************************************
-		// **************** Look & Feel Switch ********************
-		// ********************************************************
 		JPanel panel = new JPanel();
 		panel.add(showButton);
 

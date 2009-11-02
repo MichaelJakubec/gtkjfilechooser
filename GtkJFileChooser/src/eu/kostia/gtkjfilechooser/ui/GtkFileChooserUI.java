@@ -51,6 +51,7 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -145,7 +146,7 @@ PropertyChangeListener, ActionListener {
 	/**
 	 * Panel for the open dialog. In the save dialog it's put on the bottom.
 	 */
-	private final JPanel openDialogPanel;
+	private JPanel openDialogPanel;
 
 	/**
 	 * Panel for the save dialog. It contains the {@code openDialogPanel} in an 
@@ -228,6 +229,18 @@ PropertyChangeListener, ActionListener {
 
 	private JFileChooser chooser;
 
+	private ComponentAdapter chooserComponentListener = new ComponentAdapter() {
+		@Override
+		public void componentResized(ComponentEvent e) {
+			if (saveDialogPanel != null && saveDialogPanel.isExpanded()) {
+				// Do not persist the size when we are in save 
+				// mode and the folders aren't expanded.
+				Rectangle bound = e.getComponent().getBounds();
+				GtkFileChooserSettings.get().setBound(bound);	
+			}				
+		}
+	};
+
 	/**
 	 * The height of the dialog in save mode, when the folder view is expanded.
 	 */
@@ -253,17 +266,8 @@ PropertyChangeListener, ActionListener {
 		}
 
 		// Persist component bounds and sizes
-		chooser.addComponentListener(new ComponentAdapter() {
-			@Override
-			public void componentResized(ComponentEvent e) {
-				if (saveDialogPanel != null && saveDialogPanel.isExpanded()) {
-					// Do not persist the size when we are in save 
-					// mode and the folders aren't expanded.
-					Rectangle bound = e.getComponent().getBounds();
-					GtkFileChooserSettings.get().setBound(bound);	
-				}				
-			}
-		});
+		chooser.removeComponentListener(chooserComponentListener);
+		chooser.addComponentListener(chooserComponentListener);
 
 		// Add key binding
 		NavigationKeyBinding keyBinding = new NavigationKeyBinding(chooser);
@@ -551,35 +555,59 @@ PropertyChangeListener, ActionListener {
 		}
 	}
 
-	@Override
-	public void uninstallComponents(JFileChooser fc) {
-		fc.removeAll();
-		buttonPanel = null;
-	}
 
 	@Override
 	public void uninstallUI(JComponent c) {
+		uninstallListeners(chooser);
+		uninstallComponents(chooser);
+		uninstallDefaults(chooser);
 
-		// Remove PropertyChangeListener
-		PropertyChangeListener[] listeners = c.getPropertyChangeListeners();
-		for (PropertyChangeListener listener : listeners) {
-			c.removePropertyChangeListener(listener);
+		if (getAccessoryPanel() != null) {
+			getAccessoryPanel().removeAll();
 		}
 
-		cancelButton.removeActionListener(getCancelSelectionAction());
-		for (ActionListener l : approveButton.getActionListeners()){
-			approveButton.removeActionListener(l);
-		}
-
-		fileNameTextField.removeActionListener(getApproveSelectionAction());
-
-		if (fileBrowserPane != null) {
-			fileBrowserPane.uninstallUI();
-			fileBrowserPane = null;
-		}
-
-		super.uninstallUI(c);
+		getFileChooser().removeAll();
 	}
+
+
+	@Override
+	protected void uninstallListeners(JFileChooser fc) {
+		fc.removePropertyChangeListener(this);		
+		fc.removeActionListener(this);
+		SwingUtilities.replaceUIInputMap(fc, JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, null);
+		SwingUtilities.replaceUIActionMap(fc, null);
+	}
+
+	@Override
+	public void uninstallComponents(JFileChooser fc) {
+		super.uninstallComponents(fc);
+
+		addBookmarkButton = null;
+		approveButton = null;
+		buttonPanel = null;
+		cancelButton = null;
+		openDialogPanel = null;
+		saveDialogPanel = null;
+		cardPanel = null;
+		showPositionButton = null;
+		pathBarButtons = null;
+		pathBarActionListener = null;
+		createFolderButton = null;
+		fileBrowserPane = null;
+		fileNameLabelText = null;
+		filenamePanel = null;
+		fileNameTextField = null;
+		filterComboBox = null;
+		locationsPane = null;
+		pathAutoCompletion = null;
+		recentlyUsedPane = null;
+		removeBookmarkButton = null;
+		searchFilesPane = null;
+		searchPanel = null;
+		topPanel = null;		
+	}
+
+
 
 	public void valueChanged(ListSelectionEvent e) {
 		JFileChooser fc = getFileChooser();
@@ -985,14 +1013,18 @@ PropertyChangeListener, ActionListener {
 	private void doDialogTypeChanged(int dialogType) {
 		JFileChooser chooser = getFileChooser();
 
-		//		fileBrowserPane.setDialogType(dialogType);
+
 
 		if (SAVE_DIALOG == chooser.getDialogType()) {
+			// Remove the Open Dialog
+			if (openDialogPanel != null) {
+				chooser.remove(openDialogPanel);
+			}
+
 			if (saveDialogPanel == null) {
 				createSaveDialogPanel();
 			}
 			chooser.add(saveDialogPanel, BorderLayout.CENTER);			
-			//TODO add listener, pref for expanded, etc...
 
 			// Hide Location button and text field
 			if (showPositionButton != null) {
@@ -1007,7 +1039,12 @@ PropertyChangeListener, ActionListener {
 
 			doMultiSelectionEnabledChanged(false);
 		} else {
-			// Open dialog						
+			// Remove the Save Dialog
+			if (saveDialogPanel != null) {
+				chooser.remove(saveDialogPanel);
+			}
+
+			// Add the Open dialog						
 			chooser.add(openDialogPanel, BorderLayout.CENTER);
 
 			// Show Location button and text field
@@ -1020,6 +1057,8 @@ PropertyChangeListener, ActionListener {
 			if (createFolderButton != null) {
 				createFolderButton.setVisible(false);
 			}		
+
+			saveDialogPanel = null;
 		}
 
 		// Button to approve the selection (Open, Save or custom text)
