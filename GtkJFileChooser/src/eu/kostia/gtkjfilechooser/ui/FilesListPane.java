@@ -47,6 +47,7 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 	public static final Color PEARL_GRAY = new Color(238, 238, 238);
 
 	private static final String FILE_NAME_COLUMN_ID = "Name";
+	private static final int FILE_NAME_COLUMN_INDEX = 0;
 	private static final String FILE_SIZE_COLUMN_ID = "Size";
 	private static final int FILE_SIZE_COLUMN_WIDTH = 100;
 	private static final String FILE_DATE_COLUMN_ID = "Modified";
@@ -350,6 +351,9 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		 */
 		void addEmtpyRow() {
 			Object[] row = new Object[getColumnCount()];
+			//			for (int i = 0; i < row.length; i++) {
+			//				row[i] = new File("z");
+			//			}
 
 			//FIXME When sorting ASC, the row isn't on the top.
 			// Empty cell goes always first
@@ -538,18 +542,25 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 
 			Class<?> columnClass = getModel().getColumnClass(column);
 
+			String columnName = table.getModel().getColumnName(column);
+
 			// filename column
 			if (columnClass.equals(File.class)) {
+				//TODO use always this comparator
 				return new Comparator<File>() {
 					@Override
 					public int compare(File o1, File o2) {
 						// directories go first
 						if (o1.isDirectory() && !o2.isDirectory()) {
-							return -1;
+							return getSortOrder() * -1;
 						}
 						if (!o1.isDirectory() && o2.isDirectory()) {
-							return 1;
+							return getSortOrder() * 1;
 						}
+
+						//if columnName equals Name do..
+						//if columnName equals Size do..
+						//if columnName equals Modified do..
 						return o1.getName().compareTo(o2.getName());
 					}
 				};
@@ -565,6 +576,24 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 
 		}
 
+		private int getSortOrder() {
+			// Always the sortkey for the filename column
+			SortKey sortKey = null;
+			if (getSortKeys().size() > 0) {
+				for (int i = 0; i < getSortKeys().size(); i++) {
+					sortKey = getSortKeys().get(i);
+					if (FILE_NAME_COLUMN_INDEX == sortKey.getColumn()) {
+						break;
+					}
+				}
+			}
+
+			if (sortKey == null) {
+				return 1;
+			}
+
+			return sortKey.getSortOrder() == SortOrder.ASCENDING ? 1 : -1;
+		}
 	}
 
 	@Override
