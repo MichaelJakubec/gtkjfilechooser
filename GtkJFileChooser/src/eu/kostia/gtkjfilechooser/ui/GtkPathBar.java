@@ -32,6 +32,8 @@ import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
 
 public class GtkPathBar extends JPanel {
 
+	private static final String DIRECTORY_INDEX = "directory index";
+
 	private static final int BUTTON_HEIGHT = 34;
 
 	private static final long serialVersionUID = 1L;
@@ -156,6 +158,8 @@ public class GtkPathBar extends JPanel {
 				}
 			};
 
+			dirButton.putClientProperty(DIRECTORY_INDEX, i);
+
 			if (dir.equals(File.separator)){
 				// Set root icon (the root button has no text)
 				dirButton.setIcon(GtkStockIcon.get("gtk-harddisk", Size.GTK_ICON_SIZE_BUTTON));
@@ -174,7 +178,6 @@ public class GtkPathBar extends JPanel {
 				dirButton.setIcon(GtkStockIcon.get("places/user-desktop", Size.GTK_ICON_SIZE_MENU));
 			} 
 
-			final GtkPathBar thisInstance = this;
 			dirButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -195,7 +198,7 @@ public class GtkPathBar extends JPanel {
 
 					// Foward action to the main action listeners
 					for (ActionListener listener : actionListeners) {
-						ActionEvent myEvt = new ActionEvent(thisInstance, 1, "directory-selected");
+						ActionEvent myEvt = new ActionEvent(GtkPathBar.this, 1, "directory-selected");
 						listener.actionPerformed(myEvt);
 					}
 				}
@@ -207,22 +210,18 @@ public class GtkPathBar extends JPanel {
 	}
 
 	private void updateCurrentDir() {
-		String lastdir = selectedButton.getText();
-		if (lastdir.isEmpty()){
-			//If empty, if the root dir (it's the only button with no text but just an icon)
-			lastdir = File.separator;
-		}
-		StringBuilder sb = new StringBuilder();
-		for (String dir : directories) {			
-			if (dir.equals(lastdir)) {
-				sb.append(dir);
-				break;
-			}
+		int dirIndex = (Integer) selectedButton.getClientProperty(DIRECTORY_INDEX);
 
-			sb.append(dir);
-			if (!dir.equals(File.separator)){
-				sb.append(File.separator);
-			}			
+		if (dirIndex == 0){
+			//If zero, it's the root dir (it's the only button with no text but just an icon)
+			currentDirectory = File.separator;
+			return;			
+		}
+
+		StringBuilder sb = new StringBuilder(File.separator);
+		for (int i = 1; i <= dirIndex; i++) {
+			sb.append(directories[i]);
+			sb.append(File.separator);
 		}
 		currentDirectory = sb.toString();
 	}

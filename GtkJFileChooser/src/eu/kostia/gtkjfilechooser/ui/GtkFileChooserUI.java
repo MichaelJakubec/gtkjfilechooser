@@ -166,6 +166,13 @@ PropertyChangeListener, ActionListener {
 
 	private GtkPathBar pathBarButtons;
 
+	private ActionListener pathBarActionListener = new ActionListener() {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			fireChangeDirectoryEvent(pathBarButtons.getCurrentDirectory());
+		}
+	};
+
 	private JButton createFolderButton;
 
 	private int currentPanelId = FILEBROWSER_PANEL_ID;
@@ -296,12 +303,8 @@ PropertyChangeListener, ActionListener {
 
 		// CurrentDir Combo Buttons
 		pathBarButtons = new GtkPathBar(getFileChooser().getCurrentDirectory());
-		pathBarButtons.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				doDirectoryChanged(pathBarButtons.getCurrentDirectory());
-			}
-		});
+		pathBarButtons.addActionListener(pathBarActionListener);
+
 
 		/**
 		 * Pathbar
@@ -1036,7 +1039,7 @@ PropertyChangeListener, ActionListener {
 		saveDialogPanel.setExpanded(GtkFileChooserSettings.get().getExpandFolders());
 	}
 
-	private void doDirectoryChanged(File dir) {
+	private void doDirectoryChanged(File dir, Object source) {
 		if (getFileChooser().getCurrentDirectory().equals(dir)) {
 			// to avoid repeated invocations on the same directory.
 			return;
@@ -1046,10 +1049,18 @@ PropertyChangeListener, ActionListener {
 		FileSystemView fsv = fc.getFileSystemView();
 
 		if (dir != null) {
-			getFileChooser().setCurrentDirectory(dir);
+			// remove and re-add the ActionListener to avoid to fire the same event again.
+			pathBarButtons.removeActionListener(pathBarActionListener);
 			pathBarButtons.setCurrentDirectory(dir);
+			pathBarButtons.addActionListener(pathBarActionListener);
+
 			updateFileNameField();
-			fileBrowserPane.setCurrentDir(dir);
+
+			if (!fileBrowserPane.equals(source)) {
+				// If the event was fired by the same FileBrowserPane, do not set the dir again.
+				fileBrowserPane.setCurrentDir(dir);	
+			}
+
 
 			if (fc.isDirectorySelectionEnabled() && !fc.isFileSelectionEnabled()) {
 				if (fsv.isFileSystem(dir)) {
@@ -1062,6 +1073,12 @@ PropertyChangeListener, ActionListener {
 			if (saveDialogPanel != null){
 				saveDialogPanel.setExternalPath(dir.getAbsolutePath());
 			}
+
+			// invoke this method at the end, because it fire the same event.
+			if (!fc.equals(source)) {
+				// If the event was fired by the same JFileChooser, do not set the dir again.
+				fc.setCurrentDirectory(dir);
+			}			
 		}
 	}
 
@@ -1307,11 +1324,12 @@ PropertyChangeListener, ActionListener {
 	public void propertyChange(PropertyChangeEvent e) {
 		String property = e.getPropertyName();
 		Object value = e.getNewValue();
+		Object source = e.getSource();
 
-		Log.debug("Property: ", property, " = ", value, " ; source :", e.getSource().getClass());
+		Log.debug("Property: ", property, " = ", value, " ; source :", source.getClass());
 
 		if (DIRECTORY_CHANGED_PROPERTY.equals(property)) {
-			doDirectoryChanged((File) value);
+			doDirectoryChanged((File) value, source);
 		} else if (SELECTED_FILE_CHANGED_PROPERTY.equals(property)) {
 			doSelectedFileChanged((File) value);
 		} else if (SELECTED_FILES_CHANGED_PROPERTY.equals(property)) {
@@ -1449,7 +1467,7 @@ PropertyChangeListener, ActionListener {
 			addToBookmarks();
 		} else if (ACTION_SELECTED_BOOKMARK.equals(cmd)) {
 			File location = new File(locationsPane.getCurrentPath().getLocation());
-			doDirectoryChanged(location);
+			fireChangeDirectoryEvent(location);
 		} else if (LOCATION_POPUP.equals(cmd)) {
 			if (getFileChooser().getDialogType() != SAVE_DIALOG) {
 				showPositionButton.doClick();
@@ -1459,17 +1477,21 @@ PropertyChangeListener, ActionListener {
 		} else if (DOWN_FOLDER.equals(cmd)) {
 			pathBarButtons.downFolder();
 		} else if (HOME_FOLDER.equals(cmd)) {
-			doDirectoryChanged(new File(System.getProperty("user.home")));
+			fireChangeDirectoryEvent(new File(System.getProperty("user.home")));
 		} else if (DESKTOP_FOLDER.equals(cmd)) {
-			doDirectoryChanged(FreeDesktopUtil.getWellKnownDirPath(WellKnownDir.DESKTOP));
+			fireChangeDirectoryEvent(FreeDesktopUtil.getWellKnownDirPath(WellKnownDir.DESKTOP));
 		} else if (QUICK_BOOKMARK.equals(cmd)) {
 			int id = e.getID();
 			locationsPane.selectBookmark(id);
 			File location = new File(locationsPane.getCurrentPath().getLocation());
-			doDirectoryChanged(location);
+			fireChangeDirectoryEvent(location);
 		} else if (ACTION_CREATE_FOLDER.equals(cmd)){
 			fileBrowserPane.createFolder();
 		}
+	}
+
+	private void fireChangeDirectoryEvent(File newDirectory) {
+		propertyChange(new PropertyChangeEvent(GtkFileChooserUI.this, DIRECTORY_CHANGED_PROPERTY, getFileChooser().getCurrentDirectory(), newDirectory));
 	}
 
 	/**
@@ -1495,7 +1517,7 @@ PropertyChangeListener, ActionListener {
 			}
 
 			if (path.isDirectory()) {
-				doDirectoryChanged(path);
+				fireChangeDirectoryEvent(path);
 				if (getFileChooser().getFileSelectionMode() == JFileChooser.DIRECTORIES_ONLY) {
 					getFileChooser().setSelectedFile(path);
 					approveSelection();
