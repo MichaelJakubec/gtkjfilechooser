@@ -19,8 +19,9 @@ public class GtkPathBarTestGui {
 	public static void main(String[] args) throws Exception {
 		UIManager.setLookAndFeel(GTKLookAndFeel.class.getName());
 
-		File here = new File(".");
-		final GtkPathBar pane = new GtkPathBar(here);
+		//		File path = new File(".");
+		File path = new File("/home/c.cerbo/src/chromium/src");
+		final GtkPathBar pane = new GtkPathBar(path);
 		pane.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
