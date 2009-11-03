@@ -1,43 +1,63 @@
 package eu.kostia.gtkjfilechooser;
 
 import java.lang.reflect.Array;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import eu.kostia.gtkjfilechooser.ui.GtkFileChooserUI;
 
 /**
- * Naive logger with stack strace.
- * Set DEBUG to false for production code.
+ * Naive logger with stack strace. Set DEBUG to false for production code.
  * 
  * @author c.cerbo
- *
+ * 
  */
 public class Log {
+
+	static final private Logger LOG = Logger.getLogger(GtkFileChooserUI.class.getName());
+
 	/**
 	 * Set false for production code
 	 */
-	private static final boolean DEBUG = true;
+	static final private boolean DEBUG = true;
 
 	static public void debug(Object... msgs) {
 		if (DEBUG) {
 			String location = getInvokingLocation();
 
-			System.out.print(location);
-			System.out.print(": ");
-			for (Object msg : msgs) {
-				if (msg == null) {
-					System.out.print("null");
-				} else if(msg.getClass().isArray()){
-					int len = Array.getLength(msg);
-					for (int i = 0; i < len; i++) {
-						System.out.print(Array.get(msg, i));
-						if (i != (len -1)) {
-							System.out.print(", ");
-						}						
+			StringBuilder sb = new StringBuilder();
+			sb.append(location);
+			sb.append(": ");
+
+			appendMessages(sb, msgs);
+
+			System.out.println(sb);
+		}
+	}
+
+	static public void debug0(Object... msgs) {
+		if (LOG.isLoggable(Level.FINEST)) {
+			StringBuilder sb = new StringBuilder();
+			appendMessages(sb, msgs);
+			LOG.finest(sb.toString());
+		}
+	}
+
+	private static void appendMessages(StringBuilder sb, Object... msgs) {
+		for (Object msg : msgs) {
+			if (msg == null) {
+				sb.append("null");
+			} else if (msg.getClass().isArray()) {
+				int len = Array.getLength(msg);
+				for (int i = 0; i < len; i++) {
+					sb.append(Array.get(msg, i));
+					if (i != (len - 1)) {
+						sb.append(", ");
 					}
-				} else {
-					System.out.print(String.valueOf(msg));
 				}
+			} else {
+				sb.append(String.valueOf(msg));
 			}
-			System.out.println();
 		}
 	}
 
@@ -51,7 +71,7 @@ public class Log {
 					&& "debug".equals(s.getMethodName())) {
 				StackTraceElement next = stackTrace[i + 1];
 				location = next.getClassName() + "." + next.getMethodName() + "("
-				+ next.getFileName() + ":" + next.getLineNumber() + ")";
+						+ next.getFileName() + ":" + next.getLineNumber() + ")";
 			}
 		}
 		return location;
