@@ -14,7 +14,6 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -32,7 +31,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+import javax.swing.table.TableStringConverter;
 
 import eu.kostia.gtkjfilechooser.ActionDispatcher;
 import eu.kostia.gtkjfilechooser.BasicActionDispatcher;
@@ -130,9 +131,6 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 			}
 		});
 
-
-
-
 		// Add interactive file search support
 		new FileFindAction().install(table);
 
@@ -182,7 +180,7 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		this.filesSelectable = filesSelectable;
 	}
 
-	public void setModel(List<File> fileEntries, Boolean showSizeColumn) {		
+	public void setModel(List<File> fileEntries, Boolean showSizeColumn) {
 		FilesListTableModel dataModel = new FilesListTableModel(fileEntries,
 				showSizeColumn);
 		table.setModel(dataModel);
@@ -215,8 +213,6 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		}
 	}
 
-
-
 	public FilesListTableModel getModel() {
 		return (FilesListTableModel) table.getModel();
 	}
@@ -236,8 +232,6 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		// the last one doesn't return true for links
 		return !file.isDirectory() && filesSelectable;
 	}
-
-
 
 	public File getSelectedFile() {
 		int row = table.getSelectedRow();
@@ -267,8 +261,31 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		table.getSelectionModel().clearSelection();
 	}
 
+	@Override
+	public void addActionListener(ActionListener l) {
+		actionDispatcher.addActionListener(l);
+
+	}
+
+	@Override
+	public void fireActionEvent(ActionEvent e) {
+		actionDispatcher.fireActionEvent(e);
+
+	}
+
+	@Override
+	public void removeActionListener(ActionListener l) {
+		actionDispatcher.removeActionListener(l);
+
+	}
+
+	@Override
+	public void removeAllActionListeners() {
+		actionDispatcher.removeAllActionListeners();
+	}
+
 	/**
-	 * Model
+	 * Inner classes
 	 */
 	protected class FilesListTableModel extends AbstractTableModel implements
 	Serializable, TableModelListener {
@@ -291,18 +308,17 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 			addTableModelListener(this);
 
 			if (getShowSizeColumn()) {
-				this.columnIds = new String[] { FILE_NAME_COLUMN_ID, FILE_SIZE_COLUMN_ID, FILE_DATE_COLUMN_ID };
+				this.columnIds = new String[] { FILE_NAME_COLUMN_ID, FILE_SIZE_COLUMN_ID,
+						FILE_DATE_COLUMN_ID };
 			} else {
 				this.columnIds = new String[] { FILE_NAME_COLUMN_ID, FILE_DATE_COLUMN_ID };
 			}
-
 
 			this.columnNames = new String[columnIds.length];
 			for (int i = 0; i < columnIds.length; i++) {
 				String columnId = columnIds[i];
 				columnNames[i] = _(columnId);
 			}
-
 
 			for (File file : fileEntries) {
 				addFileEntryInternal(file);
@@ -323,11 +339,20 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 			row[0] = file;
 
 			if (getShowSizeColumn()) {
-				row[1] = file != null && !file.isDirectory() ? file.length() : -1L;
+				if (file != null) {
+					if (file.isDirectory()) {
+						// if a dir returns the number of contained files
+						// as negative number with one added.
+						// Negative entries will be not rendered.
+						row[1] = file.list() != null ? -file.list().length - 1L : -1L;
+					} else {
+						row[1] = file.length();
+					}
+				}
 				row[2] = new Date(file.lastModified());
 			} else {
 				row[1] = new Date(file.lastModified());
-			}			
+			}
 
 			data.add(row);
 		}
@@ -346,29 +371,29 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		}
 
 		/**
-		 * Add an empty row as first row in the table. This row is editable
-		 * and it's used when a new folder is created.
+		 * Add an empty row as first row in the table. This row is editable and
+		 * it's used when a new folder is created.
 		 */
 		void addEmtpyRow() {
 			Object[] row = new Object[getColumnCount()];
-			//			for (int i = 0; i < row.length; i++) {
-			//				row[i] = new File("z");
-			//			}
+			// for (int i = 0; i < row.length; i++) {
+			// row[i] = new File("z");
+			// }
 
-			//FIXME When sorting ASC, the row isn't on the top.
+			// FIXME When sorting ASC, the row isn't on the top.
 			// Empty cell goes always first
 			data.add(0, row);
 
 			fireTableRowsInserted(0, 0);
 
 			// Scroll to the first empty row just added
-			table.scrollRectToVisible(table.getCellRect(0, 0, true)); 
+			table.scrollRectToVisible(table.getCellRect(0, 0, true));
 		}
 
 		/**
 		 * Remove the first row in the table, if it's an empty row.
 		 */
-		void removeEmtpyRow(){
+		void removeEmtpyRow() {
 			if (data != null && !data.isEmpty() && data.get(0)[0] == null) {
 				data.remove(0);
 				fireTableRowsDeleted(0, 0);
@@ -378,7 +403,8 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		// *** TABLE MODEL METHODS ***
 
 		/**
-		 * Set the coordinates of an editable cell. Use the value -1 to disable edit at all.
+		 * Set the coordinates of an editable cell. Use the value -1 to disable
+		 * edit at all.
 		 */
 		public void setEditableRow(int row) {
 			editableCellRowIndex = row != -1 ? table.convertRowIndexToModel(row) : -1;
@@ -427,8 +453,10 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 			if (!data.isEmpty()) {
 				if (data.get(0)[col] != null) {
 					return data.get(0)[col].getClass();
-				} else if(data.size() > 1 && data.get(1) != null && data.get(1)[col] != null){
-					// it happens when the first row in the empty row (for create folder).
+				} else if (data.size() > 1 && data.get(1) != null
+						&& data.get(1)[col] != null) {
+					// it happens when the first row in the empty row (for
+					// create folder).
 					return data.get(1)[col].getClass();
 				}
 
@@ -440,14 +468,14 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		private void checkColumnIndex(int col) {
 			if (col >= getColumnCount()) {
 				throw new IllegalArgumentException(col + " greater the the column count");
-			}			
+			}
 		}
 
 		@Override
 		public void tableChanged(TableModelEvent e) {
 			if (table.getRowSorter() != null) {
 				table.getRowSorter().allRowsChanged();
-			}			
+			}
 		}
 	}
 
@@ -473,16 +501,16 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 				// filename column
 				File file = (File) value;
 				setText(file.getName());
-				setIcon(GtkStockIcon.get(file, Size.GTK_ICON_SIZE_MENU));	
+				setIcon(GtkStockIcon.get(file, Size.GTK_ICON_SIZE_MENU));
 			} else if (value instanceof Long) {
 				// size column
-				Long bytes = (Long) value;				
-				setText(bytes != -1 ? FreeDesktopUtil.humanreadble(bytes, 0) : "");
+				Long bytes = (Long) value;
+				setText(bytes >= 0 ? FreeDesktopUtil.humanreadble(bytes, 0) : "");
 			} else if (value instanceof Date) {
 				// last modified column
 				Date date = (Date) value;
 				setText(DateUtil.toPrettyFormat(date));
-			} 
+			}
 
 			if (isSelected) {
 				setForeground(table.getSelectionForeground());
@@ -501,7 +529,6 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 				// enable/disable according to the FileSelectionMode
 				setEnabled(FilesListPane.this.isRowEnabled(file));
 			}
-
 
 			return this;
 		}
@@ -532,98 +559,84 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 	}
 
 	protected class FilesListTableRowSorter extends TableRowSorter<FilesListTableModel> {
+		static final private String PREFIX_FIRST = "01_";
+		static final private String PREFIX_LAST = "09_";
+
+		/**
+		 * Used only for the empty cell
+		 */
+		static final private String PREFIX_BEFORE_FIRST = "00_";
+		static final private String PREFIX_AFTER_LAST = "99_";
+
 		public FilesListTableRowSorter() {
 			super((FilesListTableModel) table.getModel());
+
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
-		public Comparator<?> getComparator(int column) {
+		protected boolean useToString(int column) {
+			return true;
+		}
 
-			Class<?> columnClass = getModel().getColumnClass(column);
-
-			String columnName = table.getModel().getColumnName(column);
-			System.err.println(columnName);
-
-			// filename column
-			if (columnClass.equals(File.class)) {
-				//TODO use always this comparator
-				return new Comparator<File>() {
-					@Override
-					public int compare(File o1, File o2) {
-						// directories go first
-						if (o1.isDirectory() && !o2.isDirectory()) {
-							return getSortOrder() * -1;
-						}
-						if (!o1.isDirectory() && o2.isDirectory()) {
-							return getSortOrder() * 1;
-						}
-
-						//if columnName equals Name do..
-						//if columnName equals Size do..
-						//if columnName equals Modified do..
-						return o1.getName().compareTo(o2.getName());
-					}
-				};
-			}
-
-			// generic comparator
-			return new Comparator<Comparable>() {
+		@Override
+		public TableStringConverter getStringConverter() {
+			return new TableStringConverter() {
 				@Override
-				public int compare(Comparable o1, Comparable o2) {
-					return o1.compareTo(o2);
+				public String toString(TableModel model, int row, int column) {
+					return FilesListTableRowSorter.this.toString(model, row, column);
 				}
 			};
+		}
 
-		}
-		
-		private int getCurrentRowIndex(){
-			//TODO
-			//see javax.swing.DefaultRowSorter#Row
-			return -1;
-		}
-		
-		private int getSortOrder() {
-			// Always the sortkey for the filename column
-			SortKey sortKey = null;
-			if (getSortKeys().size() > 0) {
-				for (int i = 0; i < getSortKeys().size(); i++) {
-					sortKey = getSortKeys().get(i);
-					if (FILE_NAME_COLUMN_INDEX == sortKey.getColumn()) {
-						break;
-					}
+		/**
+		 * This method is responsible for the correct sort order. We create a
+		 * string that guarantees the desired order.
+		 */
+		private String toString(TableModel model, int row, int column) {
+			File file = (File) model.getValueAt(row, FILE_NAME_COLUMN_INDEX);
+
+			String sortString = null;
+			if (file != null) {
+				if (file.isDirectory()) {
+					// Directories go always first
+					sortString = isAscending() ? PREFIX_FIRST : PREFIX_LAST;
+				} else {
+					sortString = isAscending() ? PREFIX_LAST : PREFIX_FIRST;
 				}
 			}
 
-			if (sortKey == null) {
-				return 1;
+			Object value = model.getValueAt(row, column);
+			if (value == null) {
+				// The empty cell for the folder creation must 
+				// be always on the top.
+				sortString = isAscending() ? PREFIX_BEFORE_FIRST : PREFIX_AFTER_LAST;
+			} else if (value instanceof File) {
+				sortString += file.getName().toLowerCase();
+			} else if (value instanceof Long) {
+				Long size = (Long) value;
+
+				// For normal files the it's the byte size, for dirs
+				// the number of contained files (this value is passed
+				// negative with 1 added).
+				size = size > 0 ? size : -1 * size - 1;
+
+				// A Long may have max 19 digits. The 0 prefix guarantees the
+				// right order also between entries with a different length.
+				sortString = String.format("%s%019d", sortString, size);
+			} else if (value instanceof Date) {
+				Date modified = (Date) value;
+				sortString = String.format("%s%019d", sortString, modified.getTime());
 			}
 
-			return sortKey.getSortOrder() == SortOrder.ASCENDING ? 1 : -1;
+			return sortString.toLowerCase();
+		}
+
+		private boolean isAscending() {
+			if (getSortKeys().size() > 0) {
+				return getSortKeys().get(0).getSortOrder() == SortOrder.ASCENDING;
+			}
+
+			return true;
 		}
 	}
-
-	@Override
-	public void addActionListener(ActionListener l) {
-		actionDispatcher.addActionListener(l);
-
-	}
-
-	@Override
-	public void fireActionEvent(ActionEvent e) {
-		actionDispatcher.fireActionEvent(e);
-
-	}
-
-	@Override
-	public void removeActionListener(ActionListener l) {
-		actionDispatcher.removeActionListener(l);
-
-	}
-
-	@Override
-	public void removeAllActionListeners() {
-		actionDispatcher.removeAllActionListeners();
-	}
-
 }

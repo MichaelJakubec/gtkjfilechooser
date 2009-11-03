@@ -804,8 +804,7 @@ PropertyChangeListener, ActionListener {
 		// Add decorator for auto completion
 		pathAutoCompletion = new PathAutoCompleter(fileNameTextField);
 		pathAutoCompletion.setShowHidden(GtkFileChooserSettings.get().getShowHidden());
-		pathAutoCompletion.setCurrentPath(getFileChooser().getCurrentDirectory()
-				.getAbsolutePath());
+		pathAutoCompletion.setCurrentPath(fileBrowserPane.getCurrentDir().getAbsolutePath());
 
 		if (fc.isMultiSelectionEnabled()) {
 			setFileName(fileNameString(fc.getSelectedFiles()));
@@ -1119,7 +1118,10 @@ PropertyChangeListener, ActionListener {
 				// If the event was fired by the same JFileChooser, do not set the dir again.
 				//TODO remove and re-add listeners
 				fc.setCurrentDirectory(dir);
-			}			
+			}	
+
+			// Filename text field with autocompletion
+			pathAutoCompletion.setCurrentPath(dir.getAbsolutePath());
 		}
 	}
 
