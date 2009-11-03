@@ -179,6 +179,9 @@ public class FileBrowserPane extends FilesListPane {
 
 		listDirectory(currentDir, currentFilter);
 		firePropertyChange(DIRECTORY_CHANGED_PROPERTY, oldValue, newValue);
+
+		// Scroll to the first row
+		table.scrollRectToVisible(table.getCellRect(0, 0, true));
 	}
 
 	public void setShowHidden(boolean showHidden) {

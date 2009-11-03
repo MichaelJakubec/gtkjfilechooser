@@ -19,7 +19,7 @@ public class Log {
 	/**
 	 * Set false for production code
 	 */
-	static final private boolean DEBUG = true;
+	static final private boolean DEBUG = false;
 
 	static public void debug(Object... msgs) {
 		if (DEBUG) {
@@ -71,7 +71,7 @@ public class Log {
 					&& "debug".equals(s.getMethodName())) {
 				StackTraceElement next = stackTrace[i + 1];
 				location = next.getClassName() + "." + next.getMethodName() + "("
-						+ next.getFileName() + ":" + next.getLineNumber() + ")";
+				+ next.getFileName() + ":" + next.getLineNumber() + ")";
 			}
 		}
 		return location;
