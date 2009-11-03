@@ -450,6 +450,7 @@ public class GettextResource extends ResourceBundle {
 		byte[] array = msgid.getBytes();
 		// replace the pipe char with the separator char (0x04).
 		for (int i = 0; i < array.length; i++) {
+			//TODO check on the other laptop with an other encoding
 			if(array[i] == '|'){
 				array[i] = 0x04;
 			}			

@@ -1097,6 +1097,7 @@ PropertyChangeListener, ActionListener {
 
 			if (!fileBrowserPane.equals(source)) {
 				// If the event was fired by the same FileBrowserPane, do not set the dir again.
+				//TODO remove and re-add listeners
 				fileBrowserPane.setCurrentDir(dir);	
 			}
 
@@ -1116,6 +1117,7 @@ PropertyChangeListener, ActionListener {
 			// invoke this method at the end, because it fire the same event.
 			if (!fc.equals(source)) {
 				// If the event was fired by the same JFileChooser, do not set the dir again.
+				//TODO remove and re-add listeners
 				fc.setCurrentDirectory(dir);
 			}			
 		}

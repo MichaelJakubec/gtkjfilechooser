@@ -543,6 +543,7 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 			Class<?> columnClass = getModel().getColumnClass(column);
 
 			String columnName = table.getModel().getColumnName(column);
+			System.err.println(columnName);
 
 			// filename column
 			if (columnClass.equals(File.class)) {
@@ -575,7 +576,13 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 			};
 
 		}
-
+		
+		private int getCurrentRowIndex(){
+			//TODO
+			//see javax.swing.DefaultRowSorter#Row
+			return -1;
+		}
+		
 		private int getSortOrder() {
 			// Always the sortkey for the filename column
 			SortKey sortKey = null;
