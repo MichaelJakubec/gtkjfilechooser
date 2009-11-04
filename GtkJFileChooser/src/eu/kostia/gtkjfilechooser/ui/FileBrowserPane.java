@@ -30,6 +30,7 @@ import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileView;
 import javax.swing.table.TableCellEditor;
 
 import eu.kostia.gtkjfilechooser.AcceptAllFileFilter;
@@ -55,7 +56,8 @@ public class FileBrowserPane extends FilesListPane {
 
 	private ContextMenu contextMenu;
 
-	public FileBrowserPane(File startDir) {
+	public FileBrowserPane(File startDir, FileView fileView) {
+		super(fileView);
 		setCurrentDir(startDir);
 
 		addActionListener(new ActionListener() {

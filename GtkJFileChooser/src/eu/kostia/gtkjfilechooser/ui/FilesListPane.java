@@ -26,6 +26,7 @@ import javax.swing.SortOrder;
 import javax.swing.UIManager;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.filechooser.FileView;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableColumnModel;
@@ -40,8 +41,6 @@ import eu.kostia.gtkjfilechooser.BasicActionDispatcher;
 import eu.kostia.gtkjfilechooser.DateUtil;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
-import eu.kostia.gtkjfilechooser.GtkStockIcon;
-import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
 
 public class FilesListPane extends JComponent implements ActionDispatcher {
 
@@ -71,11 +70,18 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 
 	private boolean filesSelectable = true;
 
-	public FilesListPane() {
-		this(new ArrayList<File>());
+	/**
+	 * {@link FileView} to to retrieve the icon that represents a file and its name
+	 */
+	private FileView fileView;
+
+	public FilesListPane(FileView fileView) {
+		this(new ArrayList<File>(), fileView);
 	}
 
-	public FilesListPane(List<File> fileEntries) {
+	public FilesListPane(List<File> fileEntries, FileView fileView) {
+		this.fileView = fileView;
+
 		setLayout(new BorderLayout());
 
 		table = new JTable() {
@@ -135,6 +141,10 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		new FileFindAction().install(table);
 
 		add(new JScrollPane(table), BorderLayout.CENTER);
+	}
+
+	public void setFileView(FileView fileView) {
+		this.fileView = fileView;
 	}
 
 	public void setShowSizeColumn(boolean showSizeColumn) {
@@ -500,8 +510,8 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 			} else if (value instanceof File) {
 				// filename column
 				File file = (File) value;
-				setText(file.getName());
-				setIcon(GtkStockIcon.get(file, Size.GTK_ICON_SIZE_MENU));
+				setText(fileView.getName(file));
+				setIcon(fileView.getIcon(file));
 			} else if (value instanceof Long) {
 				// size column
 				Long bytes = (Long) value;

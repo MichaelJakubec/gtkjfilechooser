@@ -11,19 +11,20 @@ import javax.swing.UIManager;
 
 import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
 
+import eu.kostia.gtkjfilechooser.GtkFileView;
 import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
 
 public class SearchPanelLayoutTestGui extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 
-	private FilesListPane filesPane = new FilesListPane();
+	private FilesListPane filesPane = new FilesListPane(new GtkFileView());
 	private SearchPanel  searchPanel;
 
 	public SearchPanelLayoutTestGui() {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-		this.filesPane = new FilesListPane();
+		this.filesPane = new FilesListPane(new GtkFileView());
 		this.searchPanel = new SearchPanel(filesPane);
 
 		getContentPane().add(createPanel(new PanelElement(searchPanel, BorderLayout.CENTER)));

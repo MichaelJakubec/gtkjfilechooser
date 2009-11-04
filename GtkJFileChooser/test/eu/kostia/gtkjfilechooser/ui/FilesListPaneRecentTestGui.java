@@ -13,13 +13,14 @@ import javax.swing.UIManager;
 
 import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
 
+import eu.kostia.gtkjfilechooser.GtkFileView;
 import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
 import eu.kostia.gtkjfilechooser.xbel.RecentlyUsedManager;
 
 public class FilesListPaneRecentTestGui {
 
 	private FilesListPane testShowRecentUsedFiles() {
-		FilesListPane pane = new FilesListPane();
+		FilesListPane pane = new FilesListPane(new GtkFileView());
 		pane.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

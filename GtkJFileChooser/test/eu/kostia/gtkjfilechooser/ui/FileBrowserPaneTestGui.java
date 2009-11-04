@@ -22,6 +22,7 @@ import javax.swing.UIManager;
 
 import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
 
+import eu.kostia.gtkjfilechooser.GtkFileView;
 import eu.kostia.gtkjfilechooser.Log;
 import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
 
@@ -33,7 +34,7 @@ public class FileBrowserPaneTestGui implements PropertyChangeListener {
 
 	public FileBrowserPaneTestGui() {
 		File startDir = new File(System.getProperty("user.home"));
-		fileBrowser = new FileBrowserPane(startDir);
+		fileBrowser = new FileBrowserPane(startDir, new GtkFileView());
 		locationField = new JTextField(20);
 
 		JButton goButton = new JButton();
