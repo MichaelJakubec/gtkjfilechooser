@@ -12,12 +12,13 @@ import javax.swing.UIManager;
 
 import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
 
+import eu.kostia.gtkjfilechooser.GtkFileView;
 import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
 
 public class FilesListPaneAddTestGui {
 
 	private FilesListPane testAddFiles() throws Exception {
-		FilesListPane pane = new FilesListPane();
+		FilesListPane pane = new FilesListPane(new GtkFileView());
 		pane.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

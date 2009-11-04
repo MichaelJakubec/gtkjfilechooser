@@ -65,6 +65,7 @@ import eu.kostia.gtkjfilechooser.ButtonAreaLayout;
 import eu.kostia.gtkjfilechooser.FileFilterWrapper;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
+import eu.kostia.gtkjfilechooser.GtkFileView;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
 import eu.kostia.gtkjfilechooser.Log;
 import eu.kostia.gtkjfilechooser.NavigationKeyBinding;
@@ -250,6 +251,11 @@ PropertyChangeListener, ActionListener {
 		super(chooser);
 		this.chooser = chooser;
 
+		// Init FileView
+		if (getFileChooser().getFileView() == null) {
+			getFileChooser().setFileView(new GtkFileView());
+		}
+
 		openDialogPanel = new JPanel();
 		openDialogPanel.setLayout(new BorderLayout(0, 11));
 
@@ -280,8 +286,8 @@ PropertyChangeListener, ActionListener {
 	}
 
 	@Override
-	public void installComponents(final JFileChooser fc) {
-		fileBrowserPane = new FileBrowserPane(getFileChooser().getCurrentDirectory());
+	public void installComponents(final JFileChooser fc) {		
+		fileBrowserPane = new FileBrowserPane(getFileChooser().getCurrentDirectory(), getFileChooser().getFileView());
 		fc.addPropertyChangeListener(this);
 		fileBrowserPane.addPropertyChangeListener(this);
 		fileBrowserPane.addActionListener(this);
@@ -840,7 +846,7 @@ PropertyChangeListener, ActionListener {
 		/**
 		 * Create an empty table
 		 */
-		recentlyUsedPane = new FilesListPane();
+		recentlyUsedPane = new FilesListPane(getFileChooser().getFileView());
 		int selectionMode = getFileChooser().isMultiSelectionEnabled() ? MULTIPLE_INTERVAL_SELECTION
 				: SINGLE_SELECTION;
 		recentlyUsedPane.setSelectionMode(selectionMode);
@@ -891,7 +897,7 @@ PropertyChangeListener, ActionListener {
 	 * list table on the center-right.
 	 */
 	private void createSearchPane() {
-		searchFilesPane = new FilesListPane();
+		searchFilesPane = new FilesListPane(getFileChooser().getFileView());
 		int selectionMode = getFileChooser().isMultiSelectionEnabled() ? MULTIPLE_INTERVAL_SELECTION
 				: SINGLE_SELECTION;
 		searchFilesPane.setSelectionMode(selectionMode);
