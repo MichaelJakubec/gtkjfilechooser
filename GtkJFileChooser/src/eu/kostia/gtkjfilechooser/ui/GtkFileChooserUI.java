@@ -57,6 +57,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileSystemView;
+import javax.swing.filechooser.FileView;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicFileChooserUI;
 
@@ -1415,8 +1416,12 @@ PropertyChangeListener, ActionListener {
 			boolean expanded = (Boolean)value;
 			GtkFileChooserSettings.get().setExpandFolders(expanded);
 			pack(expanded);
-		}
+		}else if (FILE_VIEW_CHANGED_PROPERTY.equals(property)) {
+			dofileViewChanged((FileView)value);
+		} 
 	}
+
+
 
 	private void pack(boolean expand) {
 		JDialog dialog = getAncestorDialog();
@@ -1493,6 +1498,12 @@ PropertyChangeListener, ActionListener {
 				pack(GtkFileChooserSettings.get().getExpandFolders());
 			}
 		}
+	}
+
+	private void dofileViewChanged(FileView fileView) {
+		fileBrowserPane.setFileView(fileView);
+		recentlyUsedPane.setFileView(fileView);
+		searchFilesPane.setFileView(fileView);
 	}
 
 	private void doComponentOrientationChanged(PropertyChangeEvent e) {
