@@ -144,6 +144,9 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 	}
 
 	public void setFileView(FileView fileView) {
+		if (fileView == null) {
+			throw new IllegalArgumentException("FileView cannot be null");
+		}
 		this.fileView = fileView;
 	}
 
@@ -534,7 +537,7 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 
 			if (table.getValueAt(row, 0) instanceof File) {
 				File file = (File) table.getValueAt(row, 0);
-				setToolTipText(file.getAbsolutePath());
+				setToolTipText(fileView.getDescription(file));
 
 				// enable/disable according to the FileSelectionMode
 				setEnabled(FilesListPane.this.isRowEnabled(file));

@@ -11,7 +11,7 @@ public class GtkFileView extends FileView {
 
 	@Override
 	public String getDescription(File f) {
-		return null;
+		return f.getAbsolutePath();
 	}
 
 	@Override
