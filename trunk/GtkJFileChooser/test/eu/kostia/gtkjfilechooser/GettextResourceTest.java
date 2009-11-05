@@ -28,7 +28,10 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.Locale;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class GettextResourceTest {
@@ -37,6 +40,29 @@ public class GettextResourceTest {
 	public GettextResourceTest() throws IOException {
 		r0 = new GettextResource(new File("misc/mo_file/gtk+.gtk-2-10.it.mo"));
 		r1 = new GettextResource(new File("misc/mo_file/gtk+.gtk-2-10.it.mo"));
+	}
+	
+	@BeforeClass
+	static public void beforeClass() {
+		Locale.setDefault(Locale.ITALIAN);
+	}
+	
+	@AfterClass
+	static public void afterClass() {
+		String lang = System.getenv("LANG");
+		if (lang == null) {
+			return;
+		}
+		
+		if (lang.lastIndexOf('.') > 0){
+			lang = lang.substring(0, lang.lastIndexOf('.'));
+		}		
+		
+		if (lang.lastIndexOf('_') > 0){
+			String language = lang.substring(0, lang.lastIndexOf('_'));
+			String country = lang.substring(lang.lastIndexOf('_') + 1);
+			Locale.setDefault(new Locale(language, country));
+		}
 	}
 
 	@Test
