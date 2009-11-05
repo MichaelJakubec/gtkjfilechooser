@@ -74,6 +74,21 @@ public class GettextResource extends ResourceBundle {
 	static private Map<String, GettextResource> cachedGettextResource = new HashMap<String, GettextResource>();
 
 	/**
+	 * There are entries with a context specifier, for example:
+	 * <pre>
+	 * msgid "paper size|Invoice"
+	 * msgstr "Fattura"
+	 * </pre>
+	 * The text before the specifier hasn't to be translated.
+	 */
+	static private byte CONTEXT_SPECIFIER = 0x04;
+
+	/**
+	 * This flag becomes true when a byte with value 0x04 is found.
+	 */
+	private boolean useContextSpecifier = false;
+
+	/**
 	 * Are the byte sequence reversed?
 	 */
 	private transient Boolean reversed;
@@ -352,6 +367,10 @@ public class GettextResource extends ResourceBundle {
 			reversed = b == -34;
 		}
 
+		if(!useContextSpecifier && b == CONTEXT_SPECIFIER) {
+			useContextSpecifier = true;
+		}
+
 		// Initialise the arrays
 		if (index == 12) {
 			oo_length = new int[n];
@@ -472,12 +491,13 @@ public class GettextResource extends ResourceBundle {
 	public String _(String msgid) {
 		byte[] array = msgid.getBytes();
 		// replace the pipe char with the separator char (0x04).
-		for (int i = 0; i < array.length; i++) {
-			//TODO check on the other laptop with an other encoding	
-			if(array[i] == '|'){
-				array[i] = 0x04;
-			}			
-		}
+		if (useContextSpecifier) {
+			for (int i = 0; i < array.length; i++) {
+				if(array[i] == '|'){
+					array[i] = CONTEXT_SPECIFIER;
+				}			
+			}	
+		}		
 
 		ByteBuffer msgidByteBuffer = ByteBuffer.wrap(array);
 		int idx = Arrays.binarySearch(msgidByteBuffers, msgidByteBuffer);
@@ -526,7 +546,7 @@ public class GettextResource extends ResourceBundle {
 
 		// replace separator char (0x04) with a pipe char.
 		for (int i = 0; i < array.length; i++) {
-			if(array[i] == 0x04){
+			if(array[i] == CONTEXT_SPECIFIER){
 				array[i] = '|';
 			}			
 		}
