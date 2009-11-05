@@ -26,24 +26,33 @@ package eu.kostia.gtkjfilechooser;
 import static org.junit.Assert.assertEquals;
 
 import java.nio.charset.Charset;
+import java.security.AccessController;
 import java.util.Locale;
 
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+
+import sun.security.action.GetPropertyAction;
 
 public class GtkFileChooserResourceTest {
 	GettextResource r = new GettextResource("gtk20");
 
-	@BeforeClass
-	public static void setup() {
+	@Before
+	public void beforeClass() {
 		Locale.setDefault(Locale.ITALIAN);
+	}
+
+	@After
+	public void resetLocale() {
+		String language = AccessController.doPrivileged(new GetPropertyAction("user.language"));
+		String country = AccessController.doPrivileged(new GetPropertyAction("user.country"));
+
+		Locale.setDefault(new Locale(language, country));
 	}
 
 	@Test
 	public void testMoReaderGtk20() throws Exception {
-		Locale.setDefault(Locale.ITALIAN);
-
-
 		assertEquals("Usati di recente", r._("Recently Used"));
 		assertEquals("Ricerca", r._("Search"));
 		assertEquals("Il file esiste già in «%s». Scegliendo di sostituirlo il suo contenuto verrà sovrascritto.", r._("The file already exists in \"%s\".  Replacing it will overwrite its contents."));
