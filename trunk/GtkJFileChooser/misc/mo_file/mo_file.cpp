@@ -2,7 +2,7 @@
 
 The MIT License
 
-Copyright (c) 2007 Jonathan Blow (jon [at] number-none [dot] com)
+Copyright 2007, 2009007 Jonathan Blow (jon [at] number-none [dot] com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

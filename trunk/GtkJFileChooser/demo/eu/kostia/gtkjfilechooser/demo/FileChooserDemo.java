@@ -3,7 +3,7 @@ package eu.kostia.gtkjfilechooser.demo;
 /*
  * @(#)FileChooserDemo.java	1.31 06/02/03
  * 
- * Copyright (c) 2006 Sun Microsystems, Inc. All Rights Reserved.
+ * Copyright 2006, 2009006 Sun Microsystems, Inc. All Rights Reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:

@@ -1,6 +1,6 @@
 package eu.kostia.gtkjfilechooser;
 /*
- * Copyright (c) 1995 - 2008 Sun Microsystems, Inc.  All rights reserved.
+ * Copyright 1995, 2009008 Sun Microsystems, Inc.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
