@@ -70,7 +70,7 @@ public class GtkLocationsPane extends JPanel {
 
 	private final BookmarkManager manager;
 
-	private JTable bookmarksTable;
+	JTable bookmarksTable;
 
 	private List<ActionListener> actionListeners = new ArrayList<ActionListener>();
 
@@ -105,6 +105,12 @@ public class GtkLocationsPane extends JPanel {
 		bookmarksTable.setShowGrid(false);
 		bookmarksTable.setDefaultRenderer(Object.class,
 				new GtkBookmarksTableCellRenderer());
+
+
+		// Remove binding with TAB
+
+
+
 		GtkBookmarksTableCellEditor defaultCellEditor = new GtkBookmarksTableCellEditor(
 				bookmarksTable);
 
