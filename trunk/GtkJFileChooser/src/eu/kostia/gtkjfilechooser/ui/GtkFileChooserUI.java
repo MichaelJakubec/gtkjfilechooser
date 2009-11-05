@@ -50,6 +50,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -74,6 +75,7 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
@@ -87,6 +89,7 @@ import javax.swing.plaf.basic.BasicFileChooserUI;
 import eu.kostia.gtkjfilechooser.ActionPath;
 import eu.kostia.gtkjfilechooser.ButtonAreaLayout;
 import eu.kostia.gtkjfilechooser.FileFilterWrapper;
+import eu.kostia.gtkjfilechooser.FocusUtil;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkFileView;
@@ -300,7 +303,11 @@ PropertyChangeListener, ActionListener {
 		chooser.addComponentListener(chooserComponentListener);
 
 		// Add key binding
-		NavigationKeyBinding keyBinding = new NavigationKeyBinding(chooser);
+		installKeyBinding();
+	}
+
+	private void installKeyBinding() {
+		NavigationKeyBinding keyBinding = new NavigationKeyBinding(getFileChooser());
 		keyBinding.addActionListener(this);
 	}
 
@@ -315,6 +322,14 @@ PropertyChangeListener, ActionListener {
 		fc.addPropertyChangeListener(this);
 		fileBrowserPane.addPropertyChangeListener(this);
 		fileBrowserPane.addActionListener(this);
+
+		// When PAGE_UP is pressed, go to the file browser table
+		fileBrowserPane.table.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_UP, 0), "goToFileNameTextField");
+		fileBrowserPane.table.getActionMap().put("goToFileNameTextField", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				fileNameTextField.requestFocus();
+			}
+		});
 
 		// ********************************* //
 		// **** Construct the top panel **** //
@@ -828,6 +843,14 @@ PropertyChangeListener, ActionListener {
 							+ File.separator + text);
 				}
 				return path;
+			}
+		});
+
+		// When PAGE_DOWN is pressed, go to the file browser table
+		fileNameTextField.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_PAGE_DOWN, 0), "goToFileBrowser");
+		fileNameTextField.getActionMap().put("goToFileBrowser", new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				fileBrowserPane.table.requestFocus();
 			}
 		});
 
@@ -1512,6 +1535,16 @@ PropertyChangeListener, ActionListener {
 	private void doAncestorChanged(PropertyChangeEvent e) {
 		if (e.getOldValue() == null && e.getNewValue() != null && e.getSource() instanceof JFileChooser) {
 			// Ancestor was added, the file chooser is visible.
+
+			// Set the focus order (on TAB pressed) for the component
+			FocusUtil.setFocusOrder(
+					pathBarButtons, 
+					fileNameTextField, 
+					locationsPane.bookmarksTable, 
+					fileBrowserPane.table, 
+					filterComboBox, 
+					cancelButton, 
+					approveButton);
 
 			// set initial focus
 			fileNameTextField.selectAll();
