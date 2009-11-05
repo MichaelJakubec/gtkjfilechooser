@@ -25,6 +25,7 @@ package eu.kostia.gtkjfilechooser;
 
 import static org.junit.Assert.assertEquals;
 
+import java.nio.charset.Charset;
 import java.util.Locale;
 
 import org.junit.BeforeClass;
@@ -67,6 +68,22 @@ public class GtkFileChooserResourceTest {
 		r.markMissingTranslation(false);
 		assertEquals("Missing", r._("Stock label|Missing"));	
 		assertEquals("Missing again", r._("Missing again"));
+	}
+
+	@Test
+	public void testCharset() throws Exception {
+		Charset isoLatin = Charset.forName("ISO-8859-1");
+		Charset utf8 = Charset.forName("UTF-8");
+
+		byte a = "|".getBytes("ISO-8859-1")[0];
+		byte b = "|".getBytes("UTF-8")[0];
+		System.out.println(Integer.toHexString(a));
+		System.out.println(Integer.toHexString(b));
+
+		System.out.println(new String(new byte[]{0x04}, isoLatin));
+		System.out.println(new String(new byte[]{0x7c}, isoLatin));
+		System.out.println(new String(new byte[]{0x04}, utf8));
+		System.out.println(new String(new byte[]{0x7c}, utf8));
 	}
 
 	public static void main(String[] args) {

@@ -41,23 +41,23 @@ public class GettextResourceTest {
 		r0 = new GettextResource(new File("misc/mo_file/gtk+.gtk-2-10.it.mo"));
 		r1 = new GettextResource(new File("misc/mo_file/gtk+.gtk-2-10.it.mo"));
 	}
-	
+
 	@BeforeClass
 	static public void beforeClass() {
 		Locale.setDefault(Locale.ITALIAN);
 	}
-	
+
 	@AfterClass
 	static public void afterClass() {
 		String lang = System.getenv("LANG");
 		if (lang == null) {
 			return;
 		}
-		
+
 		if (lang.lastIndexOf('.') > 0){
 			lang = lang.substring(0, lang.lastIndexOf('.'));
 		}		
-		
+
 		if (lang.lastIndexOf('_') > 0){
 			String language = lang.substring(0, lang.lastIndexOf('_'));
 			String country = lang.substring(lang.lastIndexOf('_') + 1);
@@ -94,7 +94,7 @@ public class GettextResourceTest {
 	public void testMoReaderGtk20() throws Exception {
 		GettextResource r = new GettextResource("gtk20");
 		assertEquals("Impossibile recuperare informazioni sul file", r._("Could not retrieve information about the file"));
-		assertEquals("Impossibile recuperare informazioni sul file", r._("Recently Used"));
+		assertEquals("Usati di recente", r._("Recently Used"));
 	}
 
 
