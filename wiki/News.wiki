@@ -1,6 +1,10 @@
 #summary The lastest news on the project
 
 = Latest News =
+=== 06.11.2009 Save Dialog ===
+Implemented the Save dialog:
+||http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/SaveDialogExpanded.png||http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/SaveDialog.png||
+
 === 21.10.2009 Key Binding Support ===
 Read more details in this [http://code.google.com/p/gtkjfilechooser/wiki/KeyBinding wiki page]
 
