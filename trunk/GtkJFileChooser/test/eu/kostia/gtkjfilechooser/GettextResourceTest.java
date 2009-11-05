@@ -27,6 +27,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.AccessController;
 import java.util.Enumeration;
 import java.util.Locale;
 
@@ -34,35 +35,27 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class GettextResourceTest {
-	GettextResource r0;
-	GettextResource r1;
-	public GettextResourceTest() throws IOException {
-		r0 = new GettextResource(new File("misc/mo_file/gtk+.gtk-2-10.it.mo"));
-		r1 = new GettextResource(new File("misc/mo_file/gtk+.gtk-2-10.it.mo"));
-	}
+import sun.security.action.GetPropertyAction;
 
+public class GettextResourceTest {
 	@BeforeClass
 	static public void beforeClass() {
 		Locale.setDefault(Locale.ITALIAN);
 	}
 
 	@AfterClass
-	static public void afterClass() {
-		String lang = System.getenv("LANG");
-		if (lang == null) {
-			return;
-		}
+	static public void resetLocale() {
+		String language = AccessController.doPrivileged(new GetPropertyAction("user.language"));
+		String country = AccessController.doPrivileged(new GetPropertyAction("user.country"));
 
-		if (lang.lastIndexOf('.') > 0){
-			lang = lang.substring(0, lang.lastIndexOf('.'));
-		}		
+		Locale.setDefault(new Locale(language, country));
+	}
 
-		if (lang.lastIndexOf('_') > 0){
-			String language = lang.substring(0, lang.lastIndexOf('_'));
-			String country = lang.substring(lang.lastIndexOf('_') + 1);
-			Locale.setDefault(new Locale(language, country));
-		}
+	GettextResource r0;
+	GettextResource r1;
+	public GettextResourceTest() throws IOException {
+		r0 = new GettextResource(new File("misc/mo_file/gtk+.gtk-2-10.it.mo"));
+		r1 = new GettextResource(new File("misc/mo_file/gtk+.gtk-2-10.it.mo"));
 	}
 
 	@Test
