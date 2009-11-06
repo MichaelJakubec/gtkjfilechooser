@@ -38,8 +38,11 @@ public class I18N {
 		if (GettextResource.hasTranslation("gtk20")) {
 			RESOURCE = new GettextResource("gtk20");
 		} else if (GettextResource.hasTranslation(Locale.getDefault(), "/usr/share/locale-langpack", "gtk20")) {
-			//Ubuntu uses /usr/share/locale-langpack for gtk200
+			//Ubuntu uses /usr/share/locale-langpack
 			RESOURCE = new GettextResource(Locale.getDefault(), "/usr/share/locale-langpack", "gtk20");
+		} else {
+			//Suse uses /usr/share/locale-bundle
+			RESOURCE = new GettextResource(Locale.getDefault(), "/usr/share/locale-bundle", "gtk20");
 		}
 	}
 
