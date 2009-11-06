@@ -412,12 +412,6 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		 */
 		void addEmtpyRow() {
 			Object[] row = new Object[getColumnCount()];
-			// for (int i = 0; i < row.length; i++) {
-			// row[i] = new File("z");
-			// }
-
-			// FIXME When sorting ASC, the row isn't on the top.
-			// Empty cell goes always first
 			data.add(0, row);
 
 			fireTableRowsInserted(0, 0);

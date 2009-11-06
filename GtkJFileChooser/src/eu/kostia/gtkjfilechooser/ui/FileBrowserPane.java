@@ -160,8 +160,6 @@ public class FileBrowserPane extends FilesListPane {
 	}
 
 	private void listDirectory(File dir, javax.swing.filechooser.FileFilter swingFilter) {
-		// TODO a little bit slow, maybe FileSystemView is faster?
-
 		if (!dir.exists()) {
 			throw new IllegalArgumentException(dir + " doesn't exist.");
 		}
