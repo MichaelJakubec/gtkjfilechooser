@@ -23,6 +23,8 @@
  *******************************************************************************/
 package eu.kostia.gtkjfilechooser;
 
+import java.util.Locale;
+
 /**
  * Wrapper around {@link GettextResource}. You should use this class as entry
  * point for the i18n instead of {@link GettextResource}.
@@ -31,7 +33,15 @@ package eu.kostia.gtkjfilechooser;
  * 
  */
 public class I18N {
-	static private GettextResource RESOURCE = GettextResource.hasTranslation("gtk20") ? new GettextResource("gtk20") : null;
+	static private GettextResource RESOURCE = null;
+	static {
+		if (GettextResource.hasTranslation("gtk20")) {
+			RESOURCE = new GettextResource("gtk20");
+		} else if (GettextResource.hasTranslation(Locale.getDefault(), "/usr/share/locale-langpack", "gtk20")) {
+			//Ubuntu uses /usr/share/locale-langpack for gtk200
+			RESOURCE = new GettextResource(Locale.getDefault(), "/usr/share/locale-langpack", "gtk20");
+		}
+	}
 
 	/**
 	 * Returns the translated string without mnemonics.
