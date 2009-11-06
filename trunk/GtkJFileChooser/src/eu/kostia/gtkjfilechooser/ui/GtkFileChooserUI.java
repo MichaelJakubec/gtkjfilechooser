@@ -682,6 +682,19 @@ PropertyChangeListener, ActionListener {
 			approveButton.setAction(getOpenClickedAction());
 			approveButton.setToolTipText(getApproveButtonToolTipText(getFileChooser()));
 
+			// Adjust buttons height (on Ubuntu it was different)
+			int cancelButtonH = cancelButton.getPreferredSize().height;
+			int approveButtonH = approveButton.getPreferredSize().height;
+			if (cancelButtonH > approveButtonH) {
+				Dimension size = approveButton.getPreferredSize();
+				size.height = cancelButtonH;
+				approveButton.setPreferredSize(size);
+			} else {
+				Dimension size = cancelButton.getPreferredSize();
+				size.height = approveButtonH;
+				cancelButton.setPreferredSize(size);
+			}
+
 			buttonPanel.add(approveButton);
 		}
 
