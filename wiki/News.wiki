@@ -1,6 +1,9 @@
 #summary The lastest news on the project
 
 = Latest News =
+===  07.11.2009 Release 1.0 ===
+*Version 1.0 released* Download it [http://gtkjfilechooser.googlecode.com/files/GtkJFileChooser.zip here]
+
 === 06.11.2009 Save Dialog ===
 Implemented the Save dialog:
 ||http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/SaveDialogExpanded.png||http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/SaveDialog.png||
