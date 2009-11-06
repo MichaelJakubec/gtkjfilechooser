@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
+    Copyright 2009 Costantino Cerbo.  All Rights Reserved.
+    DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+   
+    This code is free software; you can redistribute it and/or modify it
+    under the terms of the GNU General Public License version 2 only, as
+    published by the Free Software Foundation.  Sun designates this
+    particular file as subject to the "Classpath" exception as provided
+    by Sun in the LICENSE file that accompanied this code.
+   
+    This code is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    version 2 for more details (a copy is included in the LICENSE file that
+    accompanied this code).
+   
+    You should have received a copy of the GNU General Public License version
+    2 along with this work; if not, write to the Free Software Foundation,
+     Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+   
+    Please contact me at c.cerbo@gmail.com if you need additional information or
+    have any questions.
+ -->
+
+<project basedir="." default="build" name="GtkJFileChooser">
+	<property environment="env" />
+	<property name="debuglevel" value="source,lines,vars" />
+	<property name="target" value="1.6" />
+	<property name="source" value="1.6" />
+	<property name="src.dir" value="src" />
+	<property name="demo.src.dir" value="demo" />
+	<property name="build.dir" value="build" />
+	<property name="dist.dir" value="dist" />
+	<property name="jar.file" value="gtkjfilechooser.jar" />
+	<property name="demo.jar.file" value="gtkjfilechooser-demo.jar" />
+	<property name="javadoc.dir" value="doc" />	
+	<property name="version.number" value="0.1" />	
+
+	<path id="project.classpath">
+		<pathelement location="${build.dir}" />
+	</path>
+	
+	<target name="init">
+		<mkdir dir="${build.dir}" />
+		<copy includeemptydirs="false" todir="${build.dir}">
+			<fileset dir="${src.dir}">
+				<exclude name="**/*.launch" />
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="clean">
+		<delete dir="${build.dir}" />
+	</target>
+	
+	<target name="build" depends="init">
+		<echo message="${ant.project.name}: ${ant.file}" />
+		<javac debug="true" debuglevel="${debuglevel}" destdir="${build.dir}" source="${source}" target="${target}">
+			<src path="${src.dir}" />
+			<classpath refid="project.classpath" />
+		</javac>
+	</target>
+	
+	<target name="build.demo">
+		<echo message="${ant.project.name}: ${ant.file}" />
+		<javac debug="true" debuglevel="${debuglevel}" destdir="${build.dir}" source="${source}" target="${target}">
+			<src path="${demo.src.dir}" />
+			<classpath refid="project.classpath" />
+		</javac>
+	</target>
+				
+	<target name="jar" depends="build" description="Create a jar file">
+		<mkdir dir="${dist.dir}" />
+		<jar destfile="${dist.dir}/${jar.file}" baseDir="${build.dir}">
+			<manifest>
+				<attribute name="Implementation-Version" value="${version.number}" />
+				<attribute name="Built-Date" value="${TODAY}" />
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="demo" depends="jar, build.demo" description="Create a small demo app">
+		<mkdir dir="${dist.dir}" />
+		<jar destfile="${dist.dir}/${demo.jar.file}" baseDir="${build.dir}" includes="eu/kostia/gtkjfilechooser/demo/**">
+			<manifest>				
+				<attribute name="Main-Class" value="eu.kostia.gtkjfilechooser.demo.FileChooserDemo" />
+				<attribute name="Class-Path" value="${jar.file}" />
+				<attribute name="Implementation-Version" value="${version.number}" />
+				<attribute name="Built-Date" value="${TODAY}" />
+			</manifest>
+		</jar>
+	</target>
+	
+	<!-- Create the javadoc for the sources -->
+	<target name="javadoc" depends="init" description="Create the javadoc for the sources">
+		<delete dir="${javadoc.dir}" />
+		<javadoc sourcepath="${src.dir}" destdir="${javadoc.dir}" access="public" author="true" doctitle="GtkJFileChooser" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.6" splitindex="true" use="true" version="true">
+			<classpath refid="project.classpath" />
+		</javadoc>
+	</target>
+	
+	<!-- Create a distributable zip with a demo-->
+	<target name="dist" depends="clean, jar, demo" description="Create a distributable zip">
+		<copy file="misc/README.txt" todir="${dist.dir}"/>
+		  <zip destfile="${ant.project.name}.zip" basedir="${dist.dir}" />
+	</target>
+
+</project>
