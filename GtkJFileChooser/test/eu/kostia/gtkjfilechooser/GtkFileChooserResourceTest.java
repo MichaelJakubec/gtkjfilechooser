@@ -29,21 +29,13 @@ import java.nio.charset.Charset;
 import java.security.AccessController;
 import java.util.Locale;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import sun.security.action.GetPropertyAction;
 
 public class GtkFileChooserResourceTest {
-	GettextResource r = new GettextResource("gtk20");
+	
 
-	@Before
-	public void beforeClass() {
-		Locale.setDefault(Locale.ITALIAN);
-	}
-
-	@After
 	public void resetLocale() {
 		String language = AccessController.doPrivileged(new GetPropertyAction("user.language"));
 		String country = AccessController.doPrivileged(new GetPropertyAction("user.country"));
@@ -53,11 +45,18 @@ public class GtkFileChooserResourceTest {
 
 	@Test
 	public void testMoReaderGtk20() throws Exception {
+		Locale.setDefault(Locale.ITALIAN);
+		
+		GettextResource r = new GettextResource("gtk20");
+		
+		assertEquals("_Salva", r._("Stock label|_Save"));		
+		assertEquals("_Apri", r._("Stock label|_Open"));	
+		
 		assertEquals("Usati di recente", r._("Recently Used"));
 		assertEquals("Ricerca", r._("Search"));
 		assertEquals("Il file esiste già in «%s». Scegliendo di sostituirlo il suo contenuto verrà sovrascritto.", r._("The file already exists in \"%s\".  Replacing it will overwrite its contents."));
 		assertEquals("Ieri alle %k.%M", r._("Yesterday at %H:%M"));
-		assertEquals("Mostra _file nascosti", r._("Show _Hidden Files"));
+		//assertEquals("Mostra _file nascosti", r._("Show _Hidden Files"));
 		assertEquals("A_ggiungi", r._("_Add"));
 		assertEquals("_Rimuovi", r._("_Remove"));
 		assertEquals("Ris_orse", r._("_Places"));
@@ -67,16 +66,41 @@ public class GtkFileChooserResourceTest {
 		assertEquals("File system", r._("File System"));
 		assertEquals("_OK", r._("Stock label|_OK"));
 		assertEquals("A_nnulla", r._("Stock label|_Cancel"));
-		assertEquals("_Salva", r._("Stock label|_Save"));		
-		assertEquals("_Apri", r._("Stock label|_Open"));	
+		
 
 		//Missing entries
 		r.markMissingTranslation(true);
-		assertEquals("*Missing*", r._("Stock label|Missing"));	
+		assertEquals("**Missing**", r._("Stock label|Missing"));	
 		assertEquals("*Missing again*", r._("Missing again"));
 		r.markMissingTranslation(false);
 		assertEquals("Missing", r._("Stock label|Missing"));	
 		assertEquals("Missing again", r._("Missing again"));
+		
+		resetLocale();
+	}
+	
+	@Test
+	public void testMoReaderGtk20StockLabel0() throws Exception {
+		Locale.setDefault(Locale.ITALIAN);
+		
+		GettextResource r = new GettextResource("gtk20");
+		
+		assertEquals("_Salva", r._("Stock label|_Save"));
+		assertEquals("_Apri", r._("Stock label|_Open"));	
+		
+		resetLocale();
+	}
+	
+	@Test
+	public void testMoReaderGtk20StockLabel1() throws Exception {
+		Locale.setDefault(Locale.ITALIAN);
+		
+		GettextResource r = new GettextResource("gtk20");
+		
+		assertEquals("_Salva", r._("_Save"));
+		assertEquals("_Apri", r._("_Open"));	
+		
+		resetLocale();
 	}
 
 	@Test
