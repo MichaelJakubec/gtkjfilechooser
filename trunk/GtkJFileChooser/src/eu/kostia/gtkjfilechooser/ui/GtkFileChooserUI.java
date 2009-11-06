@@ -1147,10 +1147,20 @@ PropertyChangeListener, ActionListener {
 
 			updateFileNameField();
 
-			if (!fileBrowserPane.equals(source)) {
-				// If the event was fired by the same FileBrowserPane, do not set the dir again.
-				//TODO remove and re-add listeners
+			// If the event was fired by the same FileBrowserPane, do not set the dir again.
+			if (!fileBrowserPane.equals(source)) {				
+				// Remove and re-add listeners to not fire the same event repeatedly
+				PropertyChangeListener[] listeners = fileBrowserPane.getPropertyChangeListeners();
+				for (PropertyChangeListener listener : listeners) {
+					fileBrowserPane.removePropertyChangeListener(listener);	
+				}
+
 				fileBrowserPane.setCurrentDir(dir);	
+
+				for (PropertyChangeListener listener : listeners) {
+					fileBrowserPane.addPropertyChangeListener(listener);
+				}
+
 			}
 
 
@@ -1166,11 +1176,19 @@ PropertyChangeListener, ActionListener {
 				saveDialogPanel.setExternalPath(dir.getAbsolutePath());
 			}
 
-			// invoke this method at the end, because it fire the same event.
-			if (!fc.equals(source)) {
-				// If the event was fired by the same JFileChooser, do not set the dir again.
-				//TODO remove and re-add listeners
+			// If the event was fired by the same JFileChooser, do not set the dir again.
+			if (!fc.equals(source)) {				
+				// Remove and re-add listeners to not fire the same event repeatedly
+				PropertyChangeListener[] listeners = fc.getPropertyChangeListeners();
+				for (PropertyChangeListener listener : listeners) {
+					fc.removePropertyChangeListener(listener);	
+				}
+
 				fc.setCurrentDirectory(dir);
+
+				for (PropertyChangeListener listener : listeners) {
+					fc.addPropertyChangeListener(listener);
+				}
 			}	
 
 			// Filename text field with autocompletion
