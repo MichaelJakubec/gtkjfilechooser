@@ -66,7 +66,7 @@ public class GettextResource extends ResourceBundle {
 	// magic number reversed hex = DE 12 04 95
 	static final int[] MAGIC_REVERSED = new int[] { -34, 18, 4, -107 };
 
-	static public final  String DEFAULT_LOCALES_DIRECTORY = "/usr/share/locale";
+	static public final String DEFAULT_LOCALES_DIRECTORY = "/usr/share/locale";
 
 	/**
 	 * Cache GettextResource instances with .mo file name.
@@ -75,10 +75,12 @@ public class GettextResource extends ResourceBundle {
 
 	/**
 	 * There are entries with a context specifier, for example:
+	 * 
 	 * <pre>
-	 * msgid "paper size|Invoice"
-	 * msgstr "Fattura"
+	 * msgid &quot;paper size|Invoice&quot;
+	 * msgstr &quot;Fattura&quot;
 	 * </pre>
+	 * 
 	 * The text before the specifier hasn't to be translated.
 	 */
 	static private byte CONTEXT_SPECIFIER = 0x04;
@@ -154,14 +156,14 @@ public class GettextResource extends ResourceBundle {
 	private transient int h;
 
 	/**
-	 * Array of the byte buffers for each msgid.
-	 * We use byte buffers, because we map regions of the file channel into memory. 
+	 * Array of the byte buffers for each msgid. We use byte buffers, because we
+	 * map regions of the file channel into memory.
 	 */
 	private ByteBuffer[] msgidByteBuffers;
 
 	/**
-	 * Array of the byte buffers for each msgstr.
-	 * We use byte buffers, because we map regions of the file channel into memory. 
+	 * Array of the byte buffers for each msgstr. We use byte buffers, because
+	 * we map regions of the file channel into memory.
 	 */
 	private ByteBuffer[] msgstrByteBuffers;
 
@@ -182,7 +184,8 @@ public class GettextResource extends ResourceBundle {
 	public GettextResource(Locale loc, String localedir, String textdomain) {
 		String moFilename = findMoFile(loc, localedir, textdomain);
 		if (moFilename == null) {
-			throw new IOError(new FileNotFoundException("Cannot find resource " + moFilename));
+			throw new IOError(new FileNotFoundException("Cannot find resource "
+					+ moFilename));
 		}
 
 		init(new File(moFilename));
@@ -193,7 +196,8 @@ public class GettextResource extends ResourceBundle {
 	 * 
 	 * @param localedir
 	 *            The directory where are the locale files. The should have this
-	 *            stucture: [localedir]/[iso language] or [localedir]/[iso language]_[iso_country]
+	 *            stucture: [localedir]/[iso language] or [localedir]/[iso
+	 *            language]_[iso_country]
 	 * @param textdomain
 	 */
 	public GettextResource(String localedir, String textdomain) {
@@ -210,11 +214,12 @@ public class GettextResource extends ResourceBundle {
 		this(DEFAULT_LOCALES_DIRECTORY, textdomain);
 	}
 
-
 	private static String findMoFile(Locale loc, String localedir, String textdomain) {
-		String moFilename = localedir + File.separator + loc.toString() + File.separator + "LC_MESSAGES" + File.separator +textdomain + ".mo";
+		String moFilename = localedir + File.separator + loc.toString() + File.separator
+				+ "LC_MESSAGES" + File.separator + textdomain + ".mo";
 		if (!new File(moFilename).exists()) {
-			moFilename = localedir + File.separator + loc.getLanguage() + File.separator + "LC_MESSAGES" + File.separator +textdomain + ".mo";
+			moFilename = localedir + File.separator + loc.getLanguage() + File.separator
+					+ "LC_MESSAGES" + File.separator + textdomain + ".mo";
 			if (!new File(moFilename).exists()) {
 				return null;
 			}
@@ -229,8 +234,8 @@ public class GettextResource extends ResourceBundle {
 	 * @param instance
 	 */
 	private void copyInstance(GettextResource instance) {
-		//The only instance variables needed are msgidByteBuffers, 
-		//msgstrByteBuffers and showMissingTranslation.
+		// The only instance variables needed are msgidByteBuffers,
+		// msgstrByteBuffers and showMissingTranslation.
 		this.msgidByteBuffers = instance.msgidByteBuffers;
 		this.msgstrByteBuffers = instance.msgstrByteBuffers;
 		this.showMissingTranslation = instance.showMissingTranslation;
@@ -239,7 +244,7 @@ public class GettextResource extends ResourceBundle {
 
 	private void init(File moFile) {
 		try {
-			//look in the cache first
+			// look in the cache first
 			String key = moFile.getAbsolutePath();
 			GettextResource instance = cachedGettextResource.get(key);
 			if (instance != null) {
@@ -255,18 +260,22 @@ public class GettextResource extends ResourceBundle {
 			try {
 				channel = new RandomAccessFile(moFile, "r").getChannel();
 				for (int i = 0; i < n; i++) {
-					msgidByteBuffers[i] = channel.map(MapMode.READ_ONLY, oo_offset[i], oo_length[i]);
-					msgstrByteBuffers[i] = channel.map(MapMode.READ_ONLY, tt_offset[i], tt_length[i]);
+					msgidByteBuffers[i] = channel.map(MapMode.READ_ONLY, oo_offset[i],
+							oo_length[i]);
+					msgstrByteBuffers[i] = channel.map(MapMode.READ_ONLY, tt_offset[i],
+							tt_length[i]);
 				}
 			} finally {
 				if (channel != null) {
-					// Despite the fact that the channel has been closed, the data
+					// Despite the fact that the channel has been closed, the
+					// data
 					// in the file continues to be available via the memory map
 					channel.close();
 				}
 			}
 
-			//We've mapped the file into memory, we can now release the resources not anymore needed.
+			// We've mapped the file into memory, we can now release the
+			// resources not anymore needed.
 			releaseOffsetAndLenghtArrays();
 
 			setCharset();
@@ -304,17 +313,17 @@ public class GettextResource extends ResourceBundle {
 			int start = chIndexOf + "charset".length() + 1;
 			int end = -1;
 			for (int i = start; i < info.length(); i++) {
-				if (info.charAt(i) == '\n'){
+				if (info.charAt(i) == '\n') {
 					end = i;
 					break;
 				}
 			}
 			if (end > start) {
 				String charsetName = info.substring(start, end);
-				if (Charset.isSupported(charsetName)){
+				if (Charset.isSupported(charsetName)) {
 					charset = Charset.forName(charsetName);
 				}
-			}			
+			}
 		}
 	}
 
@@ -367,7 +376,7 @@ public class GettextResource extends ResourceBundle {
 			reversed = b == -34;
 		}
 
-		if(!useContextSpecifier && b == CONTEXT_SPECIFIER) {
+		if (!useContextSpecifier && b == CONTEXT_SPECIFIER) {
 			useContextSpecifier = true;
 		}
 
@@ -389,7 +398,8 @@ public class GettextResource extends ResourceBundle {
 			// check if the file is valid
 			if (b != MAGIC[index]) {
 				if (b != MAGIC_REVERSED[index]) {
-					throw new IOError(new IOException(String.format("Invalid .mo file: byte[%d]=%h", index, b & 0xff)));
+					throw new IOError(new IOException(String.format(
+							"Invalid .mo file: byte[%d]=%h", index, b & 0xff)));
 				}
 			}
 		} else if (index >= 4 && index < 8) {
@@ -410,24 +420,27 @@ public class GettextResource extends ResourceBundle {
 		} else if (index >= 24 && index < 28) {
 			int k = 24;
 			h = swap(b, index, h, k);
-		} else if (index >= o + oj * 8 && index < o + oj * 8 + 4 && index < o + (n - 1) * 8 + 4) {
+		} else if (index >= o + oj * 8 && index < o + oj * 8 + 4
+				&& index < o + (n - 1) * 8 + 4) {
 			oo_length[oj] = swap(b, index, oo_length[oj], o + oj * 8);
 
 			// increment the current entry index
 			if (index == o + oj * 8 + 3) {
 				oj++;
 			}
-		} else if (oj > 0 && index >= o + (oj - 1) * 8 + 4 && index < o + (oj - 1) * 8 + 4 + 4 && index < o + (n - 1) * 8 + 4 + 4) {
+		} else if (oj > 0 && index >= o + (oj - 1) * 8 + 4
+				&& index < o + (oj - 1) * 8 + 4 + 4 && index < o + (n - 1) * 8 + 4 + 4) {
 			oo_offset[oj - 1] = swap(b, index, oo_offset[oj - 1], o + (oj - 1) * 8 + 4);
-		} else if (index >= t + tj * 8 && index < t + tj * 8 + 4 && index < t + (n - 1) * 8 + 4) {
+		} else if (index >= t + tj * 8 && index < t + tj * 8 + 4
+				&& index < t + (n - 1) * 8 + 4) {
 			tt_length[tj] = swap(b, index, tt_length[tj], t + tj * 8);
 
 			// increment the current entry index
 			if (index == t + tj * 8 + 3) {
 				tj++;
 			}
-		} else if (tj > 0 && index >= t + (tj - 1) * 8 + 4 && index < t + (tj - 1) * 8 + 4 + 4
-				&& index < t + (n - 1) * 8 + 4 + 4) {
+		} else if (tj > 0 && index >= t + (tj - 1) * 8 + 4
+				&& index < t + (tj - 1) * 8 + 4 + 4 && index < t + (n - 1) * 8 + 4 + 4) {
 			tt_offset[tj - 1] = swap(b, index, tt_offset[tj - 1], t + (tj - 1) * 8 + 4);
 		}
 	}
@@ -468,9 +481,10 @@ public class GettextResource extends ResourceBundle {
 			}
 
 			@Override
-			public String nextElement() {				
-				String nextElement = GettextResource.this.toString(msgidByteBuffers[elementIndex]);
-				elementIndex ++;
+			public String nextElement() {
+				String nextElement = GettextResource.this
+						.toString(msgidByteBuffers[elementIndex]);
+				elementIndex++;
 				return nextElement;
 			}
 		};
@@ -479,9 +493,9 @@ public class GettextResource extends ResourceBundle {
 	}
 
 	/**
-	 * Note that we don't throw a MissingResourceException when no
-	 * translation is found. In the GNU gettext approach, the gettext function
-	 * returns the (English) message key in that case.
+	 * Note that we don't throw a MissingResourceException when no translation
+	 * is found. In the GNU gettext approach, the gettext function returns the
+	 * (English) message key in that case.
 	 */
 	@Override
 	protected Object handleGetObject(String key) {
@@ -493,11 +507,11 @@ public class GettextResource extends ResourceBundle {
 		// replace the pipe char with the separator char (0x04).
 		if (useContextSpecifier) {
 			for (int i = 0; i < array.length; i++) {
-				if(array[i] == '|'){
+				if (array[i] == '|') {
 					array[i] = CONTEXT_SPECIFIER;
-				}			
-			}	
-		}		
+				}
+			}
+		}
 
 		ByteBuffer msgidByteBuffer = ByteBuffer.wrap(array);
 		int idx = Arrays.binarySearch(msgidByteBuffers, msgidByteBuffer);
@@ -509,18 +523,22 @@ public class GettextResource extends ResourceBundle {
 		String msgstr = toString(msgstrByteBuffers[idx]);
 		if (msgstr.isEmpty()) {
 			return handleMissingTranslation(msgid);
-		} 
+		}
 		return msgstr;
 	}
 
 	private String handleMissingTranslation(String msgid) {
-		String tmpMsgstr = msgid;
-		int indexOf = tmpMsgstr.indexOf('|');
+		String tmpMsgid = msgid;
+		String msgstr = tmpMsgid;
+		int indexOf = tmpMsgid.indexOf('|');
 		if (indexOf > 0) {
-			tmpMsgstr =  tmpMsgstr.substring(indexOf + 1);
+			tmpMsgid = tmpMsgid.substring(indexOf + 1);
+
+			// try to search the key without context
+			msgstr = _(tmpMsgid);
 		}
 
-		return showMissingTranslation ? "*"+tmpMsgstr+"*" : tmpMsgstr;
+		return showMissingTranslation ? "*" + msgstr + "*" : msgstr;
 	}
 
 	public String getInfoMessage() {
@@ -528,7 +546,9 @@ public class GettextResource extends ResourceBundle {
 	}
 
 	/**
-	 * Mark missing translation with stars.
+	 * Mark missing translation with one star at the beginning and at the end or
+	 * two if also the context lacks (for example: _("Stock label|Missing" -->
+	 * "**Missing**" or _("Missing" --> "*Missing*").
 	 * 
 	 * @param showMissingTranslation
 	 */
@@ -546,9 +566,9 @@ public class GettextResource extends ResourceBundle {
 
 		// replace separator char (0x04) with a pipe char.
 		for (int i = 0; i < array.length; i++) {
-			if(array[i] == CONTEXT_SPECIFIER){
+			if (array[i] == CONTEXT_SPECIFIER) {
 				array[i] = '|';
-			}			
+			}
 		}
 
 		return new String(array, Charset.forName("UTF-8"));
@@ -639,11 +659,12 @@ public class GettextResource extends ResourceBundle {
 		System.out.println("  -h, --help            Show this help message and exit");
 		System.out.println("  -i, --info            Show the .mo file info");
 		System.out.println("  -k MSGID              Get the associated msgstr");
-		System.out.println(); 
+		System.out.println();
 		System.out.println();
 		System.out.println("Examples:");
-		System.out.println("  gettextResource -k Search /usr/share/locale/it/LC_MESSAGES/gtk20.mo");
-		System.out.println("  gettextResource /usr/share/locale/it/LC_MESSAGES/gtk20.mo");		
+		System.out
+				.println("  gettextResource -k Search /usr/share/locale/it/LC_MESSAGES/gtk20.mo");
+		System.out.println("  gettextResource /usr/share/locale/it/LC_MESSAGES/gtk20.mo");
 	}
 
 	/**
@@ -678,7 +699,8 @@ public class GettextResource extends ResourceBundle {
 			if ("-h".equals(args[0]) || "--help".equals(args[0])) {
 				printUsage();
 				System.exit(0);
-			} if ("-i".equals(args[0]) || "--info".equals(args[0])) {
+			}
+			if ("-i".equals(args[0]) || "--info".equals(args[0])) {
 				showInfo = true;
 				filename = args[1];
 			} else if ("-k".equals(args[0]) || "-k".equals(args[0])) {
@@ -688,8 +710,8 @@ public class GettextResource extends ResourceBundle {
 				filename = args[0];
 			}
 
-			if (filename != null){
-				if(!new File(filename).isAbsolute()){
+			if (filename != null) {
+				if (!new File(filename).isAbsolute()) {
 					filename = System.getProperty("user.dir") + File.separator + filename;
 				}
 			}
@@ -697,7 +719,7 @@ public class GettextResource extends ResourceBundle {
 			GettextResource r = new GettextResource(new File(filename));
 			if (showInfo) {
 				System.out.println(r.getInfoMessage());
-			} else if (msgid != null){
+			} else if (msgid != null) {
 				System.out.println(r._(msgid));
 			} else {
 				Enumeration<String> en = r.getKeys();
@@ -710,7 +732,7 @@ public class GettextResource extends ResourceBundle {
 				}
 			}
 		} catch (Throwable e) {
-			//			System.err.println("Invalid options: " + e.getMessage());
+			// System.err.println("Invalid options: " + e.getMessage());
 			e.printStackTrace();
 			printUsage();
 		}
