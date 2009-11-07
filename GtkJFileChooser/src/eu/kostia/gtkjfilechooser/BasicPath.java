@@ -24,6 +24,9 @@
 package eu.kostia.gtkjfilechooser;
 
 import static eu.kostia.gtkjfilechooser.I18N._;
+
+import java.io.File;
+
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil.WellKnownDir;
 
 /**
@@ -35,7 +38,13 @@ import eu.kostia.gtkjfilechooser.FreeDesktopUtil.WellKnownDir;
 public class BasicPath implements Path {
 
 	static public final BasicPath HOME = new BasicPath(System.getProperty("user.name"), System.getProperty("user.home"), "places/user-home");
-	static public final BasicPath DESKTOP = new BasicPath(FreeDesktopUtil.getWellKnownDirPath(WellKnownDir.DESKTOP).getName(), FreeDesktopUtil.getWellKnownDirPath(WellKnownDir.DESKTOP).getAbsolutePath(), "places/user-desktop");
+	static public BasicPath DESKTOP;
+	static {
+		File desktopPath = FreeDesktopUtil.getWellKnownDirPath(WellKnownDir.DESKTOP);
+		if (desktopPath != null) {
+			DESKTOP = new BasicPath(desktopPath.getName(), desktopPath.getAbsolutePath(), "places/user-desktop");	
+		}		
+	}
 
 	static public final BasicPath ROOT = new BasicPath(_("File System"), "/", "gtk-harddisk"); 
 

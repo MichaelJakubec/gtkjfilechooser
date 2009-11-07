@@ -29,8 +29,6 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
-import eu.kostia.gtkjfilechooser.RemovableDevice;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil.WellKnownDir;
 
 public class FreeDesktopUtilTest {
@@ -39,7 +37,8 @@ public class FreeDesktopUtilTest {
 	// Test that no exception is thrown
 	public void testGetWellKnownDirPath() {
 		File desktop = FreeDesktopUtil.getWellKnownDirPath(WellKnownDir.DESKTOP);
-		System.out.println(desktop+": "+ desktop.exists());
+		System.out.println(desktop);
+		Assert.assertTrue(desktop.exists());
 	}
 
 	@Test

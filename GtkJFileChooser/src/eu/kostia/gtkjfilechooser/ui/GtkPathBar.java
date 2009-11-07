@@ -196,7 +196,7 @@ public class GtkPathBar extends JPanel {
 				dirButton.setIcon(GtkStockIcon.get("places/user-home", Size.GTK_ICON_SIZE_BUTTON));
 			}
 
-			if(FreeDesktopUtil.getWellKnownDirPath(WellKnownDir.DESKTOP).equals(tmp)) {
+			if(tmp.equals(FreeDesktopUtil.getWellKnownDirPath(WellKnownDir.DESKTOP))) {
 				// desktop dir icon
 				dirButton.setIcon(GtkStockIcon.get("places/user-desktop", Size.GTK_ICON_SIZE_MENU));
 			} 

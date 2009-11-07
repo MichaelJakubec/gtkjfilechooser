@@ -59,11 +59,30 @@ public class FreeDesktopUtil {
 	 */
 	private static final int GB = 1073741824;
 
-	public enum WellKnownDir {
-		DESKTOP, DOWNLOAD, TEMPLATES, PUBLICSHARE, DOCUMENTS, MUSIC, PICTURES, VIDEOS
+	public enum WellKnownDir {		
+		DESKTOP("~/Desktop"), 
+		DOWNLOAD("~/Download"), 
+		TEMPLATES("~/Templates"), 
+		PUBLICSHARE("~/Public"), 
+		DOCUMENTS("~/Documents"), 
+		MUSIC("~/Music"),
+		PICTURES("~/Pictures"), 
+		VIDEOS("~/Videos");
+
+		private String defaultPath;
+
+		private WellKnownDir(String defaultPath) {
+			this.defaultPath = defaultPath;
+		}
+
+		public String getDefaultPath() {
+			return defaultPath;
+		}
 	}
 
 	static private final String HUMAN_READABLE_FMT = "%.1f %s";
+
+	static private Properties userDirsProps;
 
 	/**
 	 * Retrieve the path of "well known" user directories like the desktop
@@ -75,25 +94,36 @@ public class FreeDesktopUtil {
 	 * @see http://freedesktop.org/wiki/Software/xdg-user-dirs
 	 */
 	static public File getWellKnownDirPath(WellKnownDir type) {
-		File userDirs = new File(System.getProperty("user.home")
-				+ "/.config/user-dirs.dirs");
-		Properties props = new Properties();
-		try {
-			FileInputStream is = null;
-			try {
-				is = new FileInputStream(userDirs);
-				props.load(is);
-			} finally {
-				if (is != null){
-					is.close();
-				}
-			}
-		} catch (IOException e) {
-			throw new IOError(e);
+		if (userDirsProps == null) {
+			initUserDirsProps();
 		}
 
-		String property = expandEnv(props.getProperty("XDG_" + type + "_DIR"));
-		return new File(property);
+		String pathname = userDirsProps.getProperty("XDG_" + type + "_DIR");
+		String property = expandEnv(pathname != null ? pathname : type.getDefaultPath());
+		File path = new File(property);
+		return path.exists() ? path : null;
+	}
+
+	private static void initUserDirsProps() throws IOError {
+		userDirsProps = new Properties();
+		File userDirsFile = new File(System.getProperty("user.home") + "/.config/user-dirs.dirs");
+
+		// xdg-user-dirs may be not installed.
+		if (userDirsFile.exists()) {
+			try {
+				FileInputStream is = null;
+				try {
+					is = new FileInputStream(userDirsFile);
+					userDirsProps.load(is);
+				} finally {
+					if (is != null){
+						is.close();
+					}
+				}
+			} catch (IOException e) {
+				throw new IOError(e);
+			}
+		} 		
 	}
 
 	/**
@@ -126,6 +156,9 @@ public class FreeDesktopUtil {
 				sb.append(ch);
 			} else if ('"' == ch) {
 				// ignore quotes
+				i++;
+			} else if ('~' == ch) {
+				sb.append(System.getProperty("user.home"));
 				i++;
 			} else {
 				sb.append(ch);
@@ -243,7 +276,10 @@ public class FreeDesktopUtil {
 		List<BasicPath> basicLocations = new ArrayList<BasicPath>();
 
 		basicLocations.add(BasicPath.HOME);
-		basicLocations.add(BasicPath.DESKTOP);
+		if (BasicPath.DESKTOP != null) {
+			// When the user has deleted the desktop folder.
+			basicLocations.add(BasicPath.DESKTOP);
+		}		
 		basicLocations.add(BasicPath.ROOT);
 
 		return basicLocations;
