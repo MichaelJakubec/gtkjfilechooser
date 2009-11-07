@@ -69,7 +69,7 @@ public class GtkFileChooserSettings {
 
 	private GtkFileChooserSettings() {
 		try {
-			File iniFile = new File(System.getProperty("user.home")	+ File.separator + ".config/gtk-2.0/gtkfilechooser.ini_mio");
+			File iniFile = new File(System.getProperty("user.home")	+ File.separator + ".config/gtk-2.0/gtkfilechooser.ini");
 			settings = new GKeyFile(iniFile);
 			if (settings.getGroup(SETTINGS_GROUP) == null) {
 				settings.createGroup(SETTINGS_GROUP);
