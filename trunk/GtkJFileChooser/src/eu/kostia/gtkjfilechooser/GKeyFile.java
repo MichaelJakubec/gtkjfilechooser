@@ -153,9 +153,12 @@ public class GKeyFile {
 		this.gkeyfile = gkeyfile;
 		this.groups = new LinkedHashMap<String, Group>();
 
-		if (gkeyfile.exists()) {
-			load();
+		if (!gkeyfile.exists()) {
+			//create the file, if not exists
+			gkeyfile.createNewFile();
 		}
+
+		load();
 	}
 
 	public File getGkeyfile() {
@@ -315,7 +318,8 @@ public class GKeyFile {
 	}
 
 	public Group getGroup(String name) {
-		return groups.get(name);
+		Group group = groups.get(name);		
+		return group;
 	}
 
 	/**
@@ -335,6 +339,24 @@ public class GKeyFile {
 
 		public String getString(String key) {
 			return backingMap.get(key);
+		}
+
+		/**
+		 * Get a String property value.
+		 * 
+		 * @param key
+		 * @param def a Default value, if no value is found.
+		 * @return The String property value for the given key.
+		 */
+		//TODO do the same for the other getter
+		public String getString(String key, String def) {
+			String value = getString(key);
+			if (value == null) {
+				value = def;
+				setValue(key, value);
+			}
+
+			return value;
 		}
 
 		public Integer getInteger(String key) {
