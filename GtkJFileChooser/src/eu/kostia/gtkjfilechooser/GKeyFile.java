@@ -155,6 +155,10 @@ public class GKeyFile {
 
 		if (!gkeyfile.exists()) {
 			//create the file, if not exists
+			if (!gkeyfile.getParentFile().exists()) {
+				//create the parent dirs
+				gkeyfile.getParentFile().mkdirs();
+			}
 			gkeyfile.createNewFile();
 		}
 
