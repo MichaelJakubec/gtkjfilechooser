@@ -2,7 +2,7 @@
 
 = Latest News =
 ===  07.11.2009 Release 1.2 ===
-*Version 1.0 released* Download it [http://gtkjfilechooser.googlecode.com/files/GtkJFileChooser_v1.2 here]
+*Version 1.2 released* Download it [http://gtkjfilechooser.googlecode.com/files/GtkJFileChooser_v1.2 here]
 
 === 06.11.2009 Save Dialog ===
 Implemented the Save dialog:
