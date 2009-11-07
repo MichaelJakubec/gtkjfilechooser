@@ -323,9 +323,15 @@ public class GtkStockIcon {
 
 	private static String scanMimeFile(String filename, String parentDir)
 	throws FileNotFoundException {
+		File globs2 = new File(parentDir + "/globs2");
+		if (!globs2.exists()) {
+			return null;
+		}
+
 		Scanner sc = null;
 		try {
-			sc = new Scanner(new File(parentDir + "/globs2"));
+
+			sc = new Scanner(globs2);
 			String mimeType = null;
 			while (sc.hasNextLine()) {
 				String line = sc.nextLine();
