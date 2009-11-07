@@ -69,8 +69,13 @@ public class GtkFileChooserSettings {
 
 	private GtkFileChooserSettings() {
 		try {
-			settings = new GKeyFile(new File(System.getProperty("user.home")
-					+ File.separator + ".config/gtk-2.0/gtkfilechooser.ini"));
+			File iniFile = new File(System.getProperty("user.home")	+ File.separator + ".config/gtk-2.0/gtkfilechooser.ini_mio");
+			settings = new GKeyFile(iniFile);
+			if (settings.getGroup(SETTINGS_GROUP) == null) {
+				settings.createGroup(SETTINGS_GROUP);
+				settings.save();
+			}
+
 		} catch (IOException e) {
 			LOG.log(Level.SEVERE, "Could not find settings.", e);
 		}
@@ -115,8 +120,8 @@ public class GtkFileChooserSettings {
 	}
 
 	public Mode getLocationMode() {
-		return Mode.valueOf(settings.getGroup(SETTINGS_GROUP)
-				.getString(LOCATION_MODE_KEY).toUpperCase().replace('-', '_'));
+		String string = settings.getGroup(SETTINGS_GROUP).getString(LOCATION_MODE_KEY, Mode.PATH_BAR.toString());
+		return Mode.valueOf(string.toUpperCase().replace('-', '_'));
 	}
 
 	public void setLocationMode(Mode mode) {
