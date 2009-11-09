@@ -167,7 +167,7 @@ public class ByteUtil {
 	static public short toShort(ByteOrder bOrder, byte... b) {
 		checkArray(b, "short", 2);
 		if (ByteOrder.BIG_ENDIAN == bOrder) {
-			return (short) ((b[0] & 0xff)  << 0 | (b[1] & 0xff) << 8);
+			return (short) ((b[0] & 0xff) << 0 | (b[1] & 0xff) << 8);
 		} else {
 			return (short) ((b[0] & 0xff) << 8 | (b[1] & 0xff) << 0);
 		}
@@ -186,9 +186,11 @@ public class ByteUtil {
 	static public int toInt(ByteOrder bOrder, byte... b) {
 		checkArray(b, "int", 4);
 		if (ByteOrder.BIG_ENDIAN == bOrder) {
-			return (b[0] & 0xff) << 0 | (b[1] & 0xff) << 8 | (b[2] & 0xff) << 16 | (b[3] & 0xff) << 24;
+			return (b[0] & 0xff) << 0 | (b[1] & 0xff) << 8 | (b[2] & 0xff) << 16
+			| (b[3] & 0xff) << 24;
 		} else {
-			return (b[0] & 0xff) << 24 | (b[1] & 0xff) << 16 | (b[2] & 0xff) << 8 | (b[3] & 0xff) << 0;
+			return (b[0] & 0xff) << 24 | (b[1] & 0xff) << 16 | (b[2] & 0xff) << 8
+			| (b[3] & 0xff) << 0;
 		}
 
 	}
@@ -206,12 +208,26 @@ public class ByteUtil {
 	static public long toLong(ByteOrder bOrder, byte... b) {
 		checkArray(b, "long", 8);
 		if (ByteOrder.BIG_ENDIAN == bOrder) {
-			return (b[0] & 0xff) << 0 | (b[1] & 0xff) << 8 | (b[2] & 0xff) << 16 | (b[3] & 0xff) << 24 | (b[4] & 0xff) << 32
-			| (b[5] & 0xff) << 40 | (b[6] & 0xff) << 48 | (b[7] & 0xff) << 56;
+			return (b[0] & 0xff) << 0 | (b[1] & 0xff) << 8 | (b[2] & 0xff) << 16
+			| (b[3] & 0xff) << 24 | (b[4] & 0xff) << 32 | (b[5] & 0xff) << 40
+			| (b[6] & 0xff) << 48 | (b[7] & 0xff) << 56;
 		} else {
-			return (b[0] & 0xff) << 56 | (b[1] & 0xff) << 48 | (b[2] & 0xff) << 40 | (b[3] & 0xff) << 32 | (b[4] & 0xff) << 24
-			| (b[5] & 0xff) << 16 | (b[6] & 0xff) << 8 | (b[7] & 0xff) << 0;
+			return (b[0] & 0xff) << 56 | (b[1] & 0xff) << 48 | (b[2] & 0xff) << 40
+			| (b[3] & 0xff) << 32 | (b[4] & 0xff) << 24 | (b[5] & 0xff) << 16
+			| (b[6] & 0xff) << 8 | (b[7] & 0xff) << 0;
 		}
+	}
+
+	static public float toFloat(ByteOrder bOrder, byte... b) {
+		checkArray(b, "float", 4);
+
+		return Float.intBitsToFloat(toInt(bOrder, b));
+	}
+
+	static public double toDouble(ByteOrder bOrder, byte... b) {
+		checkArray(b, "float", 8);
+
+		return Double.longBitsToDouble(toLong(bOrder, b));
 	}
 
 	static private void checkArray(byte[] bytes, String type, int n) {

@@ -23,42 +23,60 @@
  */
 package eu.kostia.gtkjfilechooser;
 
+import static java.nio.ByteOrder.BIG_ENDIAN;
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.Scanner;
 
 /**
  * <p>
  * Detect the file type basing on the magic pattern database.
  * </p>
- * The format of the magic patter file is described in {@link http://man.he.net/?topic=magic&section=all}. <br />
+ * The format of the magic patter file is described in {@link http
+ * ://man.he.net/?topic=magic&section=all}. <br />
  * In the most linux system the magic file is in <tt>/usr/share/file/magic</tt>.
  * 
  * @author Costantino Cerbo
  * 
  */
-//TODO Still implementing...
+// TODO Still implementing...
 public class Magic {
+	static final private ByteOrder NATIVE = ByteOrder.nativeOrder();
+
+	/**
+	 * The operators for the test condition already sorted.
+	 */
+	static final private char[] OPERATORS = new char[] {'!', '&', '<', '=', '>', '^', '~' };
+
 	private File magicfile;
+
+	private int currentLevel = -1;
 
 	public Magic(File magicfile) {
 		this.magicfile = magicfile;
 	}
 
-	public Result detect(File file) throws IOException {
-		return detect(new FileInputStream(file));
+	private void resetInstanceVariables() {
+		currentLevel = -1;
 	}
 
-	public Result detect(URL url) throws IOException {
-		return detect(url.openConnection().getInputStream());
-	}
-
-	public Result detect(InputStream stream) throws IOException {
+	public Result detect(File file) throws IOException {		
 		Scanner sc0 = null;
+		FileChannel channel = null;
+		FileInputStream fstream = null;
 		try {
+			fstream = new FileInputStream(file);
+			channel = fstream.getChannel();
+
 			sc0 = new Scanner(magicfile);
 			while (sc0.hasNextLine()) {
 				String line = sc0.nextLine();
@@ -77,17 +95,39 @@ public class Magic {
 					Scanner sc1 = new Scanner(line);
 
 					try {
-						String offset = sc1.next();
-						String type = sc1.next();
+						int offset = toInt(sc1.next());
+						Type type = parseType(sc1.next());
 						String test = sc1.next();
 
-						// get the remaining part of the line
-						sc1.useDelimiter("\\Z");
-						String message = sc1.hasNext() ? sc1.next().trim() : null;
+						int len = type.lenght;
+						if (len == -1) {
+							// TODO string, pstring, search, default still to
+							// implement.
+							continue;
+						}
 
-						printf("offset: '%s', type: '%s', test: '%s', message: '%s'\n",
-								offset, type, test, message);
+						ByteBuffer bb = channel.map(MapMode.READ_ONLY, offset, len);			
+
+						byte[] b = new byte[bb.limit()];
+						bb.position(0);
+						bb.get(b);
+
+						Object value = performTest(type, b, test);
+
+						// The test is passed when the value is different from
+						// null
+						if (value != null) {
+							// get the remaining part of the line
+							sc1.useDelimiter("\\Z");
+							String message = sc1.hasNext() ? sc1.next().trim() : null;
+							printf("Message: ");
+							printf(message + "\n", value);
+						}
+
+						printf("offset: '%d', type: '%s', test: '%s'\n",
+								offset, type.name, test);
 					} catch (Exception e) {
+						e.printStackTrace(); //TODO remove
 						throw new IllegalStateException(
 								"Line that caused the exception:\n" + line, e);
 					}
@@ -98,14 +138,264 @@ public class Magic {
 
 			return null;
 		} finally {
-			if (stream != null) {
-				stream.close();
+			if (fstream != null) {
+				fstream.close();
+			}
+
+			if (channel != null) {
+				channel.close();
 			}
 
 			if (sc0 != null) {
 				sc0.close();
 			}
+
+			resetInstanceVariables();
 		}
+	}
+
+	private Object performTest(Type type, byte[] b, String test) {
+		Object value = null;
+		// The special test x always evaluates to true
+		boolean passed = "x".equals(test);
+		if (type.isIntegerNumber()) {
+			long actual = toIntegerNumber(type.order, b);
+			value = actual;
+			if (!passed) {
+				if (test.length() > 1 && Arrays.binarySearch(OPERATORS, test.charAt(0)) > 0) {
+					long expected = toLong(test.substring(1));
+					char operator = test.charAt(0);
+					switch (operator) {
+					case '=':
+						passed = (actual == expected);
+						break;
+					case '!':
+						passed = (actual != expected);
+						break;
+					case '<':
+						passed = (actual < expected);
+						break;					
+					case '>':
+						passed = (actual > expected);
+						break;
+					case '&':
+						// The actual value must have set all of the bits
+						// that are set in the specified value.
+						// TODO
+						break;
+					case '^':
+						// The actual value must have clear any of the
+						// bits that are set in the specified value.
+						// TODO
+						break;
+					case '~':
+						// the value specified after is negated before tested (?)
+						// TODO
+						break;
+					}
+				} else {
+					// No operator
+					long expected = toLong(test);
+					passed = (actual == expected);
+				}
+			}
+		} else if (type.isDecimalNumber()) {
+			double actual = toDecimalNumber(type.order, b);
+			value = actual;
+			if (!passed) {
+				if (test.length() > 1 && Arrays.binarySearch(OPERATORS, test.charAt(0)) > 0) {
+					double expected = toDouble(test.substring(1));
+					char operator = test.charAt(0);
+					switch (operator) {
+					case '=':
+						passed = (actual == expected);
+						break;
+					case '!':
+						passed = (actual != expected);
+						break;
+					case '<':
+						passed = (actual < expected);
+						break;					
+					case '>':
+						passed = (actual > expected);
+						break;
+					}
+				}
+			} else {
+				// No operator
+				double expected = toDouble(test);
+				passed = (actual == expected);
+			}
+		} else if (type.isDate()) {
+			// TODO
+		} else if (type.isString()) {
+			// TODO
+		}
+
+		return value;
+	}
+
+	/**
+	 * Return the byte array as integer number.
+	 */
+	private long toIntegerNumber(ByteOrder order, byte[] b) {
+		int len = b.length;
+
+		switch (len) {
+		case 1:
+			return b[0];
+		case 2:
+			return ByteUtil.toShort(order, b);
+		case 4:
+			return ByteUtil.toInt(order, b);
+		case 8:
+			return ByteUtil.toLong(order, b);
+
+		default:
+			throw new IllegalArgumentException("Invalid length: " + len);
+		}
+	}
+
+	/**
+	 * Return the byte array as decimal number.
+	 */
+	private double toDecimalNumber(ByteOrder order, byte[] b) {
+		int len = b.length;
+
+		switch (len) {
+		case 4:
+			return ByteUtil.toFloat(order, b);
+		case 8:
+			return ByteUtil.toDouble(order, b);
+
+		default:
+			throw new IllegalArgumentException("Invalid length: " + len);
+		}
+	}
+
+	/**
+	 * Return the byte array as date.
+	 */
+	private Date toDate(ByteOrder order, byte[] b) {
+		int len = b.length;
+
+		switch (len) {
+		case 4:
+			return new Date(ByteUtil.toInt(order, b) * 1000);
+		case 8:
+			return new Date(ByteUtil.toLong(order, b) * 1000);
+
+		default:
+			throw new IllegalArgumentException("Invalid length: " + len);
+		}
+	}
+
+	/**
+	 * Returns the byte lenght for the given type.
+	 */
+	private Type parseType(String type) {
+		if ("byte".equals(type)) {
+			return new Type("byte", 1, NATIVE);
+		} else if ("short".equals(type)) {
+			return new Type("short", 2, NATIVE);
+		} else if ("long".equals(type)) {
+			return new Type("long", 4, NATIVE);
+		} else if ("quad".equals(type)) {
+			return new Type("quad", 8, NATIVE);
+		} else if ("float".equals(type)) {
+			return new Type("float", 4, NATIVE);
+		} else if ("double".equals(type)) {
+			return new Type("double", 8, NATIVE);
+		} else if ("date".equals(type)) {
+			return new Type("date", 4, NATIVE);
+		} else if ("beshort".equals(type)) {
+			return new Type("bequad", 2, BIG_ENDIAN);
+		} else if ("bequad".equals(type)) {
+			return new Type("bequad", 8, BIG_ENDIAN);
+		} else if ("befloat".equals(type)) {
+			return new Type("befloat", 4, BIG_ENDIAN);
+		} else if ("bedouble".equals(type)) {
+			return new Type("bedouble", 8, BIG_ENDIAN);
+		} else if ("bedate".equals(type)) {
+			return new Type("bedate", 4, BIG_ENDIAN);
+		} else if ("beqdate".equals(type)) {
+			return new Type("beqdate", 8, BIG_ENDIAN);
+		} else if ("beldate".equals(type)) {
+			return new Type("beldate", 4, BIG_ENDIAN);
+		} else if ("beqldate".equals(type)) {
+			return new Type("beqldate", 8, BIG_ENDIAN);
+		} else if ("bestring16".equals(type)) {
+			return new Type("bestring16", 2, BIG_ENDIAN);
+		} else if ("leshort".equals(type)) {
+			return new Type("leshort", 2, LITTLE_ENDIAN);
+		} else if ("lelong".equals(type)) {
+			return new Type("lelong", 4, LITTLE_ENDIAN);
+		} else if ("lequad".equals(type)) {
+			return new Type("lequad", 8, LITTLE_ENDIAN);
+		} else if ("lefloat".equals(type)) {
+			return new Type("lefloat", 4, LITTLE_ENDIAN);
+		} else if ("ledouble".equals(type)) {
+			return new Type("ledouble", 8, LITTLE_ENDIAN);
+		} else if ("ledate".equals(type)) {
+			return new Type("ledate", 4, LITTLE_ENDIAN);
+		} else if ("leqdate".equals(type)) {
+			return new Type("leqdate", 8, LITTLE_ENDIAN);
+		} else if ("leldate".equals(type)) {
+			return new Type("leldate", 8, LITTLE_ENDIAN);
+		} else if ("leqldate".equals(type)) {
+			return new Type("leqldate", 8, LITTLE_ENDIAN);
+		} else if ("lestring16".equals(type)) {
+			return new Type("lestring16", 2, LITTLE_ENDIAN);
+		} else if ("string".equals(type)) {
+			return new Type("", -1, null);
+		} else if ("pstring".equals(type)) {
+			return new Type("", -1, null);
+		} else if ("search".equals(type)) {
+			return new Type("", -1, null);
+		} else if ("default".equals(type)) {
+			return new Type("", -1, null);
+		}
+
+		throw new IllegalArgumentException("Type '" + type + "' is unknown.");
+	}
+
+	/**
+	 * Convert to int from decimal, octal and hexdecimal format.
+	 */
+	private int toInt(String value) {
+		if (value.startsWith("0x")) {
+			// Hexdecimal
+			return Integer.parseInt(value.substring(2), 16);
+		} else if (value.startsWith("0") && (value.length() > 1)) {
+			// Octal
+			return Integer.parseInt(value.substring(1), 8);
+		}
+
+		// Decimal
+		return Integer.parseInt(value);
+	}
+
+	/**
+	 * Convert to long from decimal, octal and hexdecimal format.
+	 */
+	private long toLong(String value) {
+		if (value.startsWith("0x")) {
+			// Hexdecimal
+			return Long.parseLong(value.substring(2), 16);
+		} else if (value.startsWith("0") && (value.length() > 1)) {
+			// Octal
+			return Long.parseLong(value.substring(1), 8);
+		}
+
+		// Decimal
+		return Long.parseLong(value);
+	}
+
+	/**
+	 * Convert to double from decimal, octal and hexdecimal format.
+	 */
+	private double toDouble(String value) {
+		return Double.parseDouble(value);
 	}
 
 	private void println(String str) {
@@ -143,6 +433,35 @@ public class Magic {
 
 		public String getDescription() {
 			return description;
+		}
+	}
+
+	private class Type {
+		private final String name;
+		private final int lenght;
+		private final ByteOrder order;
+
+		Type(String name, int lenght, ByteOrder byteorder) {
+			this.name = name;
+			this.lenght = lenght;
+			this.order = byteorder;
+		}
+
+		boolean isDate() {
+			return name.indexOf("date") != -1;
+		}
+
+		boolean isIntegerNumber() {
+			return name.indexOf("short") != -1 || name.indexOf("long") != -1
+			|| name.indexOf("quad") != -1;
+		}
+
+		boolean isDecimalNumber() {
+			return name.indexOf("float") != -1 || name.indexOf("double") != -1;
+		}
+
+		boolean isString() {
+			return name.indexOf("string") != -1;
 		}
 	}
 }
