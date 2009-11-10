@@ -55,7 +55,8 @@ public class Magic {
 	/**
 	 * The operators for the test condition already sorted.
 	 */
-	static final private char[] OPERATORS = new char[] {'!', '&', '<', '=', '>', '^', '~' };
+	static final private char[] OPERATORS = new char[] { '!', '&', '<', '=', '>', '^',
+	'~' };
 
 	private File magicfile;
 
@@ -69,12 +70,13 @@ public class Magic {
 		currentLevel = -1;
 	}
 
-	public Result detect(File file) throws IOException {		
+	public Result detect(File file) throws IOException {
 		Scanner sc0 = null;
 		FileChannel channel = null;
 		FileInputStream fstream = null;
 		try {
 			fstream = new FileInputStream(file);
+			long filesize = file.length();
 			channel = fstream.getChannel();
 
 			sc0 = new Scanner(magicfile);
@@ -106,12 +108,23 @@ public class Magic {
 							continue;
 						}
 
-						ByteBuffer bb = channel.map(MapMode.READ_ONLY, offset, len);			
+						if (offset + len > filesize) {
+							continue;
+						}
+
+						//TODO read byte rightly
+						ByteBuffer bb = channel.map(MapMode.READ_ONLY, offset, len);
 
 						byte[] b = new byte[bb.limit()];
 						bb.position(0);
 						bb.get(b);
+						for (int i = 0; i < b.length; i++) {
+							b[i] = (byte) (b[i] & 0xff);
+						}
 
+						if ("0xcafebabe".equals(test)) {
+							System.out.println(test);
+						}
 						Object value = performTest(type, b, test);
 
 						// The test is passed when the value is different from
@@ -123,11 +136,8 @@ public class Magic {
 							printf("Message: ");
 							printf(message + "\n", value);
 						}
-
-						printf("offset: '%d', type: '%s', test: '%s'\n",
-								offset, type.name, test);
 					} catch (Exception e) {
-						e.printStackTrace(); //TODO remove
+						e.printStackTrace(); // TODO remove
 						throw new IllegalStateException(
 								"Line that caused the exception:\n" + line, e);
 					}
@@ -160,9 +170,13 @@ public class Magic {
 		boolean passed = "x".equals(test);
 		if (type.isIntegerNumber()) {
 			long actual = toIntegerNumber(type.order, b);
+			if (type.and != null) {
+				actual = actual & type.and;
+			}
 			value = actual;
 			if (!passed) {
-				if (test.length() > 1 && Arrays.binarySearch(OPERATORS, test.charAt(0)) > 0) {
+				if (test.length() > 1
+						&& Arrays.binarySearch(OPERATORS, test.charAt(0)) > 0) {
 					long expected = toLong(test.substring(1));
 					char operator = test.charAt(0);
 					switch (operator) {
@@ -174,7 +188,7 @@ public class Magic {
 						break;
 					case '<':
 						passed = (actual < expected);
-						break;					
+						break;
 					case '>':
 						passed = (actual > expected);
 						break;
@@ -189,7 +203,8 @@ public class Magic {
 						// TODO
 						break;
 					case '~':
-						// the value specified after is negated before tested (?)
+						// the value specified after is negated before tested
+						// (?)
 						// TODO
 						break;
 					}
@@ -203,7 +218,8 @@ public class Magic {
 			double actual = toDecimalNumber(type.order, b);
 			value = actual;
 			if (!passed) {
-				if (test.length() > 1 && Arrays.binarySearch(OPERATORS, test.charAt(0)) > 0) {
+				if (test.length() > 1
+						&& Arrays.binarySearch(OPERATORS, test.charAt(0)) > 0) {
 					double expected = toDouble(test.substring(1));
 					char operator = test.charAt(0);
 					switch (operator) {
@@ -215,7 +231,7 @@ public class Magic {
 						break;
 					case '<':
 						passed = (actual < expected);
-						break;					
+						break;
 					case '>':
 						passed = (actual > expected);
 						break;
@@ -232,7 +248,7 @@ public class Magic {
 			// TODO
 		}
 
-		return value;
+		return passed ? value : null;
 	}
 
 	/**
@@ -293,67 +309,93 @@ public class Magic {
 	/**
 	 * Returns the byte lenght for the given type.
 	 */
-	private Type parseType(String type) {
+	private Type parseType(String rawtype) {
+		/**
+		 * The numeric types may optionally be followed by & and a numeric
+		 * value, to specify that the value is to be AND’ed with the numeric
+		 * value before any comparisons are done.
+		 */
+		String type = null;
+		Long and = null;
+		boolean unsigned = false;
+		if (rawtype.indexOf('&') != -1) {
+			type = rawtype.substring(0, rawtype.indexOf('&'));
+			// +3 to consider 0x
+			and = Long.parseLong(rawtype.substring(rawtype.indexOf('&') + 3), 16);
+		} else if (rawtype.startsWith("u")) {
+			// Prepending a u to the typeindicates that 
+			// ordered comparisons should be unsigned.
+			unsigned = true;
+			type = rawtype.substring(1);
+		} else {
+			type = rawtype;
+		}
+
 		if ("byte".equals(type)) {
-			return new Type("byte", 1, NATIVE);
+			return new Type("byte", 1, NATIVE, and, unsigned);
 		} else if ("short".equals(type)) {
-			return new Type("short", 2, NATIVE);
+			return new Type("short", 2, NATIVE, and, unsigned);
 		} else if ("long".equals(type)) {
-			return new Type("long", 4, NATIVE);
+			return new Type("long", 4, NATIVE, and, unsigned);
 		} else if ("quad".equals(type)) {
-			return new Type("quad", 8, NATIVE);
+			return new Type("quad", 8, NATIVE, and, unsigned);
 		} else if ("float".equals(type)) {
-			return new Type("float", 4, NATIVE);
+			return new Type("float", 4, NATIVE, and, unsigned);
 		} else if ("double".equals(type)) {
-			return new Type("double", 8, NATIVE);
+			return new Type("double", 8, NATIVE, and, unsigned);
 		} else if ("date".equals(type)) {
-			return new Type("date", 4, NATIVE);
+			return new Type("date", 4, NATIVE, and, unsigned);
 		} else if ("beshort".equals(type)) {
-			return new Type("bequad", 2, BIG_ENDIAN);
+			return new Type("beshort", 2, BIG_ENDIAN, and, unsigned);
+		} else if ("belong".equals(type)) {
+			return new Type("belong", 4, BIG_ENDIAN, and, unsigned);
 		} else if ("bequad".equals(type)) {
-			return new Type("bequad", 8, BIG_ENDIAN);
+			return new Type("bequad", 8, BIG_ENDIAN, and, unsigned);
 		} else if ("befloat".equals(type)) {
-			return new Type("befloat", 4, BIG_ENDIAN);
+			return new Type("befloat", 4, BIG_ENDIAN, and, unsigned);
 		} else if ("bedouble".equals(type)) {
-			return new Type("bedouble", 8, BIG_ENDIAN);
+			return new Type("bedouble", 8, BIG_ENDIAN, and, unsigned);
 		} else if ("bedate".equals(type)) {
-			return new Type("bedate", 4, BIG_ENDIAN);
+			return new Type("bedate", 4, BIG_ENDIAN, and, unsigned);
 		} else if ("beqdate".equals(type)) {
-			return new Type("beqdate", 8, BIG_ENDIAN);
+			return new Type("beqdate", 8, BIG_ENDIAN, and, unsigned);
 		} else if ("beldate".equals(type)) {
-			return new Type("beldate", 4, BIG_ENDIAN);
+			return new Type("beldate", 4, BIG_ENDIAN, and, unsigned);
 		} else if ("beqldate".equals(type)) {
-			return new Type("beqldate", 8, BIG_ENDIAN);
+			return new Type("beqldate", 8, BIG_ENDIAN, and, unsigned);
 		} else if ("bestring16".equals(type)) {
-			return new Type("bestring16", 2, BIG_ENDIAN);
+			return new Type("bestring16", 2, BIG_ENDIAN, and, unsigned);
 		} else if ("leshort".equals(type)) {
-			return new Type("leshort", 2, LITTLE_ENDIAN);
+			return new Type("leshort", 2, LITTLE_ENDIAN, and, unsigned);
 		} else if ("lelong".equals(type)) {
-			return new Type("lelong", 4, LITTLE_ENDIAN);
+			return new Type("lelong", 4, LITTLE_ENDIAN, and, unsigned);
 		} else if ("lequad".equals(type)) {
-			return new Type("lequad", 8, LITTLE_ENDIAN);
+			return new Type("lequad", 8, LITTLE_ENDIAN, and, unsigned);
 		} else if ("lefloat".equals(type)) {
-			return new Type("lefloat", 4, LITTLE_ENDIAN);
+			return new Type("lefloat", 4, LITTLE_ENDIAN, and, unsigned);
 		} else if ("ledouble".equals(type)) {
-			return new Type("ledouble", 8, LITTLE_ENDIAN);
+			return new Type("ledouble", 8, LITTLE_ENDIAN, and, unsigned);
 		} else if ("ledate".equals(type)) {
-			return new Type("ledate", 4, LITTLE_ENDIAN);
+			return new Type("ledate", 4, LITTLE_ENDIAN, and, unsigned);
 		} else if ("leqdate".equals(type)) {
-			return new Type("leqdate", 8, LITTLE_ENDIAN);
+			return new Type("leqdate", 8, LITTLE_ENDIAN, and, unsigned);
 		} else if ("leldate".equals(type)) {
-			return new Type("leldate", 8, LITTLE_ENDIAN);
+			return new Type("leldate", 8, LITTLE_ENDIAN, and, unsigned);
 		} else if ("leqldate".equals(type)) {
-			return new Type("leqldate", 8, LITTLE_ENDIAN);
+			return new Type("leqldate", 8, LITTLE_ENDIAN, and, unsigned);
 		} else if ("lestring16".equals(type)) {
-			return new Type("lestring16", 2, LITTLE_ENDIAN);
-		} else if ("string".equals(type)) {
-			return new Type("", -1, null);
-		} else if ("pstring".equals(type)) {
-			return new Type("", -1, null);
-		} else if ("search".equals(type)) {
-			return new Type("", -1, null);
+			return new Type("lestring16", 2, LITTLE_ENDIAN, and, unsigned);
+		} else if (type.startsWith("string")) {
+			// TODO type string
+			return new Type("", -1, null, and, unsigned);
+		} else if (type.startsWith("pstring")) {
+			// TODO type pstring
+			return new Type("", -1, null, and, unsigned);
+		} else if (type.startsWith("search")) {
+			// TODO type search
+			return new Type("", -1, null, and, unsigned);
 		} else if ("default".equals(type)) {
-			return new Type("", -1, null);
+			return new Type("", -1, null, and, unsigned);
 		}
 
 		throw new IllegalArgumentException("Type '" + type + "' is unknown.");
@@ -365,6 +407,7 @@ public class Magic {
 	private int toInt(String value) {
 		if (value.startsWith("0x")) {
 			// Hexdecimal
+			//FIXME fix the parse
 			return Integer.parseInt(value.substring(2), 16);
 		} else if (value.startsWith("0") && (value.length() > 1)) {
 			// Octal
@@ -378,8 +421,14 @@ public class Magic {
 	/**
 	 * Convert to long from decimal, octal and hexdecimal format.
 	 */
-	private long toLong(String value) {
+	private long toLong(String rawvalue) {
+		String value = rawvalue;
+		if (rawvalue.toUpperCase().endsWith("L")) {
+			value =  rawvalue.substring(0, rawvalue.length() - 1);
+		}
+
 		if (value.startsWith("0x")) {
+			//FIXME fix the parse
 			// Hexdecimal
 			return Long.parseLong(value.substring(2), 16);
 		} else if (value.startsWith("0") && (value.length() > 1)) {
@@ -440,11 +489,15 @@ public class Magic {
 		private final String name;
 		private final int lenght;
 		private final ByteOrder order;
+		private final Long and;
+		private final boolean unsigned;
 
-		Type(String name, int lenght, ByteOrder byteorder) {
+		Type(String name, int lenght, ByteOrder byteorder, Long and, boolean unsigned) {
 			this.name = name;
 			this.lenght = lenght;
 			this.order = byteorder;
+			this.and = and;
+			this.unsigned = unsigned;
 		}
 
 		boolean isDate() {
