@@ -29,6 +29,7 @@ import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
@@ -58,25 +59,29 @@ public class Magic {
 	static final private char[] OPERATORS = new char[] { '!', '&', '<', '=', '>', '^',
 	'~' };
 
-	private File magicfile;
+	private transient File magicfile;
 
-	private int currentLevel = -1;
+	private transient int currentLevel = -1;
+	private transient FileChannel channel;
+	private transient StringBuilder fileDescription;
+	private transient Result result = null;
 
 	public Magic(File magicfile) {
 		this.magicfile = magicfile;
 	}
 
 	private void resetInstanceVariables() {
-		currentLevel = -1;
+		this.currentLevel = -1;
+		this.channel = null;
+		this.fileDescription = null;
+		this.result = null;
 	}
 
 	public Result detect(File file) throws IOException {
 		Scanner sc0 = null;
-		FileChannel channel = null;
 		FileInputStream fstream = null;
 		try {
 			fstream = new FileInputStream(file);
-			long filesize = file.length();
 			channel = fstream.getChannel();
 
 			sc0 = new Scanner(magicfile);
@@ -87,66 +92,33 @@ public class Magic {
 				}
 
 				if (line.startsWith("!:")) {
+					if (line.startsWith("!:mime") && currentLevel >= 0) {
+						result.mime = line.substring("!:mime".length()).trim();
+					}
 					// other options (mime, strength, etc...)
 				} else if (line.startsWith(">")) {
 					// subsequent-level magic pattern
 					int level = level(line);
+					if(currentLevel >= 0) {
+						processLine(line, level);
+					}
 					// println(level+"\t"+line);
 				} else {
 					// top-level magic pattern
-					Scanner sc1 = new Scanner(line);
 
-					try {
-						int offset = toInt(sc1.next());
-						Type type = parseType(sc1.next());
-						String test = sc1.next();
-
-						int len = type.lenght;
-						if (len == -1) {
-							// TODO string, pstring, search, default still to
-							// implement.
-							continue;
-						}
-
-						if (offset + len > filesize) {
-							continue;
-						}
-
-						//TODO read byte rightly
-						ByteBuffer bb = channel.map(MapMode.READ_ONLY, offset, len);
-
-						byte[] b = new byte[bb.limit()];
-						bb.position(0);
-						bb.get(b);
-						for (int i = 0; i < b.length; i++) {
-							b[i] = (byte) (b[i] & 0xff);
-						}
-
-						if ("0xcafebabe".equals(test)) {
-							System.out.println(test);
-						}
-						Object value = performTest(type, b, test);
-
-						// The test is passed when the value is different from
-						// null
-						if (value != null) {
-							// get the remaining part of the line
-							sc1.useDelimiter("\\Z");
-							String message = sc1.hasNext() ? sc1.next().trim() : null;
-							printf("Message: ");
-							printf(message + "\n", value);
-						}
-					} catch (Exception e) {
-						e.printStackTrace(); // TODO remove
-						throw new IllegalStateException(
-								"Line that caused the exception:\n" + line, e);
+					if (currentLevel >= 0) {
+						// top-level already reached. Stop the loop.
+						break;
 					}
 
+					processLine(line, 0);
 				}
-
 			}
 
-			return null;
+			if (fileDescription != null && fileDescription.length() > 0) {
+				result.description = fileDescription.toString().trim();
+			}
+			return result;
 		} finally {
 			if (fstream != null) {
 				fstream.close();
@@ -162,6 +134,77 @@ public class Magic {
 
 			resetInstanceVariables();
 		}
+	}
+
+	private void processLine(String line, int level) throws IOException {
+		try {
+			Scanner sc1 = new Scanner(line.substring(level));
+
+			int offset = toInt(sc1.next());
+			Type type = parseType(sc1.next());
+			String test = sc1.next();
+
+			int len = type.lenght;
+			if (len == -1) {
+				// TODO string, pstring, search, default still to
+				// implement.
+				return;
+			}
+
+			if (offset + len > channel.size()) {
+				return;
+			}
+
+			byte[] b = readByte(offset, len);
+
+			if ("0xcafebabe".equals(test)) {
+				// TODO remove
+				System.out.println(test);
+			}
+
+			Object value = performTest(type, b, test);
+
+			// The test is passed when the value
+			// is different from null.
+			if (value != null) {
+				if (currentLevel == -1) {
+					result = new Result();
+					fileDescription = new StringBuilder();
+					// 0 is the top-level
+					currentLevel = 0;
+				}				
+
+				// when the test passed, the currentLevel to its level.
+				currentLevel = level;
+
+				// get the remaining part of the line
+				sc1.useDelimiter("\\Z");
+				String message = sc1.hasNext() ? sc1.next().trim() : null;
+				if (message != null) {
+					//handle backspace (\b)
+					if (message.startsWith("\\b")) {
+						fileDescription.deleteCharAt(fileDescription.length() - 1);
+						message = message.substring("\\b".length());
+					}
+					fileDescription.append(String.format(message, value));
+					fileDescription.append(" ");
+				}
+				printf("Message: %s\n", message);
+			}
+		} catch (Exception e) {
+			e.printStackTrace(); // TODO remove
+			throw new IllegalStateException("Line that caused the exception:\n" + line, e);
+		}
+	}
+
+	private byte[] readByte(int offset, int len) throws IOException {
+		ByteBuffer bb = channel.map(MapMode.READ_ONLY, offset, len);
+
+		byte[] b = new byte[bb.limit()];
+		bb.position(0);
+		bb.get(b);
+
+		return b;
 	}
 
 	private Object performTest(Type type, byte[] b, String test) {
@@ -252,7 +295,7 @@ public class Magic {
 	}
 
 	/**
-	 * Return the byte array as integer number.
+	 * Return the byte array as unsigned integer number.
 	 */
 	private long toIntegerNumber(ByteOrder order, byte[] b) {
 		int len = b.length;
@@ -261,9 +304,9 @@ public class Magic {
 		case 1:
 			return b[0];
 		case 2:
-			return ByteUtil.toShort(order, b);
+			return ByteUtil.toUnsigned(ByteUtil.toShort(order, b));
 		case 4:
-			return ByteUtil.toInt(order, b);
+			return ByteUtil.toUnsigned(ByteUtil.toInt(order, b));
 		case 8:
 			return ByteUtil.toLong(order, b);
 
@@ -323,7 +366,7 @@ public class Magic {
 			// +3 to consider 0x
 			and = Long.parseLong(rawtype.substring(rawtype.indexOf('&') + 3), 16);
 		} else if (rawtype.startsWith("u")) {
-			// Prepending a u to the typeindicates that 
+			// Prepending a u to the typeindicates that
 			// ordered comparisons should be unsigned.
 			unsigned = true;
 			type = rawtype.substring(1);
@@ -402,12 +445,13 @@ public class Magic {
 	}
 
 	/**
-	 * Convert to int from decimal, octal and hexdecimal format.
+	 * Convert to int from decimal, octal and hexdecimal format. The result is
+	 * unsigned.
 	 */
 	private int toInt(String value) {
 		if (value.startsWith("0x")) {
 			// Hexdecimal
-			//FIXME fix the parse
+			// FIXME fix the parse
 			return Integer.parseInt(value.substring(2), 16);
 		} else if (value.startsWith("0") && (value.length() > 1)) {
 			// Octal
@@ -419,16 +463,17 @@ public class Magic {
 	}
 
 	/**
-	 * Convert to long from decimal, octal and hexdecimal format.
+	 * Convert to long from decimal, octal and hexdecimal format. The result is
+	 * unsigned.
 	 */
 	private long toLong(String rawvalue) {
 		String value = rawvalue;
 		if (rawvalue.toUpperCase().endsWith("L")) {
-			value =  rawvalue.substring(0, rawvalue.length() - 1);
+			value = rawvalue.substring(0, rawvalue.length() - 1);
 		}
 
 		if (value.startsWith("0x")) {
-			//FIXME fix the parse
+			// FIXME fix the parse
 			// Hexdecimal
 			return Long.parseLong(value.substring(2), 16);
 		} else if (value.startsWith("0") && (value.length() > 1)) {
@@ -441,14 +486,11 @@ public class Magic {
 	}
 
 	/**
-	 * Convert to double from decimal, octal and hexdecimal format.
+	 * Convert to double from decimal, octal and hexdecimal format. The result
+	 * is unsigned.
 	 */
 	private double toDouble(String value) {
 		return Double.parseDouble(value);
-	}
-
-	private void println(String str) {
-		System.out.println(str);
 	}
 
 	private void printf(String format, Object... args) {
@@ -469,10 +511,10 @@ public class Magic {
 
 	/**
 	 * Inner bean containing the result of the detection: mime type and full
-	 * description.
+	 * fileDescription.
 	 * 
 	 */
-	public class Result {
+	public class Result implements Serializable {
 		private String mime;
 		private String description;
 
@@ -483,13 +525,38 @@ public class Magic {
 		public String getDescription() {
 			return description;
 		}
+
+		@Override
+		public String toString() {
+			return getDescription() + " ; mimetype: " + mime;
+		}
 	}
 
 	private class Type {
+		/**
+		 * The name assigned to this type. It must be unique.
+		 */
 		private final String name;
+
+		/**
+		 * The lenght in bytes.
+		 */
 		private final int lenght;
+
+		/**
+		 * The byte order : big-endian or little-endian.
+		 */
 		private final ByteOrder order;
+
+		/**
+		 * In not {@code null}, the value is to be AND’ed with the numeric value
+		 * before any comparisons are done.
+		 */
 		private final Long and;
+
+		/**
+		 * If {@code true} the ordered comparisons should be unsigned.
+		 */
 		private final boolean unsigned;
 
 		Type(String name, int lenght, ByteOrder byteorder, Long and, boolean unsigned) {
