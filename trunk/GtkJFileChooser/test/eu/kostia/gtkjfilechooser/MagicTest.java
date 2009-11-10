@@ -81,6 +81,9 @@ public class MagicTest {
 	public void testCafeBabe() throws Exception {
 		byte[] java = new byte[] { (byte) 0xca, (byte) 0xfe, (byte) 0xba, (byte) 0xbe };
 		long l = ByteUtil.toInt(ByteOrder.LITTLE_ENDIAN, java);
+
+		int unsigned32bit = 0xcafebabe;
+		int signed32bit = -889275714;
 		System.out.println(l);
 	}
 
