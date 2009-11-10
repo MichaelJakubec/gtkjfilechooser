@@ -143,11 +143,11 @@ public class ByteUtil {
 	static private byte[] toBytes(long value, ByteOrder bOrder, int n) {
 		byte[] dword = new byte[n];
 		for (int i = 0; i < n; i++) {
-			if (ByteOrder.BIG_ENDIAN == bOrder) {
-				dword[i] = (byte) ((value >> (i * 8)) & 0xff);
-			} else {
+			if (ByteOrder.BIG_ENDIAN.equals(bOrder)) {
 				// for litte-endian simply reverse the order
 				dword[i] = (byte) ((value >> ((n - 1 - i) * 8)) & 0xff);
+			} else {
+				dword[i] = (byte) ((value >> (i * 8)) & 0xff);
 			}
 		}
 
@@ -166,10 +166,10 @@ public class ByteUtil {
 	 */
 	static public short toShort(ByteOrder bOrder, byte... b) {
 		checkArray(b, "short", 2);
-		if (ByteOrder.BIG_ENDIAN == bOrder) {
-			return (short) ((b[0] & 0xff) << 0 | (b[1] & 0xff) << 8);
-		} else {
+		if (ByteOrder.BIG_ENDIAN.equals(bOrder)) {
 			return (short) ((b[0] & 0xff) << 8 | (b[1] & 0xff) << 0);
+		} else {
+			return (short) ((b[0] & 0xff) << 0 | (b[1] & 0xff) << 8);
 		}
 	}
 
@@ -185,12 +185,13 @@ public class ByteUtil {
 	 */
 	static public int toInt(ByteOrder bOrder, byte... b) {
 		checkArray(b, "int", 4);
-		if (ByteOrder.BIG_ENDIAN == bOrder) {
-			return (b[0] & 0xff) << 0 | (b[1] & 0xff) << 8 | (b[2] & 0xff) << 16
-			| (b[3] & 0xff) << 24;
-		} else {
+		if (ByteOrder.BIG_ENDIAN.equals(bOrder)) {
 			return (b[0] & 0xff) << 24 | (b[1] & 0xff) << 16 | (b[2] & 0xff) << 8
 			| (b[3] & 0xff) << 0;
+
+		} else {
+			return (b[0] & 0xff) << 0 | (b[1] & 0xff) << 8 | (b[2] & 0xff) << 16
+			| (b[3] & 0xff) << 24;
 		}
 
 	}
@@ -207,14 +208,14 @@ public class ByteUtil {
 	 */
 	static public long toLong(ByteOrder bOrder, byte... b) {
 		checkArray(b, "long", 8);
-		if (ByteOrder.BIG_ENDIAN == bOrder) {
-			return (b[0] & 0xff) << 0 | (b[1] & 0xff) << 8 | (b[2] & 0xff) << 16
-			| (b[3] & 0xff) << 24 | (b[4] & 0xff) << 32 | (b[5] & 0xff) << 40
-			| (b[6] & 0xff) << 48 | (b[7] & 0xff) << 56;
-		} else {
+		if (ByteOrder.BIG_ENDIAN.equals(bOrder)) {
 			return (b[0] & 0xff) << 56 | (b[1] & 0xff) << 48 | (b[2] & 0xff) << 40
 			| (b[3] & 0xff) << 32 | (b[4] & 0xff) << 24 | (b[5] & 0xff) << 16
 			| (b[6] & 0xff) << 8 | (b[7] & 0xff) << 0;
+		} else {
+			return (b[0] & 0xff) << 0 | (b[1] & 0xff) << 8 | (b[2] & 0xff) << 16
+			| (b[3] & 0xff) << 24 | (b[4] & 0xff) << 32 | (b[5] & 0xff) << 40
+			| (b[6] & 0xff) << 48 | (b[7] & 0xff) << 56;
 		}
 	}
 
@@ -235,6 +236,84 @@ public class ByteUtil {
 			throw new IllegalArgumentException(n + " bytes needed for type " + type);
 		}
 
+	}
+
+	static public String toHexString(byte[] bytes) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < bytes.length; i++) {
+			sb.append(Integer.toHexString(bytes[i] & 0xff).toUpperCase());
+			if (i < bytes.length - 1) {
+				sb.append(" ");
+			}
+		}
+
+		return sb.toString();
+	}
+
+	/**
+	 * Convert an signed byte value to an unsigned short value.<br />
+	 * Java uses only signed values, but sometimes you can need a conversion.
+	 * 
+	 * @param signed A signed byte value
+	 * @return A signed short value
+	 */
+	static public short toUnsigned(byte signed) {
+		return (short) (signed & 0xff);
+	}
+
+	/**
+	 * Convert an unsigned short value to a signed byte value.<br />
+	 * Java uses only signed values, but sometimes you can need a conversion.
+	 * 
+	 * @param unsigned An unsigned short value
+	 * @return A signed byte value
+	 */
+	static public byte toSigned(short unsigned) {
+		return (byte) unsigned;
+	}
+
+	/**
+	 * Convert an signed short value to an unsigned int value.<br />
+	 * Java uses only signed values, but sometimes you can need a conversion.
+	 * 
+	 * @param signed A signed short value
+	 * @return A signed int value
+	 */
+	static public int toUnsigned(short signed) {
+		return (signed & 0xffff);
+	}
+
+	/**
+	 * Convert an unsigned int value to a signed short value.<br />
+	 * Java uses only signed values, but sometimes you can need a conversion.
+	 * 
+	 * @param unsigned An unsigned int value
+	 * @return A signed short value
+	 */
+	static public short toSigned(int unsigned) {
+		return (short) unsigned;
+	}
+
+	/**
+	 * Convert an signed int value to an unsigned long value.<br />
+	 * Java uses only signed values, but sometimes you can need a conversion.
+	 * 
+	 * @param signed A signed int value
+	 * @return A signed long value
+	 */
+	static public long toUnsigned(int signed) {
+		return (signed & 0xffffffffL);
+	}
+
+	/**
+	 * Convert an unsigned long value to a signed int value.<br />
+	 * Java uses only signed values, but sometimes you can need a conversion.
+	 * 
+	 * @param unsigned An unsigned long value
+	 * @return A signed int value
+	 */
+	static public int toSigned(long unsigned) {
+		return (int) unsigned;
 	}
 
 }

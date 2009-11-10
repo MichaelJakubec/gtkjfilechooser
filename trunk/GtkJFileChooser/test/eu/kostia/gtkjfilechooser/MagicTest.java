@@ -39,20 +39,59 @@ import eu.kostia.gtkjfilechooser.Magic.Result;
  */
 public class MagicTest {
 
-	/**
-	 * Test method for
-	 * {@link eu.kostia.gtkjfilechooser.Magic#Magic(java.io.File)}.
-	 */
 	@Test
-	public void testMagic() throws Exception {
+	public void testMagicJavaClass() throws Exception {
 		Magic magic = new Magic(new File("misc/magic/magic"));
 		Result result = magic.detect(new File("misc/magic/testfiles/Wildcard.class"));
+		System.out.println(result);
 
-		// TODO Still implementing...
 		assertNotNull(result);
-		assertEquals("compiled Java class data, version 50.0 (Java 1.6)", result
-				.getDescription());
-		assertEquals("application/octet-stream", result.getMime());
+		assertEquals("compiled Java class data, version 50.0 (Java 1.6)", result.getDescription());
+		assertEquals("application/x-java-applet", result.getMime());
+	}
+
+	@Test
+	public void testMagicMp3() throws Exception {
+		Magic magic = new Magic(new File("misc/magic/magic"));
+		Result result = magic.detect(new File("misc/magic/testfiles/Jaws.mp3"));
+		System.out.println(result);
+
+		assertNotNull(result);
+		assertEquals("MPEG ADTS, layer III, v1, 128 kbps, 44.1 kHz, Stereo", result.getDescription());
+		assertEquals("application/x-java-applet", result.getMime());
+	}
+
+	@Test
+	public void testMagicOdt() throws Exception {
+		Magic magic = new Magic(new File("misc/magic/magic"));
+		Result result = magic.detect(new File("misc/magic/testfiles/softwarelist.odt"));
+		System.out.println(result);
+
+		assertNotNull(result);
+		assertEquals("OpenDocument Text", result.getDescription());
+		assertEquals("application/x-java-applet", result.getMime());
+	}
+
+	@Test
+	public void testMagicWord() throws Exception {
+		Magic magic = new Magic(new File("misc/magic/magic"));
+		Result result = magic.detect(new File("misc/magic/testfiles/Senior.doc"));
+		System.out.println(result);
+
+		assertNotNull(result);
+		assertEquals("CDF V2 Document, Little Endian, Os: Windows, Version 6.0, Code page: 1252, Title: Senior Finance Manager - GE Oil & Gas, Author: Euan Slater, Template: Normal.dotm, Last Saved By: Shola, Revision Number: 2, Name of Creating Application: Microsoft Office Word, Total Editing Time: 01:00, Create Time/Date: Mon Mar 23 15:49:00 2009, Last Saved Time/Date: Mon Mar 23 15:49:00 2009, Number of Pages: 3, Number of Words: 793, Number of Characters: 4525, Security: 0", result.getDescription());
+		assertEquals("application/x-java-applet", result.getMime());
+	}
+
+	@Test
+	public void testMagicExcel() throws Exception {
+		Magic magic = new Magic(new File("misc/magic/magic"));
+		Result result = magic.detect(new File("misc/magic/testfiles/testEXCEL.xls"));
+		System.out.println(result);
+
+		assertNotNull(result);
+		assertEquals("CDF V2 Document, Little Endian, Os: Windows, Version 5.1, Code page: 1252, Title: Simple Excel document, Author: Keith Bennett, Last Saved By: RIBEN9, Name of Creating Application: Microsoft Excel, Create Time/Date: Sun Sep 30 17:13:56 2007, Last Saved Time/Date: Sun Sep 30 17:31:43 2007, Security: 0", result.getDescription());
+		assertEquals("application/x-java-applet", result.getMime());
 	}
 
 	// Numeric values may be preceded by a character indicating the opera-
@@ -80,11 +119,31 @@ public class MagicTest {
 	@Test
 	public void testCafeBabe() throws Exception {
 		byte[] java = new byte[] { (byte) 0xca, (byte) 0xfe, (byte) 0xba, (byte) 0xbe };
-		long l = ByteUtil.toInt(ByteOrder.LITTLE_ENDIAN, java);
+		long l = ByteUtil.toInt(ByteOrder.BIG_ENDIAN, java);
+		System.out.println(ByteUtil.toHexString(java) + ": " + l);
 
-		int unsigned32bit = 0xcafebabe;
-		int signed32bit = -889275714;
-		System.out.println(l);
+		int signed32bit0 = 0xcafebabe;
+		byte[] b0 = ByteUtil.toBytes(signed32bit0, ByteOrder.BIG_ENDIAN);
+		System.out.println("int: " +signed32bit0 + " ; hex: " + ByteUtil.toHexString(b0));
+		assertEquals("CA FE BA BE", ByteUtil.toHexString(b0));
+
+
+		int signed32bit1 = -889275714;
+		long unsigned = signed32bit1 & 0xffffffffL; 
+		int ununsigned = (int) unsigned; 
+		System.out.println("signed32bit :" + signed32bit1 +" ; unsigned32bit: " + unsigned);
+		System.out.println("ununsigned: " + ununsigned);
+		//3405691582
+
+		long l0 = Long.parseLong("cafebabe", 16);
+		System.out.println("Long.parseLong(\"cafebabe\", 16): " + l0);
+
+		short signed16bit0 = (short) 0xcafe;
+		byte[] i0 = ByteUtil.toBytes(signed16bit0, ByteOrder.BIG_ENDIAN);
+		System.out.println("int: " +signed16bit0 + " ; hex: " + ByteUtil.toHexString(i0));
+		System.out.println("Integer.parseInt(\"cafe\", 16): " + Integer.parseInt("cafe", 16));
+		assertEquals("CA FE", ByteUtil.toHexString(i0));
+
 	}
 
 }
