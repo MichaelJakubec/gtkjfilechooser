@@ -157,10 +157,15 @@ public class Magic {
 
 			byte[] b = readByte(offset, len);
 
-			if ("0xcafebabe".equals(test)) {
-				// TODO remove
-				System.out.println(test);
+			// TODO remove --------------------------------------
+			if ("0xFFFA".equals(test)) {				
+				System.out.println(line);
 			}
+			
+			if ("0x90".equals(test)) {				
+				System.out.println(line);
+			}			
+			// --------------------------------------------------
 
 			Object value = performTest(type, b, test);
 
@@ -429,16 +434,13 @@ public class Magic {
 		} else if ("lestring16".equals(type)) {
 			return new Type("lestring16", 2, LITTLE_ENDIAN, and, unsigned);
 		} else if (type.startsWith("string")) {
-			// TODO type string
-			return new Type("", -1, null, and, unsigned);
+			return new Type(type, -1, null, null, unsigned);
 		} else if (type.startsWith("pstring")) {
-			// TODO type pstring
-			return new Type("", -1, null, and, unsigned);
+			return new Type(type, -1, null, null, unsigned);
 		} else if (type.startsWith("search")) {
-			// TODO type search
-			return new Type("", -1, null, and, unsigned);
+			return new Type(type, -1, null, null, unsigned);
 		} else if ("default".equals(type)) {
-			return new Type("", -1, null, and, unsigned);
+			return new Type(type, -1, null, null, unsigned);
 		}
 
 		throw new IllegalArgumentException("Type '" + type + "' is unknown.");
@@ -572,7 +574,7 @@ public class Magic {
 		}
 
 		boolean isIntegerNumber() {
-			return name.indexOf("short") != -1 || name.indexOf("long") != -1
+			return name.indexOf("byte") != -1 || name.indexOf("short") != -1 || name.indexOf("long") != -1
 			|| name.indexOf("quad") != -1;
 		}
 
