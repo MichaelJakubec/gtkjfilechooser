@@ -21,12 +21,12 @@ createFolderButton.setMnemonic(getMnemonic("Create Fo_lder"));
 
 It can also be used for declaring the mnemonics.
 
-This is a general procedure to internationalise application using the gettext tools and approch:
+This is a general procedure to internationalise application using the gettext approach:
 
 {{{
 $ xgettext -k -k_ -o keys.pot $(find src/ -name "*.java")
 }}}
-Create a .pot file, extraction all the strings in the function _()
+Create a .pot file, extracting all the strings in the function `_()`
 Example:
 {{{
 #: test/eu/kostia/gtkjfilechooser/POTest.java:14
@@ -41,9 +41,9 @@ msgstr ""
 {{{
 $ msgmerge it.po keys.pot --output-file=keys.it.po
 }}}
-Given than it.pot there is already a bundle of translations for some msgids, this command merges the translation and saves the result in keys.it.po
-Note that the .pot files contain the msgid and the msgstr are empty, while the ._lang iso_.po files contain the transaltions.
-Output example (if the msgid are already present and traslated in it.pot)
+The file _it.pot_ contains a bundle of translations for some msgids and the above command merges the translations and saves the result in _keys.it.po_
+Note that the _.pot_ files contain msgids and emtpy msgstrs, while the ._lang iso_.po files contain the translations.
+Output example (if the msgid are already present and traslated in _it.pot_)
 {{{
 #: test/eu/kostia/gtkjfilechooser/POTest.java:14
 msgid "Hallo, how are you?"
@@ -54,12 +54,12 @@ msgid "Fine, thanks!"
 msgstr "Bene, grazie!"
 }}}
 
-To translate the remaining msgid one can use GUI tools like [www.poedit.net poedit].
+To translate the remaining msgid you can use GUI tools like [www.poedit.net poedit].
 
 {{{
 $ msgfmt keys.it.pot
 }}}
-Create the binary .mo file that then it's really used in the applications.
+Create the binary .mo file (the one that it's really used in the applications).
 Example:
 {{{
 System.out.printf (_("This program is running as process number %d.\n"), pid);
