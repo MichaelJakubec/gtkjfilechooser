@@ -27,6 +27,7 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -56,9 +57,9 @@ public class MagicTest {
 		Result result = magic.detect(new File("misc/magic/testfiles/Jaws.mp3"));
 		System.out.println(result);
 
-		assertNotNull(result);
+		assertNotNull("Result is null", result);
 		assertEquals("MPEG ADTS, layer III, v1, 128 kbps, 44.1 kHz, Stereo", result.getDescription());
-		assertEquals("application/x-java-applet", result.getMime());
+		assertEquals("audio/mpeg", result.getMime());
 	}
 
 	@Test
@@ -67,7 +68,7 @@ public class MagicTest {
 		Result result = magic.detect(new File("misc/magic/testfiles/softwarelist.odt"));
 		System.out.println(result);
 
-		assertNotNull(result);
+		assertNotNull("Result is null", result);
 		assertEquals("OpenDocument Text", result.getDescription());
 		assertEquals("application/x-java-applet", result.getMime());
 	}
@@ -78,7 +79,7 @@ public class MagicTest {
 		Result result = magic.detect(new File("misc/magic/testfiles/Senior.doc"));
 		System.out.println(result);
 
-		assertNotNull(result);
+		assertNotNull("Result is null", result);
 		assertEquals("CDF V2 Document, Little Endian, Os: Windows, Version 6.0, Code page: 1252, Title: Senior Finance Manager - GE Oil & Gas, Author: Euan Slater, Template: Normal.dotm, Last Saved By: Shola, Revision Number: 2, Name of Creating Application: Microsoft Office Word, Total Editing Time: 01:00, Create Time/Date: Mon Mar 23 15:49:00 2009, Last Saved Time/Date: Mon Mar 23 15:49:00 2009, Number of Pages: 3, Number of Words: 793, Number of Characters: 4525, Security: 0", result.getDescription());
 		assertEquals("application/x-java-applet", result.getMime());
 	}
@@ -89,7 +90,7 @@ public class MagicTest {
 		Result result = magic.detect(new File("misc/magic/testfiles/testEXCEL.xls"));
 		System.out.println(result);
 
-		assertNotNull(result);
+		assertNotNull("Result is null", result);
 		assertEquals("CDF V2 Document, Little Endian, Os: Windows, Version 5.1, Code page: 1252, Title: Simple Excel document, Author: Keith Bennett, Last Saved By: RIBEN9, Name of Creating Application: Microsoft Excel, Create Time/Date: Sun Sep 30 17:13:56 2007, Last Saved Time/Date: Sun Sep 30 17:31:43 2007, Security: 0", result.getDescription());
 		assertEquals("application/x-java-applet", result.getMime());
 	}
@@ -145,5 +146,19 @@ public class MagicTest {
 		assertEquals("CA FE", ByteUtil.toHexString(i0));
 
 	}
+	
+	@Test
+	public void testZipString() throws Exception {		
+		String s = "PK\003\004";
+		System.out.println("Zip String 1: " + s);
+		
+		byte[] b = new byte[] {0x50, 0x4b, 0x03, 0x04};
+		System.out.println("Zip String 2: " + new String(b, Charset.forName("UTF-8")));
+		
+		String s0 = "PK\\003\\004";
+		
+		
+	}
+	
 
 }
