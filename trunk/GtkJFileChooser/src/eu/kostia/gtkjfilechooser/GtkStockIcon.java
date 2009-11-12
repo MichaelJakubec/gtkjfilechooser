@@ -35,12 +35,14 @@ import java.lang.reflect.Constructor;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
+import java.util.logging.Level;
 import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil.WellKnownDir;
+import eu.kostia.gtkjfilechooser.ui.MissingResourceIcon;
 
 public class GtkStockIcon {
 
@@ -89,7 +91,8 @@ public class GtkStockIcon {
 		String filename = ICONS_FOLDER + "/" + size.getSize() + "x" + size.getSize()
 		+ "/" + name + ".png";
 		if (!new File(filename).exists()) {
-			throw new IllegalArgumentException("No icon file '" + filename + "'.");
+			Log.log(Level.WARNING, "No icon file '" , filename , "'.");
+			return new MissingResourceIcon(size.getSize());
 		}
 		return new ImageIcon(filename);
 	}
