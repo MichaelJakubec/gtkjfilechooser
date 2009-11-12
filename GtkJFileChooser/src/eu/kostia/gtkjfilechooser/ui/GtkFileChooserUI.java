@@ -1507,10 +1507,11 @@ PropertyChangeListener, ActionListener {
 			return;
 		}
 
+		Rectangle bound = GtkFileChooserSettings.get().getBound();
+
 		Dimension size = dialog.getSize();
 		if (size.width == 0 && size.height == 0 ){
-			// the size wasn't yet initialized, use the .ini file size
-			Rectangle bound = GtkFileChooserSettings.get().getBound();
+			// the size wasn't yet initialized, use the .ini file size			
 			if (bound != null) {
 				size = new Dimension(bound.width, bound.height);
 			} else {
@@ -1521,7 +1522,7 @@ PropertyChangeListener, ActionListener {
 
 		if (expand) {
 			if (expandedHeight == -1) {
-				expandedHeight = GtkFileChooserSettings.get().getBound().height;
+				expandedHeight = bound != null ? bound.height : MIN_EXPANDED_HEIGHT;
 			}
 			if (expandedHeight < MIN_EXPANDED_HEIGHT) {
 				expandedHeight = MIN_EXPANDED_HEIGHT;
