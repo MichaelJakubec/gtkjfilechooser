@@ -34,9 +34,14 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Scanner;
+
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 /**
  * <p>
@@ -99,7 +104,8 @@ public class Magic {
 				} else if (line.startsWith(">")) {
 					// subsequent-level magic pattern
 					int level = level(line);
-					if(currentLevel >= 0) {
+					// Process if the current level is equals or a step forward.
+					if (currentLevel == level || currentLevel == (level - 1)) {
 						processLine(line, level);
 					}
 					// println(level+"\t"+line);
@@ -137,37 +143,38 @@ public class Magic {
 	}
 
 	private void processLine(String line, int level) throws IOException {
+		//Workaround to include spaces (they are escaped) (Part A)
+		line = line.replace("\\ ", String.valueOf((char)0x04));
+
 		try {
 			Scanner sc1 = new Scanner(line.substring(level));
 
 			int offset = toInt(sc1.next());
 			Type type = parseType(sc1.next());
-			String test = sc1.next();
-
-			int len = type.lenght;
-			if (len == -1) {
-				// TODO string, pstring, search, default still to
-				// implement.
-				return;
-			}
-
-			if (offset + len > channel.size()) {
-				return;
-			}
-
-			byte[] b = readByte(offset, len);
+			String test = sc1.next().replace(String.valueOf((char)0x04), " ");
+			test = convertString(test);
 
 			// TODO remove --------------------------------------
-			if ("0xFFFA".equals(test)) {				
+			if ("0xcafebabe".equals(test)) {
 				System.out.println(line);
 			}
-			
-			if ("0x90".equals(test)) {				
+
+			if ("0x90".equals(test)) {
 				System.out.println(line);
-			}			
+			}
 			// --------------------------------------------------
 
-			Object value = performTest(type, b, test);
+			Object value = null;
+			if (type.isString()) {
+				value = performStringTest(offset, type, test);
+			} else {
+				int len = type.lenght;
+				if (len > 0 && (offset + len) > channel.size()) {
+					// File too small
+					return;				
+				}
+				value = performByteTest(type, readByte(offset, len), test);
+			}
 
 			// The test is passed when the value
 			// is different from null.
@@ -177,7 +184,7 @@ public class Magic {
 					fileDescription = new StringBuilder();
 					// 0 is the top-level
 					currentLevel = 0;
-				}				
+				}
 
 				// when the test passed, the currentLevel to its level.
 				currentLevel = level;
@@ -186,7 +193,7 @@ public class Magic {
 				sc1.useDelimiter("\\Z");
 				String message = sc1.hasNext() ? sc1.next().trim() : null;
 				if (message != null) {
-					//handle backspace (\b)
+					// handle backspace (\b)
 					if (message.startsWith("\\b")) {
 						fileDescription.deleteCharAt(fileDescription.length() - 1);
 						message = message.substring("\\b".length());
@@ -202,7 +209,8 @@ public class Magic {
 		}
 	}
 
-	private byte[] readByte(int offset, int len) throws IOException {
+
+	byte[] readByte(int offset, int len) throws IOException {
 		ByteBuffer bb = channel.map(MapMode.READ_ONLY, offset, len);
 
 		byte[] b = new byte[bb.limit()];
@@ -212,7 +220,25 @@ public class Magic {
 		return b;
 	}
 
-	private Object performTest(Type type, byte[] b, String test) {
+	private Object performStringTest(int offset, Type type, String test) throws IOException {
+		//TODO handle other string cases (with /[Bbc]*)
+		if ("string".equals(type.name)) {
+			int len = test.length();
+			if (len > 0 && (offset + len) > channel.size()) {
+				// File too small
+				return null;				
+			}
+			byte[] b = readByte(offset, len);
+			return test.equals(new String(b, Charset.forName("UTF-8"))) ? "" : null; 
+		}
+
+		return null;
+	}
+
+	/**
+	 * When the byte lenght is fixed...
+	 */
+	private Object performByteTest(Type type, byte[] b, String test) {
 		Object value = null;
 		// The special test x always evaluates to true
 		boolean passed = "x".equals(test);
@@ -224,7 +250,7 @@ public class Magic {
 			value = actual;
 			if (!passed) {
 				if (test.length() > 1
-						&& Arrays.binarySearch(OPERATORS, test.charAt(0)) > 0) {
+						&& Arrays.binarySearch(OPERATORS, test.charAt(0)) >= 0) {
 					long expected = toLong(test.substring(1));
 					char operator = test.charAt(0);
 					switch (operator) {
@@ -291,8 +317,6 @@ public class Magic {
 				passed = (actual == expected);
 			}
 		} else if (type.isDate()) {
-			// TODO
-		} else if (type.isString()) {
 			// TODO
 		}
 
@@ -446,22 +470,118 @@ public class Magic {
 		throw new IllegalArgumentException("Type '" + type + "' is unknown.");
 	}
 
+	private String convertString(String str) {		
+		try {
+			ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
+			return (String) engine.eval("'" + str + "'");
+		} catch (ScriptException e) {
+			throw new IllegalStateException("Cannot parse string '" + str + "'");
+		}
+	}
+
 	/**
 	 * Convert to int from decimal, octal and hexdecimal format. The result is
 	 * unsigned.
+	 * 
+	 * @throws IOException
 	 */
-	private int toInt(String value) {
+	int toInt(String value) throws IOException {
 		if (value.startsWith("0x")) {
 			// Hexdecimal
-			// FIXME fix the parse
 			return Integer.parseInt(value.substring(2), 16);
 		} else if (value.startsWith("0") && (value.length() > 1)) {
 			// Octal
 			return Integer.parseInt(value.substring(1), 8);
+		} else if (value.startsWith("(") && value.endsWith(")")) {
+			// Indirect offset: read from the file being examined.
+			long result = -1;
+
+			// remove ( and )
+			String indirect = value.substring(1, value.length() - 1);
+
+			int idx = indirect.indexOf('.');
+			if (idx < 0) {
+				// Offset without type or operations
+				return toInt(indirect);
+			} else {
+				int offset = toInt(indirect.substring(0, idx));
+
+				char t = indirect.charAt(idx + 1);
+				result = getIndirectValue(offset, t);
+
+				// operation
+				if (indirect.length() > idx + 2) {
+					char op = indirect.charAt(idx + 2);
+					long rightValue = toLong(indirect.substring(idx + 3));
+					result = doOperation(result, op, rightValue);
+				}
+			}
+
+			// TODO test
+			return (int) result;
 		}
 
 		// Decimal
 		return Integer.parseInt(value);
+	}
+
+	private long doOperation(long left, char op, long right) {
+		switch (op) {
+		case '+':
+			return left + right;
+		case '-':
+			return left - right;
+		case '*':
+			return left * right;
+		case '/':
+			return left / right;
+		case '%':
+			return left % right;
+		case '&':
+			return left & right;
+		case '|':
+			return left | right;
+		case '^':
+			return left ^ right;
+		default:
+			throw new IllegalArgumentException("Unknown type: '" + op + "'");
+		}
+	}
+
+	private long getIndirectValue(int offset, char t) throws IOException {
+		switch (t) {
+		case 'b':
+			// little-endian byte
+			return readByte(offset, 1)[0];
+		case 'i':
+			// little-endian id3 length
+			// NOT IMPLEMENTED
+			return -1;
+		case 's':
+			// little-endian short
+			return ByteUtil.toShort(LITTLE_ENDIAN, readByte(offset, 2));
+		case 'l':
+			// little-endian long
+			return ByteUtil.toLong(LITTLE_ENDIAN, readByte(offset, 8));
+		case 'B':
+			// big-endian byte
+			return readByte(offset, 1)[0];
+		case 'I':
+			// big-endian id3 length
+			// NOT IMPLEMENTED
+			return -1;
+		case 'S':
+			// big-endian short
+			return ByteUtil.toShort(BIG_ENDIAN, readByte(offset, 2));
+		case 'L':
+			// big-endian long
+			return ByteUtil.toLong(BIG_ENDIAN, readByte(offset, 8));
+		case 'm':
+			// NOT IMPLEMENTED
+			return -1;
+		default:
+			throw new IllegalArgumentException("Unknown type: '" + t + "'");
+		}
 	}
 
 	/**
@@ -475,7 +595,6 @@ public class Magic {
 		}
 
 		if (value.startsWith("0x")) {
-			// FIXME fix the parse
 			// Hexdecimal
 			return Long.parseLong(value.substring(2), 16);
 		} else if (value.startsWith("0") && (value.length() > 1)) {
@@ -541,7 +660,7 @@ public class Magic {
 		private final String name;
 
 		/**
-		 * The lenght in bytes.
+		 * The lenght in bytes. -1 for values without fixed lenght as strings.
 		 */
 		private final int lenght;
 
@@ -574,8 +693,8 @@ public class Magic {
 		}
 
 		boolean isIntegerNumber() {
-			return name.indexOf("byte") != -1 || name.indexOf("short") != -1 || name.indexOf("long") != -1
-			|| name.indexOf("quad") != -1;
+			return name.indexOf("byte") != -1 || name.indexOf("short") != -1
+			|| name.indexOf("long") != -1 || name.indexOf("quad") != -1;
 		}
 
 		boolean isDecimalNumber() {
@@ -583,7 +702,18 @@ public class Magic {
 		}
 
 		boolean isString() {
-			return name.indexOf("string") != -1;
+			return name.indexOf("string") != -1 || name.indexOf("search") != -1;
+		}
+
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("Type [and=").append(and);
+			builder.append(", lenght=").append(lenght);
+			builder.append(", name=").append(name);
+			builder.append(", order=").append(order);
+			builder.append(", unsigned=").append(unsigned).append("]");
+			return builder.toString();
 		}
 	}
 }

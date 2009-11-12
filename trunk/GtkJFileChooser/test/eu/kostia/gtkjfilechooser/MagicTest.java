@@ -30,6 +30,9 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+
 import org.junit.Test;
 
 import eu.kostia.gtkjfilechooser.Magic.Result;
@@ -70,7 +73,7 @@ public class MagicTest {
 
 		assertNotNull("Result is null", result);
 		assertEquals("OpenDocument Text", result.getDescription());
-		assertEquals("application/x-java-applet", result.getMime());
+		assertEquals("application/vnd.oasis.opendocument.text", result.getMime());
 	}
 
 	@Test
@@ -88,6 +91,17 @@ public class MagicTest {
 	public void testMagicExcel() throws Exception {
 		Magic magic = new Magic(new File("misc/magic/magic"));
 		Result result = magic.detect(new File("misc/magic/testfiles/testEXCEL.xls"));
+		System.out.println(result);
+
+		assertNotNull("Result is null", result);
+		assertEquals("CDF V2 Document, Little Endian, Os: Windows, Version 5.1, Code page: 1252, Title: Simple Excel document, Author: Keith Bennett, Last Saved By: RIBEN9, Name of Creating Application: Microsoft Excel, Create Time/Date: Sun Sep 30 17:13:56 2007, Last Saved Time/Date: Sun Sep 30 17:31:43 2007, Security: 0", result.getDescription());
+		assertEquals("application/x-java-applet", result.getMime());
+	}
+
+	@Test
+	public void testWinExe() throws Exception {
+		Magic magic = new Magic(new File("misc/magic/magic"));
+		Result result = magic.detect(new File("misc/magic/testfiles/control.exe"));
 		System.out.println(result);
 
 		assertNotNull("Result is null", result);
@@ -146,19 +160,56 @@ public class MagicTest {
 		assertEquals("CA FE", ByteUtil.toHexString(i0));
 
 	}
-	
+
 	@Test
 	public void testZipString() throws Exception {		
 		String s = "PK\003\004";
 		System.out.println("Zip String 1: " + s);
-		
+
 		byte[] b = new byte[] {0x50, 0x4b, 0x03, 0x04};
 		System.out.println("Zip String 2: " + new String(b, Charset.forName("UTF-8")));
-		
-		String s0 = "PK\\003\\004";
-		
-		
+
+		String s0 = "PK\\003\\004";		
+		//		System.out.println("s0 = " + convertStringProps(s0));
+
+		ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
+		String x = (String) engine.eval("'"+s0+"'");
+		System.out.println("x = " + x);
+
 	}
-	
+
+
+	@Test
+	public void testToInt0() throws Exception {		
+		Magic magic = new Magic(new File("misc/magic/magic")) {
+			@Override
+			byte[] readByte(int offset, int len) throws java.io.IOException {
+				byte[] bb = new byte[len];
+				for (int i = 0; i < bb.length; i++) {
+					bb[i] = 10;					
+				}
+
+				return bb;
+			};
+		};
+		magic.toInt("(0x3c.l)");
+	}
+
+	@Test
+	public void testToInt1() throws Exception {		
+		Magic magic = new Magic(new File("misc/magic/magic")) {
+			@Override
+			byte[] readByte(int offset, int len) throws java.io.IOException {
+				byte[] bb = new byte[len];
+				for (int i = 0; i < bb.length; i++) {
+					bb[i] = 10;					
+				}
+
+				return bb;
+			};
+		};
+		magic.toInt("(4.s*512)");
+	}
+
 
 }
