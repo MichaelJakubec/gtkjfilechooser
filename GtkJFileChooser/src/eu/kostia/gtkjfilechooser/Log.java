@@ -44,7 +44,7 @@ public class Log {
 	 */
 	static final private boolean DEBUG = false;
 
-	static public void debug(Object... msgs) {
+	static public void debug0(Object... msgs) {
 		if (DEBUG) {
 			String location = getInvokingLocation();
 
@@ -58,11 +58,27 @@ public class Log {
 		}
 	}
 
-	static public void debug0(Object... msgs) {
+	static public void debug(Object... msgs) {
 		if (LOG.isLoggable(Level.FINEST)) {
 			StringBuilder sb = new StringBuilder();
 			appendMessages(sb, msgs);
 			LOG.finest(sb.toString());
+		}
+	}
+
+	static public void log(Level level, Object... msgs) {
+		if (LOG.isLoggable(Level.WARNING)) {
+			StringBuilder sb = new StringBuilder();
+			appendMessages(sb, msgs);
+			LOG.log(level, sb.toString());
+		}
+	}
+
+	static public void log(Level level, Throwable thrown, Object... msgs) {
+		if (LOG.isLoggable(Level.WARNING)) {
+			StringBuilder sb = new StringBuilder();
+			appendMessages(sb, msgs);
+			LOG.log(level, sb.toString(), thrown);
 		}
 	}
 
