@@ -96,10 +96,8 @@ public class GtkStockIcon {
 
 	private static Icon getFromStock(String name, Size size) {
 		try {
-			Class<?> gtkStockIconClass = Class
-			.forName("com.sun.java.swing.plaf.gtk.GTKStyle$GTKStockIcon");
-			Constructor<?> constructor = gtkStockIconClass.getDeclaredConstructor(
-					String.class, int.class);
+			Class<?> gtkStockIconClass = Class.forName("com.sun.java.swing.plaf.gtk.GTKStyle$GTKStockIcon");
+			Constructor<?> constructor = gtkStockIconClass.getDeclaredConstructor(String.class, int.class);
 			constructor.setAccessible(true);
 			return (Icon) constructor.newInstance(name, size.ordinal());
 		} catch (Exception ex) {
@@ -225,9 +223,7 @@ public class GtkStockIcon {
 	 * Detect the mime of file according to the "shared-mime-info-spec" and
 	 * returns the corresponding icon file.
 	 * 
-	 * @see http 
-	 *      ://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info
-	 *      -spec-latest.html
+	 * @see {@link http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html}
 	 */
 	private static File lookForMime(File file) throws IOException {
 		String name = file.getName();
@@ -356,14 +352,13 @@ public class GtkStockIcon {
 	/**
 	 * Look for thumns. Return null is no thumn was found.
 	 * 
-	 * @see http 
-	 *      ://library.gnome.org/devel/libgnomeui/stable/libgnomeui-GnomeThumbnail
-	 *      .html#gnome-thumbnail-md5
+	 * @see {@link http://library.gnome.org/devel/libgnomeui/stable/libgnomeui-GnomeThumbnail.html#gnome-thumbnail-md5}
 	 */
 	private static File lookForThumbs(File file) {
-		String filename = System.getProperty("user.home") + "/.thumbnails/normal";
-		String md5 = md5("file://" + file.getAbsolutePath());
-		File thumn = new File(filename + "/" + md5 + ".png");
+		String thumbsFolder = System.getProperty("user.home") + "/.thumbnails/normal";
+		String md5 = md5(toFileuri(file));
+
+		File thumn = new File(thumbsFolder + "/" + md5 + ".png");
 
 		if (!thumn.exists()) {
 			return null;
@@ -371,7 +366,11 @@ public class GtkStockIcon {
 		return thumn;
 	}
 
-	static private String md5(String uri) {
+	static String toFileuri(File file) {
+		return file.toURI().toASCIIString().replace("file:", "file://");
+	}
+
+	static String md5(String uri) {
 		try {
 			MessageDigest md5 = MessageDigest.getInstance("MD5");
 			byte[] result = md5.digest(uri.getBytes());
