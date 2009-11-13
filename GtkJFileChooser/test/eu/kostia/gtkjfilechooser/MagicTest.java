@@ -98,6 +98,9 @@ public class MagicTest {
 		assertEquals("application/x-java-applet", result.getMime());
 	}
 
+	/**
+	 * See rule on row 10212 in /usr/share/magic
+	 */
 	@Test
 	public void testWinExe() throws Exception {
 		Magic magic = new Magic(new File("misc/magic/magic"));
@@ -105,8 +108,8 @@ public class MagicTest {
 		System.out.println(result);
 
 		assertNotNull("Result is null", result);
-		assertEquals("CDF V2 Document, Little Endian, Os: Windows, Version 5.1, Code page: 1252, Title: Simple Excel document, Author: Keith Bennett, Last Saved By: RIBEN9, Name of Creating Application: Microsoft Excel, Create Time/Date: Sun Sep 30 17:13:56 2007, Last Saved Time/Date: Sun Sep 30 17:31:43 2007, Security: 0", result.getDescription());
-		assertEquals("application/x-java-applet", result.getMime());
+		assertEquals("PE32 executable for MS Windows (GUI) Intel 80386 32-bit", result.getDescription());
+		assertEquals("application/octet-stream", result.getMime());
 	}
 
 	// Numeric values may be preceded by a character indicating the opera-
