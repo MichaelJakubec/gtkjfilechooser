@@ -825,6 +825,7 @@ PropertyChangeListener, ActionListener {
 		JLabel fileNameLabel = new JLabel(fileNameLabelText);
 		fileNameLabel.setDisplayedMnemonic(fileNameLabelMnemonic);
 		filenamePanel.add(fileNameLabel);
+		filenamePanel.add(Box.createRigidArea(new Dimension(15,0)));
 
 		fileNameTextField = new JTextField() {
 			private static final long serialVersionUID = GtkFileChooserUI.serialVersionUID;
