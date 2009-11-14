@@ -76,6 +76,20 @@ public class MagicTest {
 		assertEquals("application/vnd.oasis.opendocument.text", result.getMime());
 	}
 
+	/**
+	 * See rule on row 3454 in /usr/share/magic
+	 */
+	@Test
+	public void testMagicGZip() throws Exception {
+		Magic magic = new Magic(new File("misc/magic/magic"));
+		Result result = magic.detect(new File("misc/magic/testfiles/sca.gz"));
+		System.out.println(result);
+
+		assertNotNull("Result is null", result);
+		assertEquals("gzip compressed data, was \"sca.pdf\", from Unix, last modified: Sat Nov 07 00:02:45 CET 2009", result.getDescription());
+		assertEquals("application/x-gzip", result.getMime());
+	}
+
 	@Test
 	public void testMagicWord() throws Exception {
 		Magic magic = new Magic(new File("misc/magic/magic"));
@@ -212,6 +226,14 @@ public class MagicTest {
 			};
 		};
 		magic.toInt("(4.s*512)");
+
+		String s = "0111";ByteUtil.toBinaryString(7);
+		char[] c = new char[s.length()];
+		for (int i = 0; i < c.length; i++) {
+			c[i] = s.charAt(i) == '0' ? '1' : '0';
+
+		}
+		System.out.println(Long.parseLong(String.valueOf(c), 2));
 	}
 
 

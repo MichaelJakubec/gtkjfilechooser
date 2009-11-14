@@ -34,7 +34,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Scanner;
@@ -104,11 +103,10 @@ public class Magic {
 				} else if (line.startsWith(">")) {
 					// subsequent-level magic pattern
 					int level = level(line);
-					// Process if the current level is equals or a step forward.
-					if (currentLevel == level || currentLevel == (level - 1)) {
+					// Process if the current level is equals or a step forward or backwards.
+					if (currentLevel == level || currentLevel == (level - 1) || currentLevel == (level + 1)) {
 						processLine(line, level);
 					}
-					// println(level+"\t"+line);
 				} else {
 					// top-level magic pattern
 
@@ -155,11 +153,11 @@ public class Magic {
 			test = convertString(test);
 
 			// TODO remove --------------------------------------
-			if ("0xcafebabe".equals(test)) {
+			if ("PK\003\004".equals(test)) {
 				System.out.println(line);
 			}
 
-			if ("0x90".equals(test)) {
+			if (test.indexOf("M.K.") != -1) {
 				System.out.println(line);
 			}
 			// --------------------------------------------------
@@ -210,6 +208,10 @@ public class Magic {
 	}
 
 
+	/**
+	 * Returns an array of signed bytes
+	 */
+	//TODO caching this method improve the performance?
 	byte[] readByte(int offset, int len) throws IOException {
 		ByteBuffer bb = channel.map(MapMode.READ_ONLY, offset, len);
 
@@ -220,19 +222,57 @@ public class Magic {
 		return b;
 	}
 
+	/**
+	 * Returns an array of signed bytes
+	 */
+	int[] readUnsignedByte(int offset, int len) throws IOException {
+		byte[] b = readByte(offset, len);
+		int[] bu = new int[len];		
+		for (int i = 0; i < len; i++) {
+			bu[i] = b[i] & 0xff;			
+		}
+
+		return bu;
+	}
+
 	private Object performStringTest(int offset, Type type, String test) throws IOException {
 		//TODO handle other string cases (with /[Bbc]*)
 		if ("string".equals(type.name)) {
-			int len = test.length();
-			if (len > 0 && (offset + len) > channel.size()) {
-				// File too small
-				return null;				
+
+			String str = readString(offset);
+
+			if ("x".equals(test)) {
+				return str;
+			} else {
+				return str.startsWith(test) ? test : null; 
 			}
-			byte[] b = readByte(offset, len);
-			return test.equals(new String(b, Charset.forName("UTF-8"))) ? "" : null; 
 		}
 
 		return null;
+	}
+
+	/**
+	 * Beginning from the given offset, it read a string (as in C, a string is
+	 * sequence of chars terminated with 0). For performance the max string
+	 * length is 255.
+	 */
+	private String readString(int offset) throws IOException {
+		//usually the string used for description aren't more than 255 chars.
+		int k = 255;
+		int len = (offset + k) <= channel.size() ? k : (int) channel.size() - offset;
+		if (len <= 0) {
+			return "";
+		}
+		int[] bu = readUnsignedByte(offset, len);
+		int n = 0;
+		for (n = 0; n < bu.length; n++) {
+			if (bu[n] == 0) {
+				//like in C the strings are 0 terminated.
+				break;
+			}					
+		}
+		bu = Arrays.copyOf(bu, n);
+		return new String(bu, 0, bu.length);
 	}
 
 	/**
@@ -267,19 +307,13 @@ public class Magic {
 						passed = (actual > expected);
 						break;
 					case '&':
-						// The actual value must have set all of the bits
-						// that are set in the specified value.
-						// TODO
+						passed = and(actual, expected);
 						break;
 					case '^':
-						// The actual value must have clear any of the
-						// bits that are set in the specified value.
-						// TODO
+						passed = xor(actual, expected);
 						break;
-					case '~':
-						// the value specified after is negated before tested
-						// (?)
-						// TODO
+					case '~':						
+						passed = not(actual, expected);
 						break;
 					}
 				} else {
@@ -317,10 +351,66 @@ public class Magic {
 				passed = (actual == expected);
 			}
 		} else if (type.isDate()) {
-			// TODO
+			value = toDate(type.order, b);
+			// for dates the test is always passed. They are used only for description.
+			passed = true;
 		}
 
 		return passed ? value : null;
+	}
+
+	/**
+	 * Return true if the actual value must have set all of the bits that are
+	 * set in the expected value.
+	 */
+	private boolean and(long actual, long expected) {
+		String a = ByteUtil.toBinaryString(actual);
+		String e =  ByteUtil.toBinaryString(expected);
+		for (int i = 0; i < e.length(); i++) {
+			if(e.charAt(i) == '1') {
+				if (a.charAt(i) != '1') {
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * The actual value must have clear any of the bits that are set in the
+	 * specified value.
+	 */
+	private boolean xor(long actual, long expected) {
+		String a = ByteUtil.toBinaryString(actual);
+		String e =  ByteUtil.toBinaryString(expected);
+		for (int i = 0; i < e.length(); i++) {
+			int x = (e.charAt(i) == '1') ? 1 : 0;
+			int y = (a.charAt(i) == '1') ? 1 : 0;
+			if ((x ^ y) != 1) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * The value specified after is negated before tested
+	 */
+	private boolean not(long actual, long expected) {
+		String a = ByteUtil.toBinaryString(actual);
+		String e =  ByteUtil.toBinaryString(expected);
+
+		//reverse the bits of the expected value
+		char[] r = new char[e.length()];
+		for (int i = 0; i < r.length; i++) {
+			r[i] = e.charAt(i) == '0' ? '1' : '0';
+
+		}
+
+		String er = String.valueOf(r);
+		return a.equals(er);
 	}
 
 	/**
@@ -369,9 +459,9 @@ public class Magic {
 
 		switch (len) {
 		case 4:
-			return new Date(ByteUtil.toInt(order, b) * 1000);
+			return new Date(ByteUtil.toInt(order, b) * 1000L);
 		case 8:
-			return new Date(ByteUtil.toLong(order, b) * 1000);
+			return new Date(ByteUtil.toLong(order, b) * 1000L);
 
 		default:
 			throw new IllegalArgumentException("Invalid length: " + len);
@@ -517,7 +607,7 @@ public class Magic {
 				}
 			}
 
-			// TODO test
+			// TODO test indirect offsets
 			return (int) result;
 		}
 
