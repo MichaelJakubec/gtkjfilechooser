@@ -316,6 +316,14 @@ public class ByteUtil {
 		return (int) unsigned;
 	}
 
+	static public String toBinaryString(long b) {
+		String s = Long.toBinaryString(b);
+		int n = 64;
+		char[] zeros = new char[n - s.length()];
+		Arrays.fill(zeros, '0');
+		return String.valueOf(zeros) + s;
+	}
+
 }
 
 abstract class ToByteArray {
