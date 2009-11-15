@@ -26,6 +26,7 @@ package eu.kostia.gtkjfilechooser;
 import static java.nio.ByteOrder.BIG_ENDIAN;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -88,7 +89,14 @@ public class Magic {
 			fstream = new FileInputStream(file);
 			channel = fstream.getChannel();
 
-			sc0 = new Scanner(magicfile);
+			if (channel.size() == 0L) {
+				result = new Result();
+				result.description = "empty";
+				result.mime = "application/x-empty";
+				return result;
+			}
+
+			sc0 = new Scanner(new BufferedInputStream(new FileInputStream(magicfile)));
 			while (sc0.hasNextLine()) {
 				String line = sc0.nextLine();
 				if (line.startsWith("#") || line.trim().isEmpty()) {
@@ -97,14 +105,18 @@ public class Magic {
 
 				if (line.startsWith("!:")) {
 					if (line.startsWith("!:mime") && currentLevel >= 0) {
-						result.mime = line.substring("!:mime".length()).trim();
+						int end = line.indexOf('#') != -1 ? line.indexOf('#') : line
+								.length();
+						result.mime = line.substring("!:mime".length(), end).trim();
 					}
 					// other options (mime, strength, etc...)
 				} else if (line.startsWith(">")) {
 					// subsequent-level magic pattern
 					int level = level(line);
-					// Process if the current level is equals or a step forward or backwards.
-					if (currentLevel == level || currentLevel == (level - 1) || currentLevel == (level + 1)) {
+					// Process if the current level is equals or a step forward
+					// or backwards.
+					if (currentLevel == level || currentLevel == (level - 1)
+							|| currentLevel == (level + 1)) {
 						processLine(line, level);
 					}
 				} else {
@@ -120,7 +132,7 @@ public class Magic {
 			}
 
 			if (fileDescription != null && fileDescription.length() > 0) {
-				result.description = fileDescription.toString().trim();
+				result.description = fileDescription.toString().trim().replace("\n", "");
 			}
 			return result;
 		} finally {
@@ -141,35 +153,38 @@ public class Magic {
 	}
 
 	private void processLine(String line, int level) throws IOException {
-		//Workaround to include spaces (they are escaped) (Part A)
-		line = line.replace("\\ ", String.valueOf((char)0x04));
+		// Workaround to include spaces (they are escaped) (Part A)
+		line = line.replace("\\ ", String.valueOf((char) 0x04));
 
 		try {
 			Scanner sc1 = new Scanner(line.substring(level));
 
 			int offset = toInt(sc1.next());
 			Type type = parseType(sc1.next());
-			String test = sc1.next().replace(String.valueOf((char)0x04), " ");
+			String test = sc1.next().replace(String.valueOf((char) 0x04), " ");
 			test = convertString(test);
 
 			// TODO remove --------------------------------------
-			if ("PK\003\004".equals(test)) {
-				System.out.println(line);
+			if (test.indexOf("<?xml version=") != -1) {
+				printf(line + "\n");
 			}
 
-			if (test.indexOf("M.K.") != -1) {
-				System.out.println(line);
+			// System.out.println(line);
+			if (line.indexOf("%s script text executable") != -1) {
+				println(line + "\n");
 			}
 			// --------------------------------------------------
 
 			Object value = null;
 			if (type.isString()) {
 				value = performStringTest(offset, type, test);
+			} else if (type.isRegex()) {
+				value = performRegexTest(offset, type, test);
 			} else {
 				int len = type.lenght;
 				if (len > 0 && (offset + len) > channel.size()) {
 					// File too small
-					return;				
+					return;
 				}
 				value = performByteTest(type, readByte(offset, len), test);
 			}
@@ -207,11 +222,10 @@ public class Magic {
 		}
 	}
 
-
 	/**
 	 * Returns an array of signed bytes
 	 */
-	//TODO caching this method improve the performance?
+	// TODO caching this method improve the performance?
 	byte[] readByte(int offset, int len) throws IOException {
 		ByteBuffer bb = channel.map(MapMode.READ_ONLY, offset, len);
 
@@ -227,27 +241,63 @@ public class Magic {
 	 */
 	int[] readUnsignedByte(int offset, int len) throws IOException {
 		byte[] b = readByte(offset, len);
-		int[] bu = new int[len];		
+		int[] bu = new int[len];
 		for (int i = 0; i < len; i++) {
-			bu[i] = b[i] & 0xff;			
+			bu[i] = b[i] & 0xff;
 		}
 
 		return bu;
 	}
 
-	private Object performStringTest(int offset, Type type, String test) throws IOException {
-		//TODO handle other string cases (with /[Bbc]*)
+	/**
+	 * For string values, the string from the file must match the spec- ified
+	 * string. The operators =, < and > (but not &) can be applied to strings.
+	 * The length used for matching is that of the string argument in the magic
+	 * file. This means that a line can match any non-empty string (usually used
+	 * to then print the string), with >\0 (because all non-empty strings are
+	 * greater than the empty string).
+	 */
+	private Object performStringTest(int offset, Type type, String test)
+	throws IOException {
+		// TODO handle other string cases (with /[Bbc]*)
 		if ("string".equals(type.name)) {
 
 			String str = readString(offset);
 
-			if ("x".equals(test)) {
+			if ("x".equals(test) || ">".equals(test)) {
 				return str;
-			} else {
-				return str.startsWith(test) ? test : null; 
+			}
+
+			if (test.isEmpty()) {
+				return str.isEmpty();
+			}
+
+			switch (test.charAt(0)) {			
+			case '>':
+				int len = toInt(test.substring(1));
+				return str.length() > len ? str : null;
+			case '<':				
+				try {					
+					len = toInt(test.substring(1));
+					return str.length() < len ? str : null;
+				} catch (NumberFormatException e) {
+					//go to the next test
+				}
+			case '=':
+				test = test.substring(1);
+			default:
+				if (test.startsWith("\\<")) {
+					test = test.substring(1);
+				}
+				return str.startsWith(test) ? str : null;
 			}
 		}
 
+		return null;
+	}
+
+	private Object performRegexTest(int offset, Type type, String test) {
+		// TODO implement handling for regex type
 		return null;
 	}
 
@@ -257,7 +307,7 @@ public class Magic {
 	 * length is 255.
 	 */
 	private String readString(int offset) throws IOException {
-		//usually the string used for description aren't more than 255 chars.
+		// usually the string used for description aren't more than 255 chars.
 		int k = 255;
 		int len = (offset + k) <= channel.size() ? k : (int) channel.size() - offset;
 		if (len <= 0) {
@@ -267,9 +317,9 @@ public class Magic {
 		int n = 0;
 		for (n = 0; n < bu.length; n++) {
 			if (bu[n] == 0) {
-				//like in C the strings are 0 terminated.
+				// like in C the strings are 0 terminated.
 				break;
-			}					
+			}
 		}
 		bu = Arrays.copyOf(bu, n);
 		return new String(bu, 0, bu.length);
@@ -312,7 +362,7 @@ public class Magic {
 					case '^':
 						passed = xor(actual, expected);
 						break;
-					case '~':						
+					case '~':
 						passed = not(actual, expected);
 						break;
 					}
@@ -352,7 +402,8 @@ public class Magic {
 			}
 		} else if (type.isDate()) {
 			value = toDate(type.order, b);
-			// for dates the test is always passed. They are used only for description.
+			// for dates the test is always passed. They are used only for
+			// description.
 			passed = true;
 		}
 
@@ -365,9 +416,9 @@ public class Magic {
 	 */
 	private boolean and(long actual, long expected) {
 		String a = ByteUtil.toBinaryString(actual);
-		String e =  ByteUtil.toBinaryString(expected);
+		String e = ByteUtil.toBinaryString(expected);
 		for (int i = 0; i < e.length(); i++) {
-			if(e.charAt(i) == '1') {
+			if (e.charAt(i) == '1') {
 				if (a.charAt(i) != '1') {
 					return false;
 				}
@@ -383,7 +434,7 @@ public class Magic {
 	 */
 	private boolean xor(long actual, long expected) {
 		String a = ByteUtil.toBinaryString(actual);
-		String e =  ByteUtil.toBinaryString(expected);
+		String e = ByteUtil.toBinaryString(expected);
 		for (int i = 0; i < e.length(); i++) {
 			int x = (e.charAt(i) == '1') ? 1 : 0;
 			int y = (a.charAt(i) == '1') ? 1 : 0;
@@ -400,9 +451,9 @@ public class Magic {
 	 */
 	private boolean not(long actual, long expected) {
 		String a = ByteUtil.toBinaryString(actual);
-		String e =  ByteUtil.toBinaryString(expected);
+		String e = ByteUtil.toBinaryString(expected);
 
-		//reverse the bits of the expected value
+		// reverse the bits of the expected value
 		char[] r = new char[e.length()];
 		for (int i = 0; i < r.length; i++) {
 			r[i] = e.charAt(i) == '0' ? '1' : '0';
@@ -480,15 +531,17 @@ public class Magic {
 		String type = null;
 		Long and = null;
 		boolean unsigned = false;
+		if (rawtype.startsWith("u")) {
+			// Prepending a u to the typeindicates that
+			// ordered comparisons should be unsigned.
+			unsigned = true;
+			rawtype = rawtype.substring(1);
+		}
+
 		if (rawtype.indexOf('&') != -1) {
 			type = rawtype.substring(0, rawtype.indexOf('&'));
 			// +3 to consider 0x
 			and = Long.parseLong(rawtype.substring(rawtype.indexOf('&') + 3), 16);
-		} else if (rawtype.startsWith("u")) {
-			// Prepending a u to the typeindicates that
-			// ordered comparisons should be unsigned.
-			unsigned = true;
-			type = rawtype.substring(1);
 		} else {
 			type = rawtype;
 		}
@@ -553,6 +606,9 @@ public class Magic {
 			return new Type(type, -1, null, null, unsigned);
 		} else if (type.startsWith("search")) {
 			return new Type(type, -1, null, null, unsigned);
+		} else if (type.startsWith("regex")) {
+			// TODO
+			return new Type(type, -1, null, null, unsigned);
 		} else if ("default".equals(type)) {
 			return new Type(type, -1, null, null, unsigned);
 		}
@@ -560,10 +616,19 @@ public class Magic {
 		throw new IllegalArgumentException("Type '" + type + "' is unknown.");
 	}
 
-	private String convertString(String str) {		
+	String convertString(String str) {
+		// some manual conversions
+		str = str.replace("\\ ", " ");
+		str = str.replace("\\<", "\\\\<");
+		str = str.replace("\"", "\\\"");
 		try {
 			ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
-			return (String) engine.eval("'" + str + "'");
+			String cstr = (String) engine.eval("new java.lang.String(\"" + str + "\")");
+			// in some magic rules is appended an useless \0 (for example for
+			// "POSIX tar archives")
+			// TODO test if it correctly works with '19 string
+			// \240\5\371\5\0\011\0\2\0 Atari-ST floppy 720k'
+			return cstr.replace("\0", "");
 		} catch (ScriptException e) {
 			throw new IllegalStateException("Cannot parse string '" + str + "'");
 		}
@@ -607,7 +672,7 @@ public class Magic {
 				}
 			}
 
-			// TODO test indirect offsets
+			// TODO test indirect offsets (testWinExe)
 			return (int) result;
 		}
 
@@ -705,7 +770,11 @@ public class Magic {
 	}
 
 	private void printf(String format, Object... args) {
-		System.out.printf(format, args);
+		//System.out.printf(format, args);
+	}
+
+	private void println(String line) {
+		//System.out.println(line);
 	}
 
 	private int level(String line) {
@@ -792,7 +861,12 @@ public class Magic {
 		}
 
 		boolean isString() {
+			// TODO implement 'search'
 			return name.indexOf("string") != -1 || name.indexOf("search") != -1;
+		}
+
+		boolean isRegex() {
+			return name.indexOf("regex") != -1;
 		}
 
 		@Override

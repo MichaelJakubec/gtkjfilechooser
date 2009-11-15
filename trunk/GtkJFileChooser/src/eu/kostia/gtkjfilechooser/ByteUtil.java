@@ -241,7 +241,11 @@ public class ByteUtil {
 	static public String toHexString(byte[] bytes) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < bytes.length; i++) {
-			sb.append(Integer.toHexString(bytes[i] & 0xff).toUpperCase());
+			String hex = Integer.toHexString(bytes[i] & 0xff).toUpperCase();
+			if (hex.length() < 2) {
+				hex = "0" + hex;
+			}
+			sb.append(hex);
 			if (i < bytes.length - 1) {
 				sb.append(" ");
 			}
@@ -254,7 +258,8 @@ public class ByteUtil {
 	 * Convert an signed byte value to an unsigned short value.<br />
 	 * Java uses only signed values, but sometimes you can need a conversion.
 	 * 
-	 * @param signed A signed byte value
+	 * @param signed
+	 *            A signed byte value
 	 * @return A signed short value
 	 */
 	static public short toUnsigned(byte signed) {
@@ -265,7 +270,8 @@ public class ByteUtil {
 	 * Convert an unsigned short value to a signed byte value.<br />
 	 * Java uses only signed values, but sometimes you can need a conversion.
 	 * 
-	 * @param unsigned An unsigned short value
+	 * @param unsigned
+	 *            An unsigned short value
 	 * @return A signed byte value
 	 */
 	static public byte toSigned(short unsigned) {
@@ -276,7 +282,8 @@ public class ByteUtil {
 	 * Convert an signed short value to an unsigned int value.<br />
 	 * Java uses only signed values, but sometimes you can need a conversion.
 	 * 
-	 * @param signed A signed short value
+	 * @param signed
+	 *            A signed short value
 	 * @return A signed int value
 	 */
 	static public int toUnsigned(short signed) {
@@ -287,7 +294,8 @@ public class ByteUtil {
 	 * Convert an unsigned int value to a signed short value.<br />
 	 * Java uses only signed values, but sometimes you can need a conversion.
 	 * 
-	 * @param unsigned An unsigned int value
+	 * @param unsigned
+	 *            An unsigned int value
 	 * @return A signed short value
 	 */
 	static public short toSigned(int unsigned) {
@@ -298,7 +306,8 @@ public class ByteUtil {
 	 * Convert an signed int value to an unsigned long value.<br />
 	 * Java uses only signed values, but sometimes you can need a conversion.
 	 * 
-	 * @param signed A signed int value
+	 * @param signed
+	 *            A signed int value
 	 * @return A signed long value
 	 */
 	static public long toUnsigned(int signed) {
@@ -309,7 +318,8 @@ public class ByteUtil {
 	 * Convert an unsigned long value to a signed int value.<br />
 	 * Java uses only signed values, but sometimes you can need a conversion.
 	 * 
-	 * @param unsigned An unsigned long value
+	 * @param unsigned
+	 *            An unsigned long value
 	 * @return A signed int value
 	 */
 	static public int toSigned(long unsigned) {
