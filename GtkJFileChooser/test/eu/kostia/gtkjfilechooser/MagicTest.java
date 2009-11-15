@@ -90,6 +90,64 @@ public class MagicTest {
 		assertEquals("application/x-gzip", result.getMime());
 	}
 
+	/**
+	 * See rule on row 1381 in /usr/share/magic
+	 */
+	@Test
+	public void testMagicPOSIXtar() throws Exception {
+		Magic magic = new Magic(new File("misc/magic/magic"));
+		Result result = magic.detect(new File("misc/magic/testfiles/openbds/t15.in"));
+		System.out.println(result);
+
+		assertNotNull("Result is null", result);
+		assertEquals("POSIX tar archive", result.getDescription());
+		assertEquals("application/x-tar", result.getMime());
+	}
+
+	/**
+	 * See rule on row 8501 in /usr/share/magic
+	 */
+	@Test
+	public void testMagicJavaSerializationData() throws Exception {
+		System.out.println("String: 5\0x0athe_Wizard's_Manse");
+		Magic magic = new Magic(new File("misc/magic/magic"));
+		Result result = magic.detect(new File("misc/magic/testfiles/openbds/t10.in"));
+		System.out.println(result);
+
+		assertNotNull("Result is null", result);
+		assertEquals("Java serialization data, version 5", result.getDescription());
+		assertNull(result.getMime());
+	}
+
+	/**
+	 * See rule on row 1381 in /usr/share/magic
+	 */
+	@Test
+	public void testSVG() throws Exception {
+		Magic magic = new Magic(new File("misc/magic/magic"));
+		Result result = magic.detect(new File("misc/magic/testfiles/stock_person.svg"));
+		System.out.println(result);
+
+		assertNotNull("Result is null", result);
+		assertEquals("SVG Scalable Vector Graphics image", result.getDescription());
+		assertEquals("application/x-tar", result.getMime());
+	}
+
+	/**
+	 * See rule on row 1460 in /usr/share/magic
+	 */
+	@Test
+	public void testCurrentArArchive() throws Exception {
+		Magic magic = new Magic(new File("misc/magic/magic"));
+		Result result = magic.detect(new File("misc/magic/testfiles/openbds/t3.in"));
+		System.out.println(result);
+
+		assertNotNull("Result is null", result);
+		assertEquals("current ar archive random library", result.getDescription());
+		assertEquals("application/x-archive", result.getMime());
+	}
+
+
 	@Test
 	public void testMagicWord() throws Exception {
 		Magic magic = new Magic(new File("misc/magic/magic"));
@@ -97,8 +155,8 @@ public class MagicTest {
 		System.out.println(result);
 
 		assertNotNull("Result is null", result);
-		assertEquals("CDF V2 Document, Little Endian, Os: Windows, Version 6.0, Code page: 1252, Title: Senior Finance Manager - GE Oil & Gas, Author: Euan Slater, Template: Normal.dotm, Last Saved By: Shola, Revision Number: 2, Name of Creating Application: Microsoft Office Word, Total Editing Time: 01:00, Create Time/Date: Mon Mar 23 15:49:00 2009, Last Saved Time/Date: Mon Mar 23 15:49:00 2009, Number of Pages: 3, Number of Words: 793, Number of Characters: 4525, Security: 0", result.getDescription());
-		assertEquals("application/x-java-applet", result.getMime());
+		assertEquals("Microsoft Word Document", result.getDescription());
+		assertEquals("application/msword", result.getMime());
 	}
 
 	@Test
@@ -108,8 +166,8 @@ public class MagicTest {
 		System.out.println(result);
 
 		assertNotNull("Result is null", result);
-		assertEquals("CDF V2 Document, Little Endian, Os: Windows, Version 5.1, Code page: 1252, Title: Simple Excel document, Author: Keith Bennett, Last Saved By: RIBEN9, Name of Creating Application: Microsoft Excel, Create Time/Date: Sun Sep 30 17:13:56 2007, Last Saved Time/Date: Sun Sep 30 17:31:43 2007, Security: 0", result.getDescription());
-		assertEquals("application/x-java-applet", result.getMime());
+		assertEquals("Microsoft Office Document", result.getDescription());
+		assertEquals("application/msword", result.getMime());
 	}
 
 	/**
@@ -234,6 +292,19 @@ public class MagicTest {
 
 		}
 		System.out.println(Long.parseLong(String.valueOf(c), 2));
+	}
+
+	@Test
+	public void testConvertString() throws Exception {		
+		Magic magic = new Magic(new File("misc/magic/magic"));
+		String str = new String("5\\x0athe_Wizard's_Manse");
+		String cstr = magic.convertString(str);
+		System.out.println(cstr);
+
+		String atari = "\240\5\371\5\0\011\0\2\0";
+		System.out.println("atari: " + Arrays.toString(atari.getBytes()));
+		System.out.println("atari: " + ByteUtil.toHexString(atari.getBytes()));
+
 	}
 
 
