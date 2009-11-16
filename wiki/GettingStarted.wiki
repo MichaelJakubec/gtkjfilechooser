@@ -12,3 +12,14 @@ You're now ready to start the file chooser:
 JFileChooser fileChooser = new JFileChooser();
 fileChooser.showOpenDialog(null);
 }}}
+
+== Running the demo ===
+
+The executable jar gtkjfilechooser-demo.jar demonstrates some of the capabilities of the GTK JFileChooser.  It brings up a window displaying several configuration controls that allow you to play with the JFileChooser options dynamically.
+ 
+To run the gtkjfilechooser-demo demo:
+{{{
+java -jar gtkjfilechooser-demo.jar
+}}}
+
+If you experience some problems, report them immediately in the "Issues" section of this site.
