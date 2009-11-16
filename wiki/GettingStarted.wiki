@@ -1,6 +1,7 @@
 #summary How to install the new FileChooserUI
 
-Ensure that you're using the GTK Laf and then simply set the UI Property "FileChooserUI" to "eu.kostia.gtkjfilechooser.ui.GtkFileChooserUI":
+=== Installing the new FileChooserUI ===
+Ensure that you're using the GTK L&F and then simply set the UI Property "FileChooserUI" to "eu.kostia.gtkjfilechooser.ui.GtkFileChooserUI":
 {{{
 if ("GTK look and feel".equals(UIManager.getLookAndFeel().getName())){
   UIManager.put("FileChooserUI", "eu.kostia.gtkjfilechooser.ui.GtkFileChooserUI");
@@ -13,8 +14,7 @@ JFileChooser fileChooser = new JFileChooser();
 fileChooser.showOpenDialog(null);
 }}}
 
-== Running the demo ===
-
+=== Running the demo ====
 The executable jar gtkjfilechooser-demo.jar demonstrates some of the capabilities of the GTK JFileChooser.  It brings up a window displaying several configuration controls that allow you to play with the JFileChooser options dynamically.
  
 To run the gtkjfilechooser-demo demo:
