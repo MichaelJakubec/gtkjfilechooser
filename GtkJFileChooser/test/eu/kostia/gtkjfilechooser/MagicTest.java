@@ -120,6 +120,62 @@ public class MagicTest {
 	}
 
 	/**
+	 * See rule on row 323 in /usr/share/magic
+	 */
+	@Test
+	public void testJpg2000() throws Exception {
+		Magic magic = new Magic(new File("misc/magic/magic"));
+		Result result = magic.detect(new File("misc/magic/testfiles/erchie.jp2"));
+		System.out.println(result);
+
+		assertNotNull("Result is null", result);
+		assertEquals("JPEG 2000 image", result.getDescription());
+		assertEquals("image/jp2", result.getMime());
+	}
+
+	/**
+	 * See rule on row 8534 in /usr/share/magic
+	 */
+	@Test
+	public void testJpg() throws Exception {
+		Magic magic = new Magic(new File("misc/magic/magic"));
+		Result result = magic.detect(new File("misc/magic/testfiles/erchie.jpg"));
+		System.out.println(result);
+
+		assertNotNull("Result is null", result);
+		assertEquals("JPEG image data, JFIF standard 1.010", result.getDescription());
+		assertEquals("image/jpeg", result.getMime());
+	}
+
+	/**
+	 * See rule on row 14682 in /usr/share/magic
+	 */
+	@Test
+	public void testAutorun() throws Exception {
+		Magic magic = new Magic(new File("misc/magic/magic"));
+		Result result = magic.detect(new File("misc/magic/testfiles/autorun.inf"));
+		System.out.println(result);
+
+		assertNotNull("Result is null", result);
+		assertEquals("Microsoft Windows Autorun file.", result.getDescription());
+		assertEquals("application/x-setupscript.", result.getMime());
+	}
+
+	/**
+	 * See rule on row 3340 in /usr/share/magic
+	 */
+	@Test
+	public void testCShell() throws Exception {
+		Magic magic = new Magic(new File("misc/magic/magic"));
+		Result result = magic.detect(new File("misc/magic/testfiles/openbds/t7.in"));
+		System.out.println(result);
+
+		assertNotNull("Result is null", result);
+		assertEquals("C shell script text executable", result.getDescription());
+		assertEquals("text/x-shellscript", result.getMime());
+	}
+
+	/**
 	 * See rule on row 1381 in /usr/share/magic
 	 */
 	@Test

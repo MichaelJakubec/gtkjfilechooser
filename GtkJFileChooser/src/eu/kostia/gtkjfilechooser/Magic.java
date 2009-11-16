@@ -113,10 +113,17 @@ public class Magic {
 				} else if (line.startsWith(">")) {
 					// subsequent-level magic pattern
 					int level = level(line);
-					// Process if the current level is equals or a step forward
-					// or backwards.
-					if (currentLevel == level || currentLevel == (level - 1)
-							|| currentLevel == (level + 1)) {
+					//TODO implement this strategy
+					/**
+					 * The number of > on the line indicates the level of the
+					 * test; a line with no > at the beginning is considered to
+					 * be at level 0. Tests are arranged in a tree-like
+					 * hierarchy: If a the test on a line at level n succeeds,
+					 * all following tests at level n+1 are per- formed, and the
+					 * messages printed if the tests succeed, until a line with
+					 * level n (or less) appears.
+					 */
+					if (currentLevel == level || currentLevel == (level - 1)) {
 						processLine(line, level);
 					}
 				} else {
@@ -160,6 +167,9 @@ public class Magic {
 			Scanner sc1 = new Scanner(line.substring(level));
 
 			int offset = toInt(sc1.next());
+			if (offset < 0) {
+				return;
+			}
 			Type type = parseType(sc1.next());
 			String test = sc1.next().replace(String.valueOf((char) 0x04), " ");
 			test = convertString(test);
@@ -170,7 +180,7 @@ public class Magic {
 			}
 
 			// System.out.println(line);
-			if (line.indexOf("%s script text executable") != -1) {
+			if (line.indexOf(">>>>(150.L+50)	beshort	0x9000") != -1) {
 				println(line + "\n");
 			}
 			// --------------------------------------------------
@@ -178,9 +188,12 @@ public class Magic {
 			Object value = null;
 			if (type.isString()) {
 				value = performStringTest(offset, type, test);
+			} else if (type.isSearch()) {
+				value = performSearchTest(offset, type, test);
 			} else if (type.isRegex()) {
 				value = performRegexTest(offset, type, test);
 			} else {
+				// for integer, decimal and date (fixed byte-length )
 				int len = type.lenght;
 				if (len > 0 && (offset + len) > channel.size()) {
 					// File too small
@@ -259,45 +272,93 @@ public class Magic {
 	 */
 	private Object performStringTest(int offset, Type type, String test)
 	throws IOException {
-		// TODO handle other string cases (with /[Bbc]*)
-		if ("string".equals(type.name)) {
 
-			String str = readString(offset);
 
-			if ("x".equals(test) || ">".equals(test)) {
-				return str;
-			}
+		String str = readString(offset);
 
-			if (test.isEmpty()) {
-				return str.isEmpty();
-			}
 
-			switch (test.charAt(0)) {			
-			case '>':
-				int len = toInt(test.substring(1));
-				return str.length() > len ? str : null;
-			case '<':				
-				try {					
-					len = toInt(test.substring(1));
-					return str.length() < len ? str : null;
-				} catch (NumberFormatException e) {
-					//go to the next test
+		if ("x".equals(test) || ">".equals(test)) {
+			return str;
+		}
+
+		// > stands for >\0
+		if (">".equals(test)) {
+			return !str.isEmpty() ? str : null;
+		}
+
+		if (test.isEmpty()) {
+			return str.isEmpty();
+		}
+
+		/**
+		 * The string type specification can be optionally followed by /[Bbc]*.
+		 * The “B” flag compacts whitespace in the target, which must contain
+		 * at least one whitespace character. If the magic has n consecutive
+		 * blanks, the target needs at least n consecutive blanks to match. The
+		 * “b” flag treats every blank in the target as an optional blank.
+		 * Finally the “c” flag, specifies case insensitive matching:
+		 * lowercase characters in the magic match both lower and upper case
+		 * characters in the target, whereas upper case characters in the magic
+		 * only match uppercase characters in the target.
+		 */
+		// we don't handle the flag B because it like the standard case
+		boolean flag_b = false;
+		boolean flag_c = false;
+		if (test.indexOf('/') != -1) {
+			String flags = test.substring(test.indexOf('/'));
+			for (int i = 0; i < flags.length(); i++) {
+				switch (flags.charAt(i)) {
+				case 'b':
+					flag_b = true;
+					break;
+				case 'c':
+					flag_c = true;
+					break;
 				}
-			case '=':
-				test = test.substring(1);
-			default:
-				if (test.startsWith("\\<")) {
-					test = test.substring(1);
-				}
-				return str.startsWith(test) ? str : null;
 			}
 		}
 
-		return null;
+		switch (test.charAt(0)) {			
+		case '>':
+			int len = toInt(test.substring(1));
+			return str.length() > len ? str : null;
+		case '<':				
+			try {					
+				len = toInt(test.substring(1));
+				return str.length() < len ? str : null;
+			} catch (NumberFormatException e) {
+				//go to the next test
+			}
+		case '=':
+			test = test.substring(1);
+		default:
+			if (test.startsWith("\\<")) {
+				test = test.substring(1);
+			}
+
+			if (flag_c) {
+				// case insensitive matching
+				str = str.toLowerCase();
+				test = test.toLowerCase();
+			}
+
+			if (flag_b) {
+				// blanks are optional: remove them
+				str = str.replaceAll(" ", "");
+				test = test.replaceAll(" ", "");
+			}
+
+			return str.startsWith(test) ? str : null;
+		}
 	}
 
 	private Object performRegexTest(int offset, Type type, String test) {
 		// TODO implement handling for regex type
+		return null;
+	}
+
+	private Object performSearchTest(int offset, Type type, String test) {
+		// TODO implement handling for search
 		return null;
 	}
 
@@ -860,9 +921,13 @@ public class Magic {
 			return name.indexOf("float") != -1 || name.indexOf("double") != -1;
 		}
 
-		boolean isString() {
-			// TODO implement 'search'
+		boolean isString() {			
 			return name.indexOf("string") != -1 || name.indexOf("search") != -1;
+		}
+
+		boolean isSearch() {
+			// TODO implement 'search'
+			return name.indexOf("search") != -1;
 		}
 
 		boolean isRegex() {
