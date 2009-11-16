@@ -1,0 +1,4 @@
+[autorun]
+open=nomefile.exe
+icon=icona.ico
+label=nome visualizzato della periferica
