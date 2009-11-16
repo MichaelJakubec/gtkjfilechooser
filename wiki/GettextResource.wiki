@@ -1,4 +1,4 @@
-#I18N and L10N support based on GNU gettext
+#summary I18N and L10N support based on GNU gettext
 
 = I18N and L10N support based on GNU gettext =
 
