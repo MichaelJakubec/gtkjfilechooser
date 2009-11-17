@@ -176,7 +176,7 @@ public class MagicTest {
 	}
 
 	/**
-	 * See rule on row 1381 in /usr/share/magic
+	 * See rule on row 12673 in /usr/share/magic
 	 */
 	@Test
 	public void testSVG() throws Exception {
