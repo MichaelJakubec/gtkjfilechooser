@@ -38,6 +38,7 @@ import java.nio.channels.FileChannel.MapMode;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -99,6 +100,11 @@ public class Magic {
 			sc0 = new Scanner(new BufferedInputStream(new FileInputStream(magicfile)));
 			while (sc0.hasNextLine()) {
 				String line = sc0.nextLine();
+				//TODO remove -----------------------------------------------------------
+				if (line.startsWith("# Type:	SVG Vectorial Graphics")) {
+					System.out.println("BP");
+				}
+				//-----------------------------------------------------------------------
 				if (line.startsWith("#") || line.trim().isEmpty()) {
 					continue;
 				}
@@ -130,8 +136,16 @@ public class Magic {
 					// top-level magic pattern
 
 					if (currentLevel >= 0) {
-						// top-level already reached. Stop the loop.
-						break;
+						// top-level already reached.
+
+						if (fileDescription != null && fileDescription.length() > 0) {
+							// Stop the loop if the file is described...
+							break;
+						} else {
+							// ...else reset current level and result and go on.
+							currentLevel = -1;
+							result = null;
+						}						
 					}
 
 					processLine(line, 0);
@@ -177,6 +191,10 @@ public class Magic {
 			// TODO remove --------------------------------------
 			if (test.indexOf("<?xml version=") != -1) {
 				printf(line + "\n");
+			}
+
+			if (line.indexOf(">>23	search/400	\\<svg") != -1) {
+				println(line + "\n");
 			}
 
 			// System.out.println(line);
@@ -277,7 +295,7 @@ public class Magic {
 		String str = readString(offset);
 
 
-		if ("x".equals(test) || ">".equals(test)) {
+		if ("x".equals(test)) {
 			return str;
 		}
 
@@ -302,20 +320,14 @@ public class Magic {
 		 * only match uppercase characters in the target.
 		 */
 		// we don't handle the flag B because it like the standard case
+
 		boolean flag_b = false;
 		boolean flag_c = false;
-		if (test.indexOf('/') != -1) {
-			String flags = test.substring(test.indexOf('/'));
-			for (int i = 0; i < flags.length(); i++) {
-				switch (flags.charAt(i)) {
-				case 'b':
-					flag_b = true;
-					break;
-				case 'c':
-					flag_c = true;
-					break;
-				}
-			}
+		if (type.name.indexOf('/') != -1) {
+			String flags = type.name.substring(type.name.indexOf('/'));
+			StringFlags stringFlags = parseStringFlags(flags);
+			flag_b = stringFlags.flag_b;
+			flag_c = stringFlags.flag_c;
 		}
 
 		switch (test.charAt(0)) {			
@@ -358,8 +370,75 @@ public class Magic {
 	}
 
 	private Object performSearchTest(int offset, Type type, String test) {
-		// TODO implement handling for search
+		long range = -1;
+		String typeName = type.name;
+		Scanner sc = new Scanner(typeName).useDelimiter(Pattern.quote("/"));
+		// The first token is always the string 'search'
+		sc.next();
+
+		boolean[] flagsArray = new boolean[3];
+		Arrays.fill(flagsArray, false);
+		boolean flag_B = flagsArray[0];
+		boolean flag_b = flagsArray[1];
+		boolean flag_c = flagsArray[2];
+
+		while (sc.hasNext()) {
+			String next = sc.next();
+			if (areStringFlags(next)) {
+				StringFlags stringFlags = parseStringFlags(next);
+				flag_B = stringFlags.flag_B;
+				flag_b = stringFlags.flag_b;
+				flag_c = stringFlags.flag_c;
+			} else {
+				range = toLong(next);
+			}		
+		}
+
+
+		println(typeName);
+		println("range: " + range +"; B: " + flag_B + "; b: " + flag_b + "; c: "+flag_c);
 		return null;
+	}
+
+	private boolean areStringFlags(String flags) {
+		if (flags.indexOf('B') != -1) {
+			return true;
+		}
+
+		if (flags.indexOf('b') != -1) {
+			return true;
+		}
+
+		if (flags.indexOf('c') != -1) {
+			return true;
+		}
+
+		return false;		
+	}
+
+	private class StringFlags {
+		boolean flag_B = false;
+		boolean flag_b = false;
+		boolean flag_c = false;
+	}
+	private StringFlags parseStringFlags(String flags) {
+		StringFlags stringFlags = new StringFlags();
+
+		for (int i = 0; i < flags.length(); i++) {
+			switch (flags.charAt(i)) {
+			case 'B':
+				stringFlags.flag_B = true;
+				break;
+			case 'b':
+				stringFlags.flag_b = true;
+				break;
+			case 'c':
+				stringFlags.flag_c = true;
+				break;
+			}
+		}
+
+		return stringFlags;
 	}
 
 	/**
@@ -835,7 +914,7 @@ public class Magic {
 	}
 
 	private void println(String line) {
-		//System.out.println(line);
+		System.out.println(line);
 	}
 
 	private int level(String line) {
@@ -922,7 +1001,7 @@ public class Magic {
 		}
 
 		boolean isString() {			
-			return name.indexOf("string") != -1 || name.indexOf("search") != -1;
+			return name.indexOf("string") != -1;
 		}
 
 		boolean isSearch() {
