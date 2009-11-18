@@ -71,6 +71,7 @@ public class Magic {
 	private transient FileChannel channel;
 	private transient StringBuilder fileDescription;
 	private transient Result result = null;
+	private transient boolean lastTestSuccessful = false;
 
 	public Magic(File magicfile) {
 		this.magicfile = magicfile;
@@ -81,6 +82,7 @@ public class Magic {
 		this.channel = null;
 		this.fileDescription = null;
 		this.result = null;
+		this.lastTestSuccessful = false;
 	}
 
 	public Result detect(File file) throws IOException {
@@ -101,7 +103,7 @@ public class Magic {
 			while (sc0.hasNextLine()) {
 				String line = sc0.nextLine();
 				//TODO remove -----------------------------------------------------------
-				if (line.startsWith("# Type:	SVG Vectorial Graphics")) {
+				if (line.startsWith(">>23	search/400	\\<svg")) {
 					System.out.println("BP");
 				}
 				//-----------------------------------------------------------------------
@@ -110,12 +112,17 @@ public class Magic {
 				}
 
 				if (line.startsWith("!:")) {
-					if (line.startsWith("!:mime") && currentLevel >= 0) {
-						int end = line.indexOf('#') != -1 ? line.indexOf('#') : line
-								.length();
-						result.mime = line.substring("!:mime".length(), end).trim();
+					if (line.startsWith("!:mime") && currentLevel >= 0 && lastTestSuccessful) {
+						/**
+						 * The !:mime annotation must be the next non-blank or
+						 * comment line after the magic line that identifies the
+						 * file type
+						 */
+						String s = removeInlineComment(line);
+						result.mime = s.substring("!:mime".length()).trim();											
 					}
-					// other options (mime, strength, etc...)
+					// we deliberately choose to not implement 
+					// the other options (strength, apple, etc...)
 				} else if (line.startsWith(">")) {
 					// subsequent-level magic pattern
 					int level = level(line);
@@ -173,6 +180,11 @@ public class Magic {
 		}
 	}
 
+	private String removeInlineComment(String line) {
+		int end = line.indexOf('#') != -1 ? line.indexOf('#') : line.length();
+		return line.substring(0, end).trim();
+	}
+
 	private void processLine(String line, int level) throws IOException {
 		// Workaround to include spaces (they are escaped) (Part A)
 		line = line.replace("\\ ", String.valueOf((char) 0x04));
@@ -223,6 +235,7 @@ public class Magic {
 			// The test is passed when the value
 			// is different from null.
 			if (value != null) {
+				lastTestSuccessful = true;
 				if (currentLevel == -1) {
 					result = new Result();
 					fileDescription = new StringBuilder();
@@ -246,6 +259,8 @@ public class Magic {
 					fileDescription.append(" ");
 				}
 				printf("Message: %s\n", message);
+			} else {
+				lastTestSuccessful = false;
 			}
 		} catch (Exception e) {
 			e.printStackTrace(); // TODO remove
@@ -258,13 +273,17 @@ public class Magic {
 	 */
 	// TODO caching this method improve the performance?
 	byte[] readByte(int offset, int len) throws IOException {
-		ByteBuffer bb = channel.map(MapMode.READ_ONLY, offset, len);
+		try {
+			ByteBuffer bb = channel.map(MapMode.READ_ONLY, offset, len);
 
-		byte[] b = new byte[bb.limit()];
-		bb.position(0);
-		bb.get(b);
+			byte[] b = new byte[bb.limit()];
+			bb.position(0);
+			bb.get(b);
 
-		return b;
+			return b;
+		} catch (Exception e) {
+			throw new IllegalArgumentException("offset: " + offset + ", lenght: " + len + ", file size: " + channel.size(), e);
+		}
 	}
 
 	/**
@@ -319,7 +338,7 @@ public class Magic {
 		 * characters in the target, whereas upper case characters in the magic
 		 * only match uppercase characters in the target.
 		 */
-		// we don't handle the flag B because it like the standard case
+		// we don't handle the flag B because it is like the standard case
 
 		boolean flag_b = false;
 		boolean flag_c = false;
@@ -369,8 +388,24 @@ public class Magic {
 		return null;
 	}
 
-	private Object performSearchTest(int offset, Type type, String test) {
-		long range = -1;
+	private Object performSearchTest(int offset, Type type, String test) throws IOException {
+		String str = readString(offset);
+
+		if ("x".equals(test)) {
+			return str;
+		}
+
+		// > stands for >\0
+		if (">".equals(test)) {
+			return !str.isEmpty() ? str : null;
+		}
+
+		if (test.isEmpty()) {
+			return str.isEmpty();
+		}
+
+
+		int range = -1;
 		String typeName = type.name;
 		Scanner sc = new Scanner(typeName).useDelimiter(Pattern.quote("/"));
 		// The first token is always the string 'search'
@@ -378,26 +413,64 @@ public class Magic {
 
 		boolean[] flagsArray = new boolean[3];
 		Arrays.fill(flagsArray, false);
-		boolean flag_B = flagsArray[0];
+		// we don't handle the flag B because it is like the standard case
 		boolean flag_b = flagsArray[1];
 		boolean flag_c = flagsArray[2];
 
 		while (sc.hasNext()) {
 			String next = sc.next();
 			if (areStringFlags(next)) {
-				StringFlags stringFlags = parseStringFlags(next);
-				flag_B = stringFlags.flag_B;
+				StringFlags stringFlags = parseStringFlags(next);				
 				flag_b = stringFlags.flag_b;
 				flag_c = stringFlags.flag_c;
 			} else {
-				range = toLong(next);
+				range = toInt(next);
 			}		
 		}
 
+		// If the string length is less than the read, then read addition chars.
+		if (range != -1 && str.length() < range) {
+			int len = range + test.length();
+			if (offset < channel.size()) {
+				if (offset + len >= channel.size()) {
+					len = (int) (channel.size() - offset - 1);
+				}
+				str = readString(offset, len);
+			}
+		}
 
-		println(typeName);
-		println("range: " + range +"; B: " + flag_B + "; b: " + flag_b + "; c: "+flag_c);
-		return null;
+		switch (test.charAt(0)) {			
+		case '>':
+			int len = toInt(test.substring(1));
+			return str.length() > len ? str : null;
+		case '<':				
+			try {					
+				len = toInt(test.substring(1));
+				return str.length() < len ? str : null;
+			} catch (NumberFormatException e) {
+				//go to the next test
+			}
+		case '=':
+			test = test.substring(1);
+		default:
+			if (test.startsWith("\\<")) {
+				test = test.substring(1);
+			}
+
+			if (flag_c) {
+				// case insensitive matching
+				str = str.toLowerCase();
+				test = test.toLowerCase();
+			}
+
+			if (flag_b) {
+				// blanks are optional: remove them
+				str = str.replaceAll(" ", "");
+				test = test.replaceAll(" ", "");
+			}
+		}
+
+		return str.indexOf(test) >= 0? str : null;
 	}
 
 	private boolean areStringFlags(String flags) {
@@ -416,7 +489,7 @@ public class Magic {
 		return false;		
 	}
 
-	private class StringFlags {
+	class StringFlags {
 		boolean flag_B = false;
 		boolean flag_b = false;
 		boolean flag_c = false;
@@ -462,6 +535,11 @@ public class Magic {
 			}
 		}
 		bu = Arrays.copyOf(bu, n);
+		return new String(bu, 0, bu.length);
+	}
+
+	private String readString(int offset, int len) throws IOException {
+		int[] bu = readUnsignedByte(offset, len);
 		return new String(bu, 0, bu.length);
 	}
 
@@ -747,7 +825,6 @@ public class Magic {
 		} else if (type.startsWith("search")) {
 			return new Type(type, -1, null, null, unsigned);
 		} else if (type.startsWith("regex")) {
-			// TODO
 			return new Type(type, -1, null, null, unsigned);
 		} else if ("default".equals(type)) {
 			return new Type(type, -1, null, null, unsigned);
@@ -764,10 +841,8 @@ public class Magic {
 		try {
 			ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
 			String cstr = (String) engine.eval("new java.lang.String(\"" + str + "\")");
-			// in some magic rules is appended an useless \0 (for example for
-			// "POSIX tar archives")
-			// TODO test if it correctly works with '19 string
-			// \240\5\371\5\0\011\0\2\0 Atari-ST floppy 720k'
+			// in some magic rules is appended an useless \0 
+			// (for example for "POSIX tar archives")
 			return cstr.replace("\0", "");
 		} catch (ScriptException e) {
 			throw new IllegalStateException("Cannot parse string '" + str + "'");

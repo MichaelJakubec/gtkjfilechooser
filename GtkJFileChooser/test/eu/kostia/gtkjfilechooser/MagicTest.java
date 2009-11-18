@@ -186,7 +186,7 @@ public class MagicTest {
 
 		assertNotNull("Result is null", result);
 		assertEquals("SVG Scalable Vector Graphics image", result.getDescription());
-		assertEquals("application/x-tar", result.getMime());
+		assertEquals("image/svg+xml", result.getMime());
 	}
 
 	/**
@@ -223,7 +223,7 @@ public class MagicTest {
 
 		assertNotNull("Result is null", result);
 		assertEquals("Microsoft Office Document", result.getDescription());
-		assertEquals("application/msword", result.getMime());
+		assertEquals(null, result.getMime());
 	}
 
 	/**
@@ -358,9 +358,19 @@ public class MagicTest {
 		System.out.println(cstr);
 
 		String atari = "\240\5\371\5\0\011\0\2\0";
+		System.out.println("atari: " + magic.convertString(atari));
 		System.out.println("atari: " + Arrays.toString(atari.getBytes()));
 		System.out.println("atari: " + ByteUtil.toHexString(atari.getBytes()));
+		System.out.println("with '19 string: " + magic.convertString("with '19 string"));
 
+	}
+
+	@Test
+	public void testLongToInt() throws Exception {		
+		long l = Long.MAX_VALUE;
+		int i = (int) l;
+		System.out.println(l);
+		System.out.println(i);
 	}
 
 
