@@ -38,6 +38,7 @@ import java.nio.channels.FileChannel.MapMode;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Scanner;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.script.ScriptEngine;
@@ -68,6 +69,10 @@ public class Magic {
 	private transient File magicfile;
 
 	private transient int currentLevel = -1;
+	/**
+	 * The position where the processor currently is.
+	 */
+	private transient int currentPosition = 0;
 	private transient FileChannel channel;
 	private transient StringBuilder fileDescription;
 	private transient Result result = null;
@@ -79,6 +84,7 @@ public class Magic {
 
 	private void resetInstanceVariables() {
 		this.currentLevel = -1;
+		this.currentPosition = 0;
 		this.channel = null;
 		this.fileDescription = null;
 		this.result = null;
@@ -103,7 +109,7 @@ public class Magic {
 			while (sc0.hasNextLine()) {
 				String line = sc0.nextLine();
 				//TODO remove -----------------------------------------------------------
-				if (line.startsWith(">>23	search/400	\\<svg")) {
+				if (line.startsWith("# Type: Google KML, formerly Keyhole Markup Language")) {
 					System.out.println("BP");
 				}
 				//-----------------------------------------------------------------------
@@ -145,7 +151,7 @@ public class Magic {
 					if (currentLevel >= 0) {
 						// top-level already reached.
 
-						if (fileDescription != null && fileDescription.length() > 0) {
+						if (fileDescription != null && !fileDescription.toString().trim().isEmpty()) {
 							// Stop the loop if the file is described...
 							break;
 						} else {
@@ -280,6 +286,9 @@ public class Magic {
 			bb.position(0);
 			bb.get(b);
 
+			//set the current offset position
+			currentPosition += b.length;
+
 			return b;
 		} catch (Exception e) {
 			throw new IllegalArgumentException("offset: " + offset + ", lenght: " + len + ", file size: " + channel.size(), e);
@@ -309,18 +318,21 @@ public class Magic {
 	 */
 	private Object performStringTest(int offset, Type type, String test)
 	throws IOException {
-
-
 		String str = readString(offset);
 
-
 		if ("x".equals(test)) {
+			currentPosition += str.length();
 			return str;
 		}
 
 		// > stands for >\0
 		if (">".equals(test)) {
-			return !str.isEmpty() ? str : null;
+			if(!str.isEmpty()) {
+				currentPosition += str.length();
+				return str;
+			} else {
+				return null;
+			}
 		}
 
 		if (test.isEmpty()) {
@@ -352,11 +364,21 @@ public class Magic {
 		switch (test.charAt(0)) {			
 		case '>':
 			int len = toInt(test.substring(1));
-			return str.length() > len ? str : null;
+			if (str.length() > len) {
+				currentPosition += str.length();
+				return str;
+			} else {
+				return null;
+			}
 		case '<':				
 			try {					
 				len = toInt(test.substring(1));
-				return str.length() < len ? str : null;
+				if (str.length() < len) {
+					currentPosition += str.length();
+					return str;
+				} else {
+					return null;
+				}
 			} catch (NumberFormatException e) {
 				//go to the next test
 			}
@@ -373,19 +395,48 @@ public class Magic {
 				test = test.toLowerCase();
 			}
 
+			int adjust = 0;
 			if (flag_b) {
 				// blanks are optional: remove them
+				adjust = str.length();
 				str = str.replaceAll(" ", "");
+				adjust -= str.length();
 				test = test.replaceAll(" ", "");
 			}
 
-			return str.startsWith(test) ? str : null;
+			if (str.startsWith(test)) {
+				currentPosition += str.length() + adjust;
+				return str;
+			} else {
+				return null;
+			}
 		}
 	}
 
-	private Object performRegexTest(int offset, Type type, String test) {
-		// TODO implement handling for regex type
-		return null;
+	private Object performRegexTest(int offset, Type type, String regex) throws IOException {
+		String str = readString(offset);
+
+		StringFlags stringFlags = new StringFlags();
+		if (type.name.indexOf('/') != -1) {
+			String flags = type.name.substring(type.name.indexOf('/'));
+			stringFlags = parseStringFlags(flags);
+		}
+
+		if (stringFlags.flag_c) {
+			// case insensitive matching
+			str = str.toLowerCase();
+			regex = regex.toLowerCase();
+		}
+
+		Matcher matcher = Pattern.compile(regex).matcher(str);
+
+		if (matcher.find()) {
+			currentPosition = offset + (stringFlags.flag_s ? matcher.start() : matcher.end());
+			return str;
+		} else {
+			return null;
+		}
+
 	}
 
 	private Object performSearchTest(int offset, Type type, String test) throws IOException {
@@ -442,11 +493,21 @@ public class Magic {
 		switch (test.charAt(0)) {			
 		case '>':
 			int len = toInt(test.substring(1));
-			return str.length() > len ? str : null;
+			if (str.length() > len) {
+				currentPosition = offset + str.length();
+				return str;
+			} else {
+				return null;
+			}
 		case '<':				
 			try {					
 				len = toInt(test.substring(1));
-				return str.length() < len ? str : null;
+				if (str.length() < len) {
+					currentPosition = offset + str.length();
+					return str;
+				} else {
+					return null;
+				}
 			} catch (NumberFormatException e) {
 				//go to the next test
 			}
@@ -470,7 +531,12 @@ public class Magic {
 			}
 		}
 
-		return str.indexOf(test) >= 0? str : null;
+		if (str.indexOf(test) >= 0) {
+			currentPosition = offset + str.indexOf(test) + test.length();
+			return str;
+		} else {
+			return null;
+		}
 	}
 
 	private boolean areStringFlags(String flags) {
@@ -493,6 +559,7 @@ public class Magic {
 		boolean flag_B = false;
 		boolean flag_b = false;
 		boolean flag_c = false;
+		boolean flag_s = false;
 	}
 	private StringFlags parseStringFlags(String flags) {
 		StringFlags stringFlags = new StringFlags();
@@ -518,6 +585,9 @@ public class Magic {
 	 * Beginning from the given offset, it read a string (as in C, a string is
 	 * sequence of chars terminated with 0). For performance the max string
 	 * length is 255.
+	 * 
+	 * In this case the {@code #currentPosition} is set in {@code #performStringTest(int, Type, String)}.
+	 * Normally, it's set in {@code #readByte(int, int)}.
 	 */
 	private String readString(int offset) throws IOException {
 		// usually the string used for description aren't more than 255 chars.
@@ -535,6 +605,9 @@ public class Magic {
 			}
 		}
 		bu = Arrays.copyOf(bu, n);
+
+
+
 		return new String(bu, 0, bu.length);
 	}
 
@@ -862,6 +935,14 @@ public class Magic {
 		} else if (value.startsWith("0") && (value.length() > 1)) {
 			// Octal
 			return Integer.parseInt(value.substring(1), 8);
+		} else if (value.startsWith("&") && (value.length() > 1)) {
+			/**
+			 * Sometimes you do not know the exact offset as this depends on the
+			 * length or position (when indirection was used before) of
+			 * preceding fields. You can specify an offset relative to the end
+			 * of the last up-level field using ‘&’ as a prefix to the offset:
+			 */
+			return currentPosition + toInt(value.substring(1));
 		} else if (value.startsWith("(") && value.endsWith(")")) {
 			// Indirect offset: read from the file being examined.
 			long result = -1;

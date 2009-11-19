@@ -43,6 +43,22 @@ import eu.kostia.gtkjfilechooser.Magic.Result;
  */
 public class MagicTest {
 
+	/**
+	 * See rule on row 8708 in /usr/share/magic
+	 */
+	@Test
+	public void testMagicKML() throws Exception {
+		Magic magic = new Magic(new File("misc/magic/magic"));
+		Result result = magic.detect(new File("misc/magic/testfiles/KML_Samples.kml"));
+		System.out.println(result);
+
+		//TODO currentPosition not correct
+
+		assertNotNull("Result is null", result);
+		assertEquals("OpenGIS KML document, version 2.2", result.getDescription());
+		assertEquals("application/vnd.google-earth.kml+xml", result.getMime());
+	}
+
 	@Test
 	public void testMagicJavaClass() throws Exception {
 		Magic magic = new Magic(new File("misc/magic/magic"));
