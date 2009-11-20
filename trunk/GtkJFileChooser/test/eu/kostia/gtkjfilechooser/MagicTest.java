@@ -184,7 +184,7 @@ public class MagicTest {
 		System.out.println(result);
 
 		assertNotNull("Result is null", result);
-		assertEquals("JPEG image data, JFIF standard 1.010", result.getDescription());
+		assertEquals("JPEG image data, JFIF standard 1.01", result.getDescription());
 		assertEquals("image/jpeg", result.getMime());
 	}
 

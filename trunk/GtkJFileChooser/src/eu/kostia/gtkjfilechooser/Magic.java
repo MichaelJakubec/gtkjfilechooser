@@ -110,7 +110,7 @@ public class Magic {
 			while (sc0.hasNextLine()) {
 				String line = sc0.nextLine();
 				//TODO remove -----------------------------------------------------------
-				if (line.startsWith("# Type: Google KML, formerly Keyhole Markup Language")) {
+				if (line.startsWith(">(4.S+5)	byte		0xC0")) {
 					System.out.println("BP");
 				}
 
@@ -641,7 +641,15 @@ public class Magic {
 	private Object performByteTest(Type type, byte[] b, String test) {
 		Object value = null;
 		// The special test x always evaluates to true
-		boolean passed = "x".equals(test);
+		boolean passed = false;
+		if ("x".equals(test)) {
+			if (lastTestSuccessful) {
+				//TODO check last success also for other 'x'-cases
+				passed = true;
+			} else {
+				return null;
+			}
+		}
 		if (type.isIntegerNumber()) {
 			long actual = toIntegerNumber(type.order, b);
 			if (type.and != null) {
