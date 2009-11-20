@@ -37,6 +37,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Formatter;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -112,6 +113,12 @@ public class Magic {
 				if (line.startsWith("# Type: Google KML, formerly Keyhole Markup Language")) {
 					System.out.println("BP");
 				}
+
+				if (line.startsWith("0	string	MZ")) {
+					System.out.println("BP");
+				}
+
+
 				//-----------------------------------------------------------------------
 				if (line.startsWith("#") || line.trim().isEmpty()) {
 					continue;
@@ -142,7 +149,7 @@ public class Magic {
 					 * messages printed if the tests succeed, until a line with
 					 * level n (or less) appears.
 					 */
-					if (currentLevel == level || currentLevel == (level - 1)) {
+					if (level <= currentLevel  || level == currentLevel + 1) {
 						processLine(line, level);
 					}
 				} else {
@@ -158,6 +165,7 @@ public class Magic {
 							// ...else reset current level and result and go on.
 							currentLevel = -1;
 							result = null;
+							currentPosition = 0;
 						}						
 					}
 
@@ -206,21 +214,6 @@ public class Magic {
 			String test = sc1.next().replace(String.valueOf((char) 0x04), " ");
 			test = convertString(test);
 
-			// TODO remove --------------------------------------
-			if (test.indexOf("<?xml version=") != -1) {
-				printf(line + "\n");
-			}
-
-			if (line.indexOf(">>23	search/400	\\<svg") != -1) {
-				println(line + "\n");
-			}
-
-			// System.out.println(line);
-			if (line.indexOf(">>>>(150.L+50)	beshort	0x9000") != -1) {
-				println(line + "\n");
-			}
-			// --------------------------------------------------
-
 			Object value = null;
 			if (type.isString()) {
 				value = performStringTest(offset, type, test);
@@ -251,6 +244,7 @@ public class Magic {
 
 				// when the test passed, the currentLevel to its level.
 				currentLevel = level;
+				println("current level: " + currentLevel);
 
 				// get the remaining part of the line
 				sc1.useDelimiter("\\Z");
@@ -258,10 +252,12 @@ public class Magic {
 				if (message != null) {
 					// handle backspace (\b)
 					if (message.startsWith("\\b")) {
-						fileDescription.deleteCharAt(fileDescription.length() - 1);
+						if (fileDescription.length() > 0) {
+							fileDescription.deleteCharAt(fileDescription.length() - 1);
+						}
 						message = message.substring("\\b".length());
 					}
-					fileDescription.append(String.format(message, value));
+					fileDescription.append(format(message, value));
 					fileDescription.append(" ");
 				}
 				printf("Message: %s\n", message);
@@ -272,6 +268,15 @@ public class Magic {
 			e.printStackTrace(); // TODO remove
 			throw new IllegalStateException("Line that caused the exception:\n" + line, e);
 		}
+	}
+
+	private String format(String format, Object ... args) {
+		// Workarounds for incompatibility between Java and C.
+		format = format.replace("%u", "%d");
+		format = format.replace("%lu", "%d");
+
+
+		return new Formatter().format(format, args).toString();
 	}
 
 	/**
@@ -285,9 +290,6 @@ public class Magic {
 			byte[] b = new byte[bb.limit()];
 			bb.position(0);
 			bb.get(b);
-
-			//set the current offset position
-			currentPosition += b.length;
 
 			return b;
 		} catch (Exception e) {
@@ -321,22 +323,23 @@ public class Magic {
 		String str = readString(offset);
 
 		if ("x".equals(test)) {
-			currentPosition += str.length();
-			return str;
+			currentPosition = offset + str.length();
+			return returnLine(str);
 		}
 
 		// > stands for >\0
-		if (">".equals(test)) {
+		if (">".equals(test) ) {
 			if(!str.isEmpty()) {
-				currentPosition += str.length();
-				return str;
+				currentPosition = offset + str.length();
+				return returnLine(str);
 			} else {
 				return null;
 			}
 		}
 
 		if (test.isEmpty()) {
-			return str.isEmpty();
+			currentPosition = offset;
+			return "";
 		}
 
 		/**
@@ -365,8 +368,8 @@ public class Magic {
 		case '>':
 			int len = toInt(test.substring(1));
 			if (str.length() > len) {
-				currentPosition += str.length();
-				return str;
+				currentPosition = offset + str.length();
+				return returnLine(str);
 			} else {
 				return null;
 			}
@@ -374,8 +377,8 @@ public class Magic {
 			try {					
 				len = toInt(test.substring(1));
 				if (str.length() < len) {
-					currentPosition += str.length();
-					return str;
+					currentPosition = offset + str.length();
+					return returnLine(str);
 				} else {
 					return null;
 				}
@@ -402,11 +405,12 @@ public class Magic {
 				str = str.replaceAll(" ", "");
 				adjust -= str.length();
 				test = test.replaceAll(" ", "");
+				adjust -= str.length() - test.length();
 			}
 
 			if (str.startsWith(test)) {
-				currentPosition += str.length() + adjust;
-				return str;
+				currentPosition = offset + test.length() + adjust;
+				return returnLine(str);
 			} else {
 				return null;
 			}
@@ -432,7 +436,7 @@ public class Magic {
 
 		if (matcher.find()) {
 			currentPosition = offset + (stringFlags.flag_s ? matcher.start() : matcher.end());
-			return str;
+			return returnLine(str);
 		} else {
 			return null;
 		}
@@ -443,16 +447,19 @@ public class Magic {
 		String str = readString(offset);
 
 		if ("x".equals(test)) {
-			return str;
+			currentPosition = offset + str.length();
+			return returnLine(str);
 		}
 
 		// > stands for >\0
 		if (">".equals(test)) {
-			return !str.isEmpty() ? str : null;
+			currentPosition = offset + str.length();
+			return !str.isEmpty() ? returnLine(str) : null;
 		}
 
 		if (test.isEmpty()) {
-			return str.isEmpty();
+			currentPosition = offset;
+			return "";
 		}
 
 
@@ -462,18 +469,13 @@ public class Magic {
 		// The first token is always the string 'search'
 		sc.next();
 
-		boolean[] flagsArray = new boolean[3];
-		Arrays.fill(flagsArray, false);
 		// we don't handle the flag B because it is like the standard case
-		boolean flag_b = flagsArray[1];
-		boolean flag_c = flagsArray[2];
+		StringFlags stringFlags = new StringFlags();	
 
 		while (sc.hasNext()) {
 			String next = sc.next();
 			if (areStringFlags(next)) {
-				StringFlags stringFlags = parseStringFlags(next);				
-				flag_b = stringFlags.flag_b;
-				flag_c = stringFlags.flag_c;
+				stringFlags = parseStringFlags(next);	
 			} else {
 				range = toInt(next);
 			}		
@@ -495,7 +497,7 @@ public class Magic {
 			int len = toInt(test.substring(1));
 			if (str.length() > len) {
 				currentPosition = offset + str.length();
-				return str;
+				return returnLine(str);
 			} else {
 				return null;
 			}
@@ -504,7 +506,7 @@ public class Magic {
 				len = toInt(test.substring(1));
 				if (str.length() < len) {
 					currentPosition = offset + str.length();
-					return str;
+					return returnLine(str);
 				} else {
 					return null;
 				}
@@ -518,13 +520,13 @@ public class Magic {
 				test = test.substring(1);
 			}
 
-			if (flag_c) {
+			if (stringFlags.flag_c) {
 				// case insensitive matching
 				str = str.toLowerCase();
 				test = test.toLowerCase();
 			}
 
-			if (flag_b) {
+			if (stringFlags.flag_b) {
 				// blanks are optional: remove them
 				str = str.replaceAll(" ", "");
 				test = test.replaceAll(" ", "");
@@ -533,10 +535,26 @@ public class Magic {
 
 		if (str.indexOf(test) >= 0) {
 			currentPosition = offset + str.indexOf(test) + test.length();
-			return str;
+			return returnLine(str);
 		} else {
 			return null;
 		}
+	}
+
+
+	/**
+	 * A line is considered terminated when ends with 00 (NUL), 0A (LF \n) or, 0D (CR \r).
+	 */
+	private String returnLine(String str) {
+		int end = 0;
+		for (end = 0; end < str.length(); end++) {
+			char ch = str.charAt(end);
+			if (ch == 0x00 || ch == 0x0a || ch == 0x0d) {
+				break;
+			}
+		}
+
+		return str.substring(0, end);
 	}
 
 	private boolean areStringFlags(String flags) {
@@ -584,10 +602,12 @@ public class Magic {
 	/**
 	 * Beginning from the given offset, it read a string (as in C, a string is
 	 * sequence of chars terminated with 0). For performance the max string
-	 * length is 255.
+	 * length is 255. A string is considered terminated, when ends with 00
+	 * (NUL).
 	 * 
-	 * In this case the {@code #currentPosition} is set in {@code #performStringTest(int, Type, String)}.
-	 * Normally, it's set in {@code #readByte(int, int)}.
+	 * In this case the {@code #currentPosition} is set in {@code
+	 * #performStringTest(int, Type, String)}. Normally, it's set in {@code
+	 * #readByte(int, int)}.
 	 */
 	private String readString(int offset) throws IOException {
 		// usually the string used for description aren't more than 255 chars.
@@ -599,14 +619,13 @@ public class Magic {
 		int[] bu = readUnsignedByte(offset, len);
 		int n = 0;
 		for (n = 0; n < bu.length; n++) {
+			//A string is terminated when ends with 00 (NUL)
 			if (bu[n] == 0) {
-				// like in C the strings are 0 terminated.
 				break;
 			}
+
 		}
 		bu = Arrays.copyOf(bu, n);
-
-
 
 		return new String(bu, 0, bu.length);
 	}
@@ -1161,7 +1180,6 @@ public class Magic {
 		}
 
 		boolean isSearch() {
-			// TODO implement 'search'
 			return name.indexOf("search") != -1;
 		}
 
