@@ -352,7 +352,6 @@ public class GKeyFile {
 		 * @param def a Default value, if no value is found.
 		 * @return The String property value for the given key.
 		 */
-		//TODO do the same for the other getter
 		public String getString(String key, String def) {
 			String value = getString(key);
 			if (value == null) {
@@ -367,6 +366,16 @@ public class GKeyFile {
 			return valueOf(Integer.class, backingMap.get(key), key);
 		}
 
+		public Integer getInteger(String key, Integer def) {
+			Integer value = getInteger(key);
+			if (value == null) {
+				value = def;
+				setValue(key, value);
+			}
+
+			return value;
+		}
+
 		/**
 		 * If no entry is found, it's returned {@code false}.
 		 *  
@@ -377,24 +386,84 @@ public class GKeyFile {
 			return valueOf(Boolean.class, backingMap.get(key), key);
 		}
 
+		public Boolean getBoolean(String key, Boolean def) {
+			Boolean value = getBoolean(key);
+			if (value == null) {
+				value = def;
+				setValue(key, value);
+			}
+
+			return value;
+		}
+
 		public Double getDouble(String key) {
 			return valueOf(Double.class, backingMap.get(key), key);
+		}
+
+		public Double getDouble(String key, Double def) {
+			Double value = getDouble(key);
+			if (value == null) {
+				value = def;
+				setValue(key, value);
+			}
+
+			return value;
 		}
 
 		public List<String> getStringList(String key) {
 			return getListInternal(key, String.class);
 		}
 
+		public List<String> getStringList(String key, List<String> def) {
+			List<String> value = getStringList(key);
+			if (value == null) {
+				value = def;
+				setValue(key, value);
+			}
+
+			return value;
+		}
+
 		public List<Integer> getIntegerList(String key) {
 			return getListInternal(key, Integer.class);
+		}
+
+		public List<Integer> getIntegerList(String key, List<Integer> def) {
+			List<Integer> value = getIntegerList(key);
+			if (value == null) {
+				value = def;
+				setValue(key, value);
+			}
+
+			return value;
 		}
 
 		public List<Boolean> getBooleanList(String key) {
 			return getListInternal(key, Boolean.class);
 		}
 
+		public List<Boolean> getBooleanList(String key, List<Boolean> def) {
+			List<Boolean> value = getBooleanList(key);
+			if (value == null) {
+				value = def;
+				setValue(key, value);
+			}
+
+			return value;
+		}
+
 		public List<Double> getDoubleList(String key) {
 			return getListInternal(key, Double.class);
+		}
+
+		public List<Double> getDoubleList(String key, List<Double> def) {
+			List<Double> value = getDoubleList(key);
+			if (value == null) {
+				value = def;
+				setValue(key, value);
+			}
+
+			return value;
 		}
 
 		private <T> List<T> getListInternal(String key, Class<T> cls) {

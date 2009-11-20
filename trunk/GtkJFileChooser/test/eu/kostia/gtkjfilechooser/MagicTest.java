@@ -44,6 +44,20 @@ import eu.kostia.gtkjfilechooser.Magic.Result;
 public class MagicTest {
 
 	/**
+	 * See rule on row 14434 in /usr/share/magic
+	 */
+	@Test
+	public void testMagicOgv() throws Exception {
+		Magic magic = new Magic(new File("misc/magic/magic"));
+		Result result = magic.detect(new File("misc/magic/testfiles/out.ogv"));
+		System.out.println(result);
+
+		assertNotNull("Result is null", result);
+		assertEquals("Ogg data, Skeleton v3.0", result.getDescription());
+		assertEquals("aapplication/ogg", result.getMime());
+	}
+
+	/**
 	 * See rule on row 8708 in /usr/share/magic
 	 */
 	@Test
@@ -52,11 +66,22 @@ public class MagicTest {
 		Result result = magic.detect(new File("misc/magic/testfiles/KML_Samples.kml"));
 		System.out.println(result);
 
-		//TODO currentPosition not correct
-
 		assertNotNull("Result is null", result);
 		assertEquals("OpenGIS KML document, version 2.2", result.getDescription());
+
 		assertEquals("application/vnd.google-earth.kml+xml", result.getMime());
+	}
+
+	@Test
+	public void testMagicGedcom() throws Exception {
+		Magic magic = new Magic(new File("misc/magic/magic"));
+		Result result = magic.detect(new File("misc/magic/testfiles/gedcom.testfile"));
+		System.out.println(result);
+
+		assertNotNull("Result is null", result);
+		assertEquals("GEDCOM genealogy text version 5.5", result.getDescription());
+
+		assertNull("Mime is not null", result.getMime());
 	}
 
 	@Test
@@ -243,10 +268,11 @@ public class MagicTest {
 	}
 
 	/**
-	 * See rule on row 10212 in /usr/share/magic
+	 * See rule on row 10212 in /usr/share/magic.
 	 */
 	@Test
 	public void testWinExe() throws Exception {
+		//TODO to test set a brekpoint on ">>(0x3c.l) string PE\0\0 PE" (line: 10255)
 		Magic magic = new Magic(new File("misc/magic/magic"));
 		Result result = magic.detect(new File("misc/magic/testfiles/control.exe"));
 		System.out.println(result);
