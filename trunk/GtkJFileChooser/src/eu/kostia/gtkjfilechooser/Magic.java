@@ -323,13 +323,17 @@ public class Magic {
 		String str = readString(offset);
 
 		if ("x".equals(test)) {
-			currentPosition = offset + str.length();
-			return returnLine(str);
+			if (lastTestSuccessful) {
+				currentPosition = offset + str.length();
+				return returnLine(str);
+			} else {
+				return null;
+			}			
 		}
 
 		// > stands for >\0
 		if (">".equals(test) ) {
-			if(!str.isEmpty()) {
+			if(!str.isEmpty() && lastTestSuccessful) {
 				currentPosition = offset + str.length();
 				return returnLine(str);
 			} else {
@@ -447,14 +451,22 @@ public class Magic {
 		String str = readString(offset);
 
 		if ("x".equals(test)) {
-			currentPosition = offset + str.length();
-			return returnLine(str);
+			if (lastTestSuccessful) {
+				currentPosition = offset + str.length();
+				return returnLine(str);
+			} else {
+				return null;
+			}			
 		}
 
 		// > stands for >\0
 		if (">".equals(test)) {
-			currentPosition = offset + str.length();
-			return !str.isEmpty() ? returnLine(str) : null;
+			if (lastTestSuccessful) {
+				currentPosition = offset + str.length();
+				return !str.isEmpty() ? returnLine(str) : null;
+			} else {
+				return null;
+			}			
 		}
 
 		if (test.isEmpty()) {
@@ -644,7 +656,6 @@ public class Magic {
 		boolean passed = false;
 		if ("x".equals(test)) {
 			if (lastTestSuccessful) {
-				//TODO check last success also for other 'x'-cases
 				passed = true;
 			} else {
 				return null;
