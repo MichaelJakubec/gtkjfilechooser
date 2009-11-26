@@ -23,6 +23,7 @@
  */
 package eu.kostia.gtkjfilechooser;
 
+
 /**
  * Version Information — Variables and functions to check the GTK+ version
  * 
@@ -32,14 +33,28 @@ package eu.kostia.gtkjfilechooser;
  *
  */
 public class GtkVersion {
-	static final int GTK_MAJOR_VERSION;
-	static final int GTK_MINOR_VERSION;
-	static final int GTK_MICRO_VERSION;
+	
 	static {
-		//TODO implement
-		GTK_MAJOR_VERSION = 2;
-		GTK_MINOR_VERSION = 28;
-		GTK_MICRO_VERSION = 0;
+		System.out.println(System.getProperty("java.library.path"));
+	    System.loadLibrary("j_gtk_version");
+	   }
+
+	
+	/**
+	 * Checks that the GTK+ library in use is compatible with the given version.
+	 * 
+	 * @param required_major
+	 * @param required_minor
+	 * @param required_micro
+	 * @return {@code null} if the GTK+ library is compatible with the given
+	 *         version, or a string describing the version mismatch. The
+	 *         returned string is owned by GTK+ and should not be modified or
+	 *         freed.
+	 */
+	static native public String check(int required_major, int required_minor, int required_micro);
+
+	public static void main(String[] args) {		
+		System.out.println("Version: " + check(2, 18, 0));
 	}
 
 
