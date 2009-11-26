@@ -23,24 +23,17 @@
  */
 package eu.kostia.gtkjfilechooser;
 
+import org.junit.Assert;
 import org.junit.Test;
-
-import sun.security.action.GetPropertyAction;
 
 
 /**
  * @author Costantino Cerbo
- *
+ * 
  */
 public class GtkVersionTest {
 	@Test
-	public void testGetVersion1() {
-		String version = java.security.AccessController.doPrivileged(new GetPropertyAction("swing.gtk.version"));
-		System.out.println("version: " + version);
-		
-	}
-	@Test
 	public void testGetVersion() throws Exception {
-		//TODO
+		Assert.assertNotNull(GtkVersion.check(2, 18, 0));
 	}
 }

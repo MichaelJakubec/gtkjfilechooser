@@ -94,6 +94,7 @@ import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 import eu.kostia.gtkjfilechooser.GtkFileView;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
+import eu.kostia.gtkjfilechooser.GtkVersion;
 import eu.kostia.gtkjfilechooser.Log;
 import eu.kostia.gtkjfilechooser.NavigationKeyBinding;
 import eu.kostia.gtkjfilechooser.Path;
@@ -423,8 +424,7 @@ PropertyChangeListener, ActionListener {
 	private void addFileBrowserPane() {
 		// Left Panel (Bookmarks)
 		addBookmarkButton = new JButton(_("_Add"));		
-		addBookmarkButton.setMnemonic(getMnemonic("_Add"));
-		addBookmarkButton.setIcon(GtkStockIcon.get("gtk-add", Size.GTK_ICON_SIZE_BUTTON));		
+		addBookmarkButton.setMnemonic(getMnemonic("_Add"));	
 		addBookmarkButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -437,8 +437,6 @@ PropertyChangeListener, ActionListener {
 		removeBookmarkButton.setMnemonic(getMnemonic("_Remove"));
 		// it will be enabled, when we select a bookmark.
 		removeBookmarkButton.setEnabled(false);
-		removeBookmarkButton.setIcon(GtkStockIcon.get("gtk-remove",
-				Size.GTK_ICON_SIZE_BUTTON));
 		removeBookmarkButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -446,6 +444,12 @@ PropertyChangeListener, ActionListener {
 			}
 		});
 
+		// Since GTK 2.18.0 these buttons, as many others, have no icon more.
+		if (!(GtkVersion.check(2, 18, 0) != null && GtkVersion.check(2, 18, 0))) {
+			addBookmarkButton.setIcon(GtkStockIcon.get("gtk-add", Size.GTK_ICON_SIZE_BUTTON));
+			removeBookmarkButton.setIcon(GtkStockIcon.get("gtk-remove",	Size.GTK_ICON_SIZE_BUTTON));
+		}
+		
 		JPanel buttonPanel = JPanelUtil.createPanel(new GridLayout(1, 2),
 				addBookmarkButton, removeBookmarkButton);
 
@@ -671,8 +675,7 @@ PropertyChangeListener, ActionListener {
 			// Buttons
 			buttonPanel.setLayout(new ButtonAreaLayout());
 
-			cancelButton = new JButton(cancelButtonText);
-			cancelButton.setIcon(GtkStockIcon.get("gtk-cancel", Size.GTK_ICON_SIZE_BUTTON));
+			cancelButton = new JButton(cancelButtonText);			
 			cancelButton.setToolTipText(cancelButtonToolTipText);
 			cancelButton.addActionListener(getCancelSelectionAction());
 			cancelButton.setMnemonic(getMnemonic("Stock label|_Cancel"));
@@ -682,20 +685,19 @@ PropertyChangeListener, ActionListener {
 			approveButton.setAction(getOpenClickedAction());
 			approveButton.setToolTipText(getApproveButtonToolTipText(getFileChooser()));
 
-			// Adjust buttons height (on Ubuntu it was different)
-			int cancelButtonH = cancelButton.getPreferredSize().height;
-			int approveButtonH = approveButton.getPreferredSize().height;
-			if (cancelButtonH > approveButtonH) {
-				Dimension size = approveButton.getPreferredSize();
-				size.height = cancelButtonH;
-				approveButton.setPreferredSize(size);
-			} else {
-				Dimension size = cancelButton.getPreferredSize();
-				size.height = approveButtonH;
-				cancelButton.setPreferredSize(size);
-			}
+			// Adjust buttons width (on Ubuntu it was different)
+			Dimension size = approveButton.getPreferredSize();
+			size.width = 80;
+			cancelButton.setPreferredSize(size);
+			approveButton.setPreferredSize(size);
 
 			buttonPanel.add(approveButton);
+			
+			// Since GTK 2.18.0 these buttons, as many others, have no icon more.
+			if (!(GtkVersion.check(2, 18, 0) != null && GtkVersion.check(2, 18, 0))) {
+				approveButton.setIcon(GtkStockIcon.get("gtk-open", Size.GTK_ICON_SIZE_BUTTON));
+				cancelButton.setIcon(GtkStockIcon.get("gtk-cancel", Size.GTK_ICON_SIZE_BUTTON));
+			}
 		}
 
 		return buttonPanel;
@@ -705,8 +707,7 @@ PropertyChangeListener, ActionListener {
 	 * Action when the button "Open" is pressed to approve the selection.
 	 */
 	private Action getOpenClickedAction(){
-		Action action = getApproveSelectionAction();
-		action.putValue(Action.LARGE_ICON_KEY, GtkStockIcon.get("gtk-open", Size.GTK_ICON_SIZE_BUTTON));
+		Action action = getApproveSelectionAction();		
 		action.putValue(Action.NAME, getApproveButtonText(getFileChooser()));
 		action.putValue(Action.MNEMONIC_KEY, getMnemonic("Stock label|_Open"));
 		return action;
