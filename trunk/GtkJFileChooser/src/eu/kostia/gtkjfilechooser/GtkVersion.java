@@ -23,25 +23,33 @@
  */
 package eu.kostia.gtkjfilechooser;
 
+import java.io.IOException;
 
 /**
  * Version Information — Variables and functions to check the GTK+ version
  * 
- * @see {@link http://library.gnome.org/devel/gtk/unstable/gtk-Feature-Test-Macros.html}
+ * @see {@link http
+ *      ://library.gnome.org/devel/gtk/unstable/gtk-Feature-Test-Macros.html}
  * @see {@link http://git.gnome.org/cgit/gtk+/tree/gtk/gtkversion.h.in}
+ * 
  * @author Costantino Cerbo
- *
+ * 
  */
 public class GtkVersion {
-	
-	static {
-		System.out.println(System.getProperty("java.library.path"));
-	    System.loadLibrary("GtkVersion");
-	   }
+	static private boolean loaded = true;
 
-	
+	static {
+		try {
+			JNIUtil.loadLibrary("eu.kostia.gtkjfilechooser", "GtkVersion");
+		} catch (IOException e) {
+			e.printStackTrace();
+			loaded = false;
+		}
+	}
+
 	/**
-	 * Checks that the GTK+ library in use is compatible with the given version.
+	 * Checks that the GTK+ library in use is compatible (the same or newer)
+	 * with the given version.
 	 * 
 	 * @param required_major
 	 * @param required_minor
@@ -51,11 +59,18 @@ public class GtkVersion {
 	 *         returned string is owned by GTK+ and should not be modified or
 	 *         freed.
 	 */
-	static native public String check(int required_major, int required_minor, int required_micro);
-
-	public static void main(String[] args) {		
-		System.out.println("Version: " + check(2, 18, 0));
+	static public Boolean check(int required_major, int required_minor, int required_micro) {
+		if (loaded) {
+			try {
+				return check0(required_major, required_minor, required_micro);
+			} catch (Exception e) {				
+				return null;
+			}
+		}
+		return null;
 	}
 
+	static native private boolean check0(int required_major, int required_minor,
+			int required_micro);
 
 }
