@@ -1,3 +1,8 @@
 cd src/eu/kostia/gtkjfilechooser
 GTK_LIBS="/usr/include/gtk-2.0/"
-gcc  -o j_gtk_version.so -shared -Wl,-soname,j_gtk_version.so -I$JAVA_HOME/include -I$JAVA_HOME/include/linux -I$GTK_LIBS j_gtk_version.c -static -lc
+gcc  -shared \
+	-o libGtkVersion.so \
+	-I$JAVA_HOME/include \
+	-I$JAVA_HOME/include/linux \
+	-I$GTK_LIBS \
+	j_gtk_version.c
