@@ -36,7 +36,7 @@ public class GtkVersion {
 	
 	static {
 		System.out.println(System.getProperty("java.library.path"));
-	    System.loadLibrary("j_gtk_version");
+	    System.loadLibrary("GtkVersion");
 	   }
 
 	
