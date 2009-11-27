@@ -8,6 +8,7 @@ Updated to these GTK+ 2.18 changes:
   * File sizes are shown by default
   * No icon more for some buttons
 [http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/gtk+2.18.0.png]
+
 Tested on the following platforms:
   * Ubuntu 9.10
   * OpenSuse 11.2
