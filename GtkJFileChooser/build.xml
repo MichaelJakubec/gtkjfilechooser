@@ -97,6 +97,11 @@
 			<arg value="-D_GNU_SOURCE" />
 			<arg value="-D_REENTRANT" />
 			<arg value="-D_LITTLE_ENDIAN" />
+			<arg value="-static-libgcc" />
+			<arg value="-mimpure-text" />
+			<arg value="-lc" />
+			<arg value="-shared" />
+			 
 			<arg value="${src.dir}/eu/kostia/gtkjfilechooser/GtkVersion.c" />
 		</exec>
 
