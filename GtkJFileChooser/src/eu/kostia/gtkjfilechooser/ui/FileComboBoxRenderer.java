@@ -31,11 +31,11 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
+import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.UIResource;
 
-import sun.swing.DefaultLookup;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
 import eu.kostia.gtkjfilechooser.Path;
 import eu.kostia.gtkjfilechooser.BookmarkManager.GtkBookmark;
@@ -98,12 +98,11 @@ public class FileComboBoxRenderer extends JLabel implements ListCellRenderer, UI
 		Border border = null;
 		if (cellHasFocus) {
 			if (isSelected) {
-				border = DefaultLookup.getBorder(this, ui,
-						"List.focusSelectedCellHighlightBorder");
+				
+				border = UIManager.getBorder("List.focusSelectedCellHighlightBorder");
 			}
 			if (border == null) {
-				border = DefaultLookup.getBorder(this, ui,
-						"List.focusCellHighlightBorder");
+				border = UIManager.getBorder("List.focusCellHighlightBorder");
 			}
 		} else {
 			border = getNoFocusBorder();
@@ -121,7 +120,7 @@ public class FileComboBoxRenderer extends JLabel implements ListCellRenderer, UI
 	}
 
 	private Border getNoFocusBorder() {
-		Border border = DefaultLookup.getBorder(this, ui, "List.cellNoFocusBorder");
+		Border border = UIManager.getBorder("List.cellNoFocusBorder");
 		if (System.getSecurityManager() != null) {
 			if (border != null) return border;
 			return SAFE_NO_FOCUS_BORDER;
