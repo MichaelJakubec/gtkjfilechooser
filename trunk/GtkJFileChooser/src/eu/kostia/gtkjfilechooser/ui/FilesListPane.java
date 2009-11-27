@@ -28,6 +28,7 @@ import static eu.kostia.gtkjfilechooser.I18N._;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -68,6 +69,7 @@ import eu.kostia.gtkjfilechooser.GtkFileChooserSettings;
 public class FilesListPane extends JComponent implements ActionDispatcher {
 
 	public static final Color PEARL_GRAY = new Color(238, 238, 238);
+	public static final Color PEARL_GRAY_LIGHT = new Color(221, 221, 221);
 
 	private static final String FILE_NAME_COLUMN_ID = "Name";
 	private static final int FILE_NAME_COLUMN_INDEX = 0;
@@ -123,6 +125,7 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		table.setAutoCreateColumnsFromModel(false);
 		table.setBackground(UIManager.getColor("TextPane.background"));
 		table.getTableHeader().setReorderingAllowed(false);
+		table.setIntercellSpacing(new Dimension(0,0));
 
 		Boolean showSizeColumn = GtkFileChooserSettings.get().getShowSizeColumn();
 		setModel(fileEntries, showSizeColumn);
@@ -132,7 +135,7 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		table.setShowGrid(false);
 		table.getTableHeader().setResizingAllowed(true);
 		// Gnome rows are taller
-		table.setRowHeight(22);
+		table.setRowHeight(23);
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e) {
@@ -251,6 +254,10 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 
 	public FilesListTableModel getModel() {
 		return (FilesListTableModel) table.getModel();
+	}
+	
+	public boolean getShowSizeColumn() {
+		return getModel().getShowSizeColumn();
 	}
 
 	private boolean isRowEnabled(File file) {
@@ -548,7 +555,11 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 			} else {
 				setForeground(table.getForeground());
 
-				Color rowcolor = (row % 2 == 0) ? PEARL_GRAY : table.getBackground();
+				Color rowcolor = (row % 2 == 0) ? table.getBackground() : PEARL_GRAY ;
+				if (getShowSizeColumn() && column == 0) {
+					rowcolor = (row % 2 == 0) ? PEARL_GRAY : PEARL_GRAY_LIGHT;
+				}
+				
 				setBackground(rowcolor);
 			}
 
