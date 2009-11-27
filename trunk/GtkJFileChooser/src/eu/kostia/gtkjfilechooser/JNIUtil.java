@@ -80,7 +80,11 @@ public class JNIUtil {
 			writeToFile(GtkVersion.class.getResourceAsStream(resourcename), file);
 		}
 
-		System.load(file.getAbsolutePath());
+		try {
+			System.load(file.getAbsolutePath());
+		} catch (Throwable e) {
+			throw new IOException(e.getMessage(), e);
+		}
 	}
 
 	static private void writeToFile(InputStream stream, File file) throws IOException {
