@@ -1,4 +1,0 @@
-#set the correct values in your environment and then rename in "build.properties"
-
-java_home=/usr/java/default
-gtk_home=/usr/include/gtk-2.0/
