@@ -685,19 +685,27 @@ PropertyChangeListener, ActionListener {
 			approveButton.setAction(getOpenClickedAction());
 			approveButton.setToolTipText(getApproveButtonToolTipText(getFileChooser()));
 
-			// Adjust buttons width (on Ubuntu it was different)
-			Dimension size = approveButton.getPreferredSize();
-			size.width = 80;
-			cancelButton.setPreferredSize(size);
-			approveButton.setPreferredSize(size);
-
 			buttonPanel.add(approveButton);
 			
 			// Since GTK 2.18.0 these buttons, as many others, have no icon more.
 			if (!(GtkVersion.check(2, 18, 0) != null && GtkVersion.check(2, 18, 0))) {
-				approveButton.setIcon(GtkStockIcon.get("gtk-open", Size.GTK_ICON_SIZE_BUTTON));
+				if(getFileChooser().getDialogType() == JFileChooser.OPEN_DIALOG) {
+					approveButton.setIcon(GtkStockIcon.get("gtk-open", Size.GTK_ICON_SIZE_BUTTON));
+				} else {
+					approveButton.setIcon(GtkStockIcon.get("gtk-save", Size.GTK_ICON_SIZE_BUTTON));
+				}
+				
 				cancelButton.setIcon(GtkStockIcon.get("gtk-cancel", Size.GTK_ICON_SIZE_BUTTON));
 			}
+			
+			// Adjust buttons width (on Ubuntu it was different)
+			Dimension psize0 = approveButton.getPreferredSize();
+			Dimension psize1 = cancelButton.getPreferredSize();
+			int width = psize0.width > psize1.width ? psize0.width : psize1.width;
+			width = width < 80 ? 80 : width;
+			psize0.width = width;
+			cancelButton.setPreferredSize(psize0);
+			approveButton.setPreferredSize(psize0);
 		}
 
 		return buttonPanel;
@@ -732,7 +740,6 @@ PropertyChangeListener, ActionListener {
 			}
 		};
 
-		action.putValue(Action.LARGE_ICON_KEY, GtkStockIcon.get("gtk-save", Size.GTK_ICON_SIZE_BUTTON));
 		action.putValue(Action.NAME, getApproveButtonText(getFileChooser()));
 		action.putValue(Action.MNEMONIC_KEY, getMnemonic("Stock label|_Save"));
 		return action;
