@@ -23,7 +23,9 @@
  */
 package eu.kostia.gtkjfilechooser;
 
-import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.regex.Pattern;
 
 /**
  * Version Information — Variables and functions to check the GTK+ version
@@ -36,14 +38,32 @@ import java.io.IOException;
  * 
  */
 public class GtkVersion {
-	static private boolean loaded = true;
-
+	static public int GTK_MAJOR_VERSION;
+	static public int GTK_MINOR_VERSION;
+	static public int GTK_MICRO_VERSION;
 	static {
 		try {
-			JNIUtil.loadLibrary("eu.kostia.gtkjfilechooser", "GtkVersion");
-		} catch (IOException e) {
+			BufferedReader br = null;
+			try {
+				// pkg-config works on all UNIX-like operating systems
+				String[] cmd = { "pkg-config", "--modversion", "gtk+-2.0" };
+				Process process = new ProcessBuilder(cmd).start();
+				br = new BufferedReader(new InputStreamReader(process.getInputStream()));
+				String[] arg = br.readLine().split(Pattern.quote("."));
+
+				GTK_MAJOR_VERSION = Integer.parseInt(arg[0]);
+				GTK_MINOR_VERSION = Integer.parseInt(arg[1]);
+				GTK_MICRO_VERSION = Integer.parseInt(arg[2]);
+			} finally {
+				if (br != null) {
+					br.close();
+				}
+			}
+		} catch (Throwable e) {
 			e.printStackTrace();
-			loaded = false;
+			GTK_MAJOR_VERSION = -1;
+			GTK_MINOR_VERSION = -1;
+			GTK_MICRO_VERSION = -1;
 		}
 	}
 
@@ -59,18 +79,13 @@ public class GtkVersion {
 	 *         returned string is owned by GTK+ and should not be modified or
 	 *         freed.
 	 */
-	static public Boolean check(int required_major, int required_minor, int required_micro) {
-		if (loaded) {
-			try {
-				return check0(required_major, required_minor, required_micro);
-			} catch (Exception e) {				
-				return null;
-			}
+	static public Boolean check(int major, int minor, int micro) {
+		if (GTK_MAJOR_VERSION == -1) {
+			return null;
 		}
-		return null;
+
+		return (GTK_MAJOR_VERSION > (major)
+				|| (GTK_MAJOR_VERSION == (major) && GTK_MINOR_VERSION > (minor)) || (GTK_MAJOR_VERSION == (major)
+				&& GTK_MINOR_VERSION == (minor) && GTK_MICRO_VERSION >= (micro)));
 	}
-
-	static native private boolean check0(int required_major, int required_minor,
-			int required_micro);
-
 }

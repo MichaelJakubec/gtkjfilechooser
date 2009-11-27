@@ -62,51 +62,6 @@
 			<src path="${src.dir}" />
 			<classpath refid="project.classpath" />
 		</javac>
-
-		<!-- Generates JNI header for GtkVersion-->
-		<javah outputFile="${src.dir}/eu/kostia/gtkjfilechooser/GtkVersion.h">
-			<classpath refid="project.classpath" />
-			<class name="eu.kostia.gtkjfilechooser.GtkVersion" />
-		</javah>
-
-
-		<!--
-		Compile C JNI proxy for checking the GTK version.
-		$ gcc  -shared -o libGtkVersion.so -I$JAVA_HOME/include -I$JAVA_HOME/include/linux -I$GTK_LIBS GtkVersion.c
-		-->
-		<exec executable="gcc">
-			<arg value="-shared" />
-			<arg value="-o" />
-			<arg value="${build.dir}/eu/kostia/gtkjfilechooser/libGtkVersion.so" />
-			<arg value="-I${java_home}/include" />
-			<arg value="-I${java_home}/include/linux" />
-			<arg value="-I${gtk_home}" />
-			<arg value="-O2" />
-			<arg value="-fno-strict-aliasing" />
-			<arg value="-fPIC" />
-			<arg value="-pthread" />
-			<arg value="-W" />
-			<arg value="-Wall" />
-			<arg value="-Wno-unused" />
-			<arg value="-Wno-parentheses" />
-			<arg value="-DNDEBUG" />
-			<arg value="-Di586" />
-			<arg value="-DARCH='i586'" />
-			<arg value="-DLINUX" />
-			<arg value="-D_LARGEFILE64_SOURCE" />
-			<arg value="-D_GNU_SOURCE" />
-			<arg value="-D_REENTRANT" />
-			<arg value="-D_LITTLE_ENDIAN" />
-			<arg value="-static-libgcc" />
-			<arg value="-mimpure-text" />
-			<arg value="-lc" />
-			<arg value="-shared" />
-			 
-			<arg value="${src.dir}/eu/kostia/gtkjfilechooser/GtkVersion.c" />
-		</exec>
-
-		<!-- copy the the shared library in src/ to put it in the eclipse classpath -->
-		<copy file="${build.dir}/eu/kostia/gtkjfilechooser/libGtkVersion.so" todir="${src.dir}/eu/kostia/gtkjfilechooser" overwrite="true" />
 	</target>
 
 	<target name="build.demo">

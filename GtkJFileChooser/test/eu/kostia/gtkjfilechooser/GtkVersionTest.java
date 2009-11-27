@@ -36,6 +36,7 @@ public class GtkVersionTest {
 	public void testGetVersion() throws Exception {
 		System.out.println("gtk 2.14.7: " + GtkVersion.check(2, 14, 7));
 		System.out.println("gtk 2.18.0: " + GtkVersion.check(2, 18, 0));
+		System.out.println("gtk 2.19.0: " + GtkVersion.check(2, 19, 0));
 		Assert.assertNotNull(GtkVersion.check(2, 18, 0));
 	}
 }
