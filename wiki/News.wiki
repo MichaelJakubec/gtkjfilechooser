@@ -1,6 +1,19 @@
 #summary The lastest news on the project
 
 = Latest News =
+===  13.11.2009 Release 1.4.0 ===
+Updated to these GTK+ 2.18 changes:
+  * Backup files are hidden by default
+  * GTK+ remembers the sorting state of the file list
+  * File sizes are shown by default
+  * No icon more for some buttons
+[http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/gtk+2.18.0.png]
+Tested on the following platforms:
+  * Ubuntu 9.10
+  * OpenSuse 11.2
+  * OpenSolaris 2009.06
+  * Debian 5.0
+
 ===  13.11.2009 Release 1.3.2 ===
 *Version 1.3.2 released* Download it [http://gtkjfilechooser.googlecode.com/files/GtkJFileChooser_v1.3.2 here].
 List of [http://code.google.com/p/gtkjfilechooser/issues/list?can=1&q=label%3AFixed-Version1.3.2 fixed] issues.
