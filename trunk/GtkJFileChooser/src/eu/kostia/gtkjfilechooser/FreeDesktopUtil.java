@@ -179,6 +179,11 @@ public class FreeDesktopUtil {
 	 *      Hierarchy Standard: /media : Mount point for removeable media</a>
 	 */
 	static public List<RemovableDevice> getRemovableDevices() {
+		if(Platform.isSolaris()) {
+			//TODO Issue 47
+			return new ArrayList<RemovableDevice>();
+		}
+		
 		List<RemovableDevice> devices = new ArrayList<RemovableDevice>();
 		String[] diskUUIDs = new File("/dev/disk/by-uuid/").list();
 		Arrays.sort(diskUUIDs);
