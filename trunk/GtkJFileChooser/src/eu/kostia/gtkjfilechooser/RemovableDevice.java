@@ -28,7 +28,7 @@ public class RemovableDevice extends BasicPath{
 	private static final long serialVersionUID = 1L;
 
 	public enum RemovableDeviceType {
-		DRIVE_HARDDISK_USB, DRIVE_REMOVABLE_MEDIA_USB, MEDIA_OPTICAL, MEDIA_FLASH, DRIVE_REMOVABLE_MEDIA;
+		GNOME_DEV_HARDDISK_USB, GNOME_DEV_REMOVABLE_USB, GNOME_DEV_DISC_DVDROM, GNOME_DEV_MEDIA_SDMMC, GNOME_DEV_REMOVABLE;
 
 		public String toIconName() {
 			return toString().toLowerCase().replace('_', '-');
@@ -50,16 +50,16 @@ public class RemovableDevice extends BasicPath{
 		 */
 		public static RemovableDeviceType getType(String dev) {
 			if (dev.startsWith("/dev/sdb")) {
-				return DRIVE_HARDDISK_USB;
+				return GNOME_DEV_HARDDISK_USB;
 			} else if (dev.startsWith("/dev/sdc")) {
-				return DRIVE_REMOVABLE_MEDIA_USB;
+				return GNOME_DEV_REMOVABLE_USB;
 			} else if (dev.startsWith("/dev/sr")) {
-				return MEDIA_OPTICAL;
+				return GNOME_DEV_DISC_DVDROM;
 			} else if (dev.startsWith("/dev/mmc")) {
-				return MEDIA_FLASH;
+				return GNOME_DEV_MEDIA_SDMMC;
 			}
 
-			return DRIVE_REMOVABLE_MEDIA;
+			return GNOME_DEV_REMOVABLE;
 		}
 	};
 
