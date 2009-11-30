@@ -33,7 +33,6 @@ import java.io.InputStream;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 
-import eu.kostia.gtkjfilechooser.GtkStockIcon;
 import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
 
 public class GtkStockIconTestGui {
