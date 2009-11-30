@@ -59,7 +59,7 @@ public class Platform {
 	}
 
 	static public boolean isUbuntu() {
-		//TODO implement
+		//TODO implement try with "cat /etc/issue" or "cat /etc/lsb-release"
 		return false;
 	}
 
