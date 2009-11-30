@@ -28,8 +28,6 @@ import javax.swing.UIManager;
 
 import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
 
-import eu.kostia.gtkjfilechooser.ui.GtkLocationsPane;
-
 
 
 public class GtkBoomarkPaneTestGui {
