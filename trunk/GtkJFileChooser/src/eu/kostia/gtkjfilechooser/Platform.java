@@ -24,6 +24,10 @@
 package eu.kostia.gtkjfilechooser;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Properties;
 import java.util.Map.Entry;
 
 /**
@@ -32,34 +36,70 @@ import java.util.Map.Entry;
  */
 public class Platform {
 
+	public enum PlatformEnum {
+		REDHAT, SUSE, UBUNTU, SOLARIS, UNKNOWN
+	};
+
+	/**
+	 * Returns the linux plaform for the current system.
+	 * 
+	 * @return The linux plaform for the current system.
+	 */
+	static public PlatformEnum getPlatform() {
+		if (isRedhat()) {
+			return PlatformEnum.REDHAT;
+		} else if (isSuSE()) {
+			return PlatformEnum.SUSE;
+		} else if (isUbuntu()) {
+			return PlatformEnum.UBUNTU;
+		} else if (isSolaris()) {
+			return PlatformEnum.SOLARIS;
+		}
+
+		return PlatformEnum.UNKNOWN;
+	}
+
 	static public boolean isRedhat() {
 		if (new File("/etc/fedora-release").exists()) {
 			return true;
 		}
-		
+
 		if (new File("/etc/redhat-release").exists()) {
 			return true;
 		}
-		
+
 		if (System.getProperty("os.version").indexOf(".fc") != -1) {
 			return true;
 		}
-		
-		
+
 		if (System.getProperty("os.version").indexOf(".el") != -1) {
 			return true;
 		}
-		
+
 		return false;
 	}
 
 	static public boolean isSuSE() {
-		//TODO implement
+		if (new File("/etc/SuSE-release").exists()) {
+			return true;
+		}
+
 		return false;
 	}
 
 	static public boolean isUbuntu() {
-		//TODO implement try with "cat /etc/issue" or "cat /etc/lsb-release"
+		if (new File("/etc/lsb-release").exists()) {
+			Properties props = new Properties();
+			try {
+				props.load(new FileReader(new File("/etc/lsb-release")));
+			} catch (Exception e) {
+				return false;
+			}
+			
+			if ("Ubuntu".equals(props.getProperty("DISTRIB_ID"))) {
+				return true;	
+			}			
+		}
 		return false;
 	}
 
@@ -67,13 +107,12 @@ public class Platform {
 		if (System.getProperty("os.name").indexOf("SunOS") != -1) {
 			return true;
 		}
-		
+
 		return false;
 	}
 
 	public static void main(String[] args) {
-		for (Entry<Object, Object> prop : System.getProperties().entrySet()) {
-			System.out.println(prop);
-		}
+		System.out.println(getPlatform());
+
 	}
 }
