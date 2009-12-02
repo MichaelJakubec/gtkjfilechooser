@@ -31,19 +31,19 @@ import java.io.File;
  */
 public class FileWatcherTest {
 	public static void main(String[] args) throws Exception {
-		FileWatcher w = FileWatcher.theFileWatcher();
-		w.register(new File("/home/c.cerbo/temp/hello"));
-		w.register(new File("/home/c.cerbo/temp"));
-		w.addFileListener(new FileListener() {
+		FileWatcher.theFileWatcher().register(new File("/home/c.cerbo/temp/hello"));
+		FileWatcher.theFileWatcher().register(new File("/home/c.cerbo/temp"));
+		FileWatcher.theFileWatcher().register(new File("/media"));
+		
+		FileWatcher.theFileWatcher().addFileListener(new FileListener() {
 			@Override
 			public void fileChanged(FileEvent event) {
 				System.out.println(event.getType() + ": " + event.getFile());
 			}
 		});
 		
-		w.start();
-		
-		Thread.sleep(10000);
-		w.stop();
+		FileWatcher.theFileWatcher().start();
+		FileWatcher.theFileWatcher().stop();
+		FileWatcher.theFileWatcher().start();
 	}
 }
