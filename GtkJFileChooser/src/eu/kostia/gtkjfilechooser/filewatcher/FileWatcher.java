@@ -51,7 +51,6 @@ public class FileWatcher {
 	private List<File> filesToWatch;
 	private List<FileListener> listeners;
 
-	private TimerTask timerTask;
 	private Timer timer;
 
 	private FileWatcher() {
@@ -70,12 +69,6 @@ public class FileWatcher {
 		this.filesToWatch = new ArrayList<File>();
 		this.timeStamps = new HashMap<File, Long>();
 		this.listeners = new ArrayList<FileListener>();
-		this.timerTask = new TimerTask() {
-			@Override
-			public void run() {
-				FileWatcher.this.watch();
-			}
-		};
 	}
 
 	/**
@@ -85,7 +78,7 @@ public class FileWatcher {
 	 *            The file to watch
 	 * @throws FileNotFoundException
 	 */
-	public void register(File file) throws FileNotFoundException {
+	public void register(File file) {
 		filesToWatch.add(file);
 		timeStamps.put(file, file.lastModified());
 	}
@@ -144,6 +137,10 @@ public class FileWatcher {
 		}
 	}
 
+	/**
+	 * Start watching the files. This method may be called repeatedly; the
+	 * second and subsequent calls have no effect.
+	 */
 	public void start() {
 		if (timer != null) {
 			stop();
@@ -151,7 +148,16 @@ public class FileWatcher {
 
 		timer = new Timer();
 		// repeat the check every second
-		timer.schedule(timerTask, new Date(), 1000);
+		timer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				FileWatcher.this.watch();
+			}
+		}, new Date(), 1000);
+	}
+
+	public boolean isWatching() {
+		return timer != null;
 	}
 
 	/**
@@ -161,6 +167,7 @@ public class FileWatcher {
 	public void stop() {
 		if (timer != null) {
 			timer.cancel();
+			timer = null;
 		}
 
 	}

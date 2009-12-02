@@ -102,6 +102,9 @@ import eu.kostia.gtkjfilechooser.BookmarkManager.GtkBookmark;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil.WellKnownDir;
 import eu.kostia.gtkjfilechooser.GtkFileChooserSettings.Mode;
 import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
+import eu.kostia.gtkjfilechooser.filewatcher.FileEvent;
+import eu.kostia.gtkjfilechooser.filewatcher.FileListener;
+import eu.kostia.gtkjfilechooser.filewatcher.FileWatcher;
 import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
 
 /**
@@ -305,6 +308,20 @@ PropertyChangeListener, ActionListener {
 
 		// Add key binding
 		installKeyBinding();
+		
+		//File watcher to "live" updated the file chooser when files are changed..
+		FileWatcher.theFileWatcher().register(chooser.getCurrentDirectory());
+		//.. or new devices are mounted
+		FileWatcher.theFileWatcher().register(new File("/media"));
+		
+		//TODO implement
+		FileWatcher.theFileWatcher().addFileListener(new FileListener() {
+			@Override
+			public void fileChanged(FileEvent event) {
+				System.out.println(event.getType() + ": " + event.getFile());
+			}
+		});
+		
 	}
 
 	private void installKeyBinding() {
@@ -1152,8 +1169,8 @@ PropertyChangeListener, ActionListener {
 		saveDialogPanel.setExpanded(GtkFileChooserSettings.get().getExpandFolders());
 	}
 
-	private void doDirectoryChanged(File dir, Object source) {
-		if (getFileChooser().getCurrentDirectory().equals(dir)) {
+	private void doDirectoryChanged(File olddir, File newdir, Object source) {
+		if (getFileChooser().getCurrentDirectory().equals(newdir)) {
 			// to avoid repeated invocations on the same directory.
 			return;
 		}
@@ -1161,10 +1178,10 @@ PropertyChangeListener, ActionListener {
 		JFileChooser fc = getFileChooser();
 		FileSystemView fsv = fc.getFileSystemView();
 
-		if (dir != null) {
+		if (newdir != null) {
 			// remove and re-add the ActionListener to avoid to fire the same event again.
 			pathBarButtons.removeActionListener(pathBarActionListener);
-			pathBarButtons.setCurrentDirectory(dir);
+			pathBarButtons.setCurrentDirectory(newdir);
 			pathBarButtons.addActionListener(pathBarActionListener);
 
 			updateFileNameField();
@@ -1177,7 +1194,7 @@ PropertyChangeListener, ActionListener {
 					fileBrowserPane.removePropertyChangeListener(listener);	
 				}
 
-				fileBrowserPane.setCurrentDir(dir);	
+				fileBrowserPane.setCurrentDir(newdir);	
 
 				for (PropertyChangeListener listener : listeners) {
 					fileBrowserPane.addPropertyChangeListener(listener);
@@ -1187,15 +1204,15 @@ PropertyChangeListener, ActionListener {
 
 
 			if (fc.isDirectorySelectionEnabled() && !fc.isFileSelectionEnabled()) {
-				if (fsv.isFileSystem(dir)) {
-					setFileName(dir.getPath());
+				if (fsv.isFileSystem(newdir)) {
+					setFileName(newdir.getPath());
 				} else {
 					setFileName(null);
 				}
 			}
 
 			if (saveDialogPanel != null){
-				saveDialogPanel.setExternalPath(dir.getAbsolutePath());
+				saveDialogPanel.setExternalPath(newdir.getAbsolutePath());
 			}
 
 			// If the event was fired by the same JFileChooser, do not set the dir again.
@@ -1206,7 +1223,7 @@ PropertyChangeListener, ActionListener {
 					fc.removePropertyChangeListener(listener);	
 				}
 
-				fc.setCurrentDirectory(dir);
+				fc.setCurrentDirectory(newdir);
 
 				for (PropertyChangeListener listener : listeners) {
 					fc.addPropertyChangeListener(listener);
@@ -1214,7 +1231,11 @@ PropertyChangeListener, ActionListener {
 			}	
 
 			// Filename text field with autocompletion
-			pathAutoCompletion.setCurrentPath(dir.getAbsolutePath());
+			pathAutoCompletion.setCurrentPath(newdir.getAbsolutePath());
+			
+			//Update FileWatcher
+			FileWatcher.theFileWatcher().unregister(olddir);
+			FileWatcher.theFileWatcher().register(newdir);
 		}
 	}
 
@@ -1402,6 +1423,8 @@ PropertyChangeListener, ActionListener {
 		if (searchPanel != null) {
 			searchPanel.stopSearch();
 		}
+		
+		FileWatcher.theFileWatcher().stop();
 	}
 
 	private void selectFilterInCombo() {
@@ -1465,7 +1488,7 @@ PropertyChangeListener, ActionListener {
 		Log.debug("Property: ", property, " = ", value, " ; source :", source.getClass());
 
 		if (DIRECTORY_CHANGED_PROPERTY.equals(property)) {
-			doDirectoryChanged((File) value, source);
+			doDirectoryChanged((File) e.getOldValue(), (File) value, source);
 		} else if (SELECTED_FILE_CHANGED_PROPERTY.equals(property)) {
 			doSelectedFileChanged((File) value);
 		} else if (SELECTED_FILES_CHANGED_PROPERTY.equals(property)) {
@@ -1594,6 +1617,8 @@ PropertyChangeListener, ActionListener {
 			if (saveDialogPanel != null) {
 				pack(GtkFileChooserSettings.get().getExpandFolders());
 			}
+			
+			FileWatcher.theFileWatcher().start();
 		}
 	}
 
