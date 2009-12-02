@@ -178,19 +178,16 @@ public class FreeDesktopUtil {
 	 *      href="http://www.pathname.com/fhs/pub/fhs-2.3.html#MEDIAMOUNTPOINT">Filesystem
 	 *      Hierarchy Standard: /media : Mount point for removeable media</a>
 	 */
-	static public List<RemovableDevice> getRemovableDevices() {
-		if(Platform.isSolaris()) {
-			//TODO Issue 47
-			return new ArrayList<RemovableDevice>();
-		}
-		
+	static public List<RemovableDevice> getRemovableDevices() {		
 		List<RemovableDevice> devices = new ArrayList<RemovableDevice>();
-		String[] diskUUIDs = new File("/dev/disk/by-uuid/").list();
-		Arrays.sort(diskUUIDs);
+		
+		//TODO Issue 47
+		String[] diskUUIDs = !Platform.isSolaris() ?  new File("/dev/disk/by-uuid/").list() : new String[0];			
+		Arrays.sort(diskUUIDs);		
 
 		Scanner fileScanner = null;
 		try {
-			fileScanner = new Scanner(new File("/proc/mounts"));
+			fileScanner = new Scanner(new File(Platform.isSolaris() ? "/etc/mnttab" : "/proc/mounts"));
 			while (fileScanner.hasNextLine()) {
 				String line = fileScanner.nextLine();
 				Scanner lineScanner = null;
@@ -207,9 +204,7 @@ public class FreeDesktopUtil {
 						if (Arrays.binarySearch(diskUUIDs, name) >= 0) {
 							// Removable device without name.
 							// Set a generic name with size
-							name = humanreadble(new File(location).getTotalSpace(),
-									GB / 2)
-									+ " " + _("File System");
+							name = humanreadble(new File(location).getTotalSpace(),	GB / 2) + " " + _("File System");
 						}
 
 						device.setName(name);
