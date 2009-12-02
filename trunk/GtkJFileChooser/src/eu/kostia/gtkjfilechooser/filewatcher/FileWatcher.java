@@ -27,7 +27,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -45,27 +47,58 @@ import eu.kostia.gtkjfilechooser.filewatcher.FileEvent.FileEventType;
  */
 public class FileWatcher {
 
-	private long timeStamp;
-	private File file;
+	private Map<File, Long> timeStamps;
+	private List<File> filesToWatch;
 	private List<FileListener> listeners;
-	
+
 	private TimerTask timerTask;
 	private Timer timer;
-		
 
-	public FileWatcher(File aFile) throws FileNotFoundException {
-		if (!aFile.exists()) {
-			throw new FileNotFoundException(aFile.getAbsolutePath() + " not found!");
-		}
-		this.file = aFile;
-		this.timeStamp = aFile.lastModified();
+	private FileWatcher() {
+		init();
+	}
+
+	private static class SingletonHolder {
+		private static final FileWatcher INSTANCE = new FileWatcher();
+	}
+
+	public static FileWatcher theFileWatcher() {
+		return SingletonHolder.INSTANCE;
+	}
+
+	private void init() {
+		this.filesToWatch = new ArrayList<File>();
+		this.timeStamps = new HashMap<File, Long>();
 		this.listeners = new ArrayList<FileListener>();
-		this.timerTask = new TimerTask() {			
+		this.timerTask = new TimerTask() {
 			@Override
 			public void run() {
-				FileWatcher.this.watch();				
+				FileWatcher.this.watch();
 			}
 		};
+	}
+
+	/**
+	 * Register the files to watch.
+	 * 
+	 * @param file
+	 *            The file to watch
+	 * @throws FileNotFoundException
+	 */
+	public void register(File file) throws FileNotFoundException {
+		filesToWatch.add(file);
+		timeStamps.put(file, file.lastModified());
+	}
+
+	/**
+	 * Unregister files that we don't want to watch anymore.
+	 * 
+	 * @param file
+	 *            The file to unregister
+	 */
+	public void unregister(File file) {
+		filesToWatch.remove(file);
+		timeStamps.remove(file);
 	}
 
 	private void notifyEvent(FileEvent evt) {
@@ -86,42 +119,49 @@ public class FileWatcher {
 		return listeners;
 	}
 
-	
 	private void watch() {
-		if (file.exists()) {
+		for (File file : filesToWatch) {
 			long currentTimeStamp = file.lastModified();
-			
-			if (this.timeStamp != currentTimeStamp) {
-				this.timeStamp = currentTimeStamp;
-				FileEvent evt = new FileEvent(this, file, FileEventType.MODIFIED);				
-				notifyEvent(evt);
-			}
-		} else {
-			//File was deleted
-			FileEvent evt = new FileEvent(this, file, FileEventType.DELETED);
-			notifyEvent(evt);
-			//after the notification stop the timer
-			stop();
-		}
+			long previousTimeStamp = timeStamps.get(file);
 
+			if (file.exists()) {
+				if (previousTimeStamp != currentTimeStamp) {
+					timeStamps.put(file, currentTimeStamp);
+					FileEvent evt = new FileEvent(this, file,
+							previousTimeStamp == 0 ? FileEventType.CREATED
+									: FileEventType.MODIFIED);
+					notifyEvent(evt);
+				}
+			} else {
+				if (previousTimeStamp != 0) {
+					// File was deleted
+					FileEvent evt = new FileEvent(this, file,
+							FileEventType.DELETED);
+					notifyEvent(evt);
+					timeStamps.put(file, 0L);
+				}
+			}
+		}
 	}
 
 	public void start() {
 		if (timer != null) {
 			stop();
 		}
-		
+
 		timer = new Timer();
 		// repeat the check every second
 		timer.schedule(timerTask, new Date(), 1000);
 	}
 
 	/**
-	 * This method may be called repeatedly; the second and subsequent calls have no effect.
+	 * This method may be called repeatedly; the second and subsequent calls
+	 * have no effect.
 	 */
 	public void stop() {
 		if (timer != null) {
 			timer.cancel();
 		}
+
 	}
 }

@@ -39,7 +39,7 @@ import java.util.EventObject;
 public class FileEvent extends EventObject {
 
 	public enum FileEventType {
-		MODIFIED, DELETED
+		CREATED, MODIFIED, DELETED
 	}
 
 	private File file;
