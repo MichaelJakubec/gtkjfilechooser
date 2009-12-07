@@ -1,7 +1,7 @@
 #summary The lastest news on the project
 
 = Latest News =
-===  13.11.2009 Release 1.4.0 ===
+===  07.12.2009 Release 1.4.0 ===
 Updated to these GTK+ 2.18 changes:
   * Backup files are hidden by default
   * GTK+ remembers the sorting state of the file list
