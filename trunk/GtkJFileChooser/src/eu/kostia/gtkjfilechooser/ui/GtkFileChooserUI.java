@@ -116,6 +116,11 @@ import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
 public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable,
 PropertyChangeListener, ActionListener {
 
+	/**
+	 * Backup files are hidden by default. Set this property to show/hide Backup files. 
+	 */
+	static public final String PROP_FILE_CHOOSER_SHOW_BACKUP = "FileChooser.showBackup";
+	
 	static private final File FILE_GTK_BOOKMARK = new File(System.getProperty("user.home") + File.separator + ".gtk-bookmarks");
 
 	static private final File FILE_MEDIA = new File("/media");
