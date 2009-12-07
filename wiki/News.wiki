@@ -12,6 +12,7 @@ Updated to these GTK+ 2.18 changes:
 [http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/gtk+2.18.0.png]
 
 Tested on the following platforms:
+  * Fedora 12
   * Ubuntu 9.10
   * OpenSuse 11.2
   * OpenSolaris 2009.06
