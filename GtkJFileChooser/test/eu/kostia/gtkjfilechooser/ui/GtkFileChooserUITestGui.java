@@ -50,7 +50,7 @@ public class GtkFileChooserUITestGui {
 		if ("GTK look and feel".equals(UIManager.getLookAndFeel().getName())){
 			UIManager.put("FileChooserUI", eu.kostia.gtkjfilechooser.ui.GtkFileChooserUI.class.getName());
 		}
-
+	
 		GtkFileChooserUITestGui test = new GtkFileChooserUITestGui();
 		test.showOpenDialog();
 	}

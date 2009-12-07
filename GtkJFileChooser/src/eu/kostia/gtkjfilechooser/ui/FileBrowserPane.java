@@ -49,6 +49,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
@@ -72,6 +73,7 @@ public class FileBrowserPane extends FilesListPane {
 	private File currentDir;
 
 	private boolean showHidden = GtkFileChooserSettings.get().getShowHidden();
+	private boolean showBackup = UIManager.getBoolean(GtkFileChooserUI.PROP_FILE_CHOOSER_SHOW_BACKUP);
 
 	private int fileSelectionMode = FILES_ONLY;
 
@@ -176,6 +178,16 @@ public class FileBrowserPane extends FilesListPane {
 			for (File file : files) {
 				if (file.isHidden()) {
 					if (showHidden) {
+						if (isBackup(file)) {
+							if (showBackup) {
+								getModel().addFile(file);
+							}
+						} else {
+							getModel().addFile(file);	
+						}
+					}
+				} else if (isBackup(file)) {
+					if (showBackup) {
 						getModel().addFile(file);
 					}
 				} else {
@@ -183,6 +195,10 @@ public class FileBrowserPane extends FilesListPane {
 				}
 			}
 		}
+	}
+	
+	private boolean isBackup(File file){
+		return file.getName().endsWith("~");
 	}
 
 	public File getCurrentDir() {
