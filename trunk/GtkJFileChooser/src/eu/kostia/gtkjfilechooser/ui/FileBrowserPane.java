@@ -206,6 +206,12 @@ public class FileBrowserPane extends FilesListPane {
 		// Scroll to the first row
 		table.scrollRectToVisible(table.getCellRect(0, 0, true));
 	}
+	
+	public void refresh() {
+		listDirectory(currentDir, currentFilter);
+		// Scroll to the first row
+		table.scrollRectToVisible(table.getCellRect(0, 0, true));
+	}
 
 	public void setShowHidden(boolean showHidden) {
 		this.showHidden = showHidden;
