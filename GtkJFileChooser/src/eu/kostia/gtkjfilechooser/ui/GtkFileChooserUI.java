@@ -111,7 +111,7 @@ import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
  * GtkFileChooserUI basen on the Metal L&F implementation of a FileChooser.
  * 
  * @version 1.95 10/02/08
- * @author Costantino Cerbo, Jeff Dinkins
+ * @author Costantino Cerbo
  */
 public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable,
 PropertyChangeListener, ActionListener {
