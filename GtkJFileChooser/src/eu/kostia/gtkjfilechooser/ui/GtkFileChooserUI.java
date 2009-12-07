@@ -116,6 +116,10 @@ import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
 public class GtkFileChooserUI extends BasicFileChooserUI implements Serializable,
 PropertyChangeListener, ActionListener {
 
+	static private final File FILE_GTK_BOOKMARK = new File(System.getProperty("user.home") + File.separator + ".gtk-bookmarks");
+
+	static private final File FILE_MEDIA = new File("/media");
+
 	static private final String ACTION_SELECTED_BOOKMARK = "selected bookmark";
 
 	static private final String ACTION_CREATE_FOLDER = "createFolder";
@@ -311,14 +315,21 @@ PropertyChangeListener, ActionListener {
 		
 		//File watcher to "live" updated the file chooser when files are changed..
 		FileWatcher.theFileWatcher().register(chooser.getCurrentDirectory());
-		//.. or new devices are mounted
-		FileWatcher.theFileWatcher().register(new File("/media"));
+		//.. or new devices are mounted..
+		FileWatcher.theFileWatcher().register(FILE_MEDIA);
+		//.. or the bookmarks are updated.
+		FileWatcher.theFileWatcher().register(FILE_GTK_BOOKMARK);
 		
-		//TODO implement
 		FileWatcher.theFileWatcher().addFileListener(new FileListener() {
 			@Override
 			public void fileChanged(FileEvent event) {
-				System.out.println(event.getType() + ": " + event.getFile());
+				File file = event.getFile();
+				if (FILE_MEDIA.equals(file) || FILE_GTK_BOOKMARK.equals(file)) {
+					locationsPane.refreshLocations();
+				} else {
+					//the remaining case is the current directory
+					fileBrowserPane.refresh();
+				}
 			}
 		});
 		

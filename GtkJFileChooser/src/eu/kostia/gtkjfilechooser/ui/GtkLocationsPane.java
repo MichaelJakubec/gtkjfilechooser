@@ -125,7 +125,7 @@ public class GtkLocationsPane extends JPanel {
 				String oldName = GtkLocationsPane.this.getCurrentPath().getName();
 
 				manager.rename(oldName, newName);
-				refreshBookmarks();
+				refreshLocations();
 			}
 
 			@Override
@@ -187,7 +187,7 @@ public class GtkLocationsPane extends JPanel {
 		bookmarksTable.getSelectionModel().setSelectionInterval(index, index);
 	}
 
-	public void refreshBookmarks() {
+	public void refreshLocations() {
 		//store size and selection before the refresh
 		Dimension previousSize = bookmarksTable.getSize();
 
@@ -254,7 +254,7 @@ public class GtkLocationsPane extends JPanel {
 	 */
 	public void remove(GtkBookmark bookmark) {
 		manager.delete(bookmark.getName());
-		refreshBookmarks();
+		refreshLocations();
 	}
 
 	/**
