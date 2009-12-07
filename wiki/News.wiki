@@ -7,6 +7,8 @@ Updated to these GTK+ 2.18 changes:
   * GTK+ remembers the sorting state of the file list
   * File sizes are shown by default
   * No icon more for some buttons
+  * When new devices are mounted (/media folder) or the bookmark changed or files modified in the current dir, the file chooser is "live" updated.
+
 [http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/gtk+2.18.0.png]
 
 Tested on the following platforms:
