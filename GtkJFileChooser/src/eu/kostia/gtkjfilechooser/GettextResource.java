@@ -210,8 +210,8 @@ public class GettextResource extends ResourceBundle {
 	 * @param textdomain
 	 * @throws IOException
 	 */
-	public GettextResource(String textdomain) {
-		this(DEFAULT_LOCALES_DIRECTORY, textdomain);
+	public GettextResource(Locale loc, String textdomain) {
+		this(loc, DEFAULT_LOCALES_DIRECTORY, textdomain);
 	}
 
 	private static String findMoFile(Locale loc, String localedir, String textdomain) {
