@@ -273,12 +273,18 @@ PropertyChangeListener, ActionListener {
 	private ComponentAdapter chooserComponentListener = new ComponentAdapter() {
 		@Override
 		public void componentResized(ComponentEvent e) {
-			if (saveDialogPanel != null && saveDialogPanel.isExpanded()) {
+			if (saveDialogPanel != null && !saveDialogPanel.isExpanded()) {
 				// Do not persist the size when we are in save 
 				// mode and the folders aren't expanded.
-				Rectangle bound = e.getComponent().getBounds();
-				GtkFileChooserSettings.get().setBound(bound);	
-			}				
+				return;
+			}
+			
+			Rectangle bound = e.getComponent().getBounds();
+			if (getFileChooser().getDialogType() == JFileChooser.SAVE_DIALOG) {
+				//FIXME Why do we need 20px more for the Save dialog?
+				bound.height += 20;
+			}
+			GtkFileChooserSettings.get().setBound(bound);	
 		}
 	};
 
