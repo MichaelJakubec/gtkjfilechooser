@@ -29,6 +29,7 @@ import java.nio.charset.Charset;
 import java.security.AccessController;
 import java.util.Locale;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import sun.security.action.GetPropertyAction;
@@ -44,10 +45,8 @@ public class GtkFileChooserResourceTest {
 	}
 
 	@Test
-	public void testMoReaderGtk20() throws Exception {
-		Locale.setDefault(Locale.ITALIAN);
-		
-		GettextResource r = new GettextResource("gtk20");
+	public void testMoReaderGtk20() throws Exception {		
+		GettextResource r = new GettextResource(Locale.ITALIAN, "gtk20");
 		
 		assertEquals("_Salva", r._("Stock label|_Save"));		
 		assertEquals("_Apri", r._("Stock label|_Open"));	
@@ -80,10 +79,12 @@ public class GtkFileChooserResourceTest {
 	}
 	
 	@Test
+	@Ignore
 	public void testMoReaderGtk20StockLabel0() throws Exception {
 		Locale.setDefault(Locale.ITALIAN);
-		
-		GettextResource r = new GettextResource("gtk20");
+				
+		GettextResource r = new GettextResource(Locale.ITALIAN, "gtk20");
+		r.markMissingTranslation(true);
 		
 		assertEquals("_Salva", r._("Stock label|_Save"));
 		assertEquals("_Apri", r._("Stock label|_Open"));	
@@ -92,10 +93,11 @@ public class GtkFileChooserResourceTest {
 	}
 	
 	@Test
+	@Ignore
 	public void testMoReaderGtk20StockLabel1() throws Exception {
 		Locale.setDefault(Locale.ITALIAN);
 		
-		GettextResource r = new GettextResource("gtk20");
+		GettextResource r = new GettextResource(Locale.ITALIAN, "gtk20");
 		
 		assertEquals("_Salva", r._("_Save"));
 		assertEquals("_Apri", r._("_Open"));	

@@ -34,16 +34,20 @@ import java.util.Locale;
  * 
  */
 public class I18N {
-	static private GettextResource RESOURCE = null;
-	static {
-		if (GettextResource.hasTranslation("gtk20")) {
-			RESOURCE = new GettextResource("gtk20");
-		} else if (GettextResource.hasTranslation(Locale.getDefault(), "/usr/share/locale-langpack", "gtk20")) {
+	static private GettextResource resources = null;
+	static private boolean resourcesNotFound = false;
+	
+	static public void init(Locale locale) {
+		if (GettextResource.hasTranslation(locale, "gtk20")) {
+			resources = new GettextResource(locale, "gtk20");
+		} else if (GettextResource.hasTranslation(locale, "/usr/share/locale-langpack", "gtk20")) {
 			//Ubuntu uses /usr/share/locale-langpack
-			RESOURCE = new GettextResource(Locale.getDefault(), "/usr/share/locale-langpack", "gtk20");
-		} else if (GettextResource.hasTranslation(Locale.getDefault(), "/usr/share/locale-bundle", "gtk20")) {
+			resources = new GettextResource(locale, "/usr/share/locale-langpack", "gtk20");
+		} else if (GettextResource.hasTranslation(locale, "/usr/share/locale-bundle", "gtk20")) {
 			//Suse uses /usr/share/locale-bundle
-			RESOURCE = new GettextResource(Locale.getDefault(), "/usr/share/locale-bundle", "gtk20");
+			resources = new GettextResource(locale, "/usr/share/locale-bundle", "gtk20");
+		} else {
+			resourcesNotFound = true;
 		}
 	}
 
@@ -84,15 +88,21 @@ public class I18N {
 	 * When RESOURCE is null or msgstr is empty, return the msgid (without classifier) otherwise the found msgstr.
 	 */
 	private static String getString(String msgid) {
-		if (RESOURCE != null) {
-			return RESOURCE.getString(msgid);
-		}
+		if (resourcesNotFound) {
+			int indexOf = msgid.indexOf('|');
+			if (indexOf < 0) {
+				return msgid;
+			}
 
-		int indexOf = msgid.indexOf('|');
-		if (indexOf < 0) {
-			return msgid;
+			return msgid.substring(indexOf + 1);
 		}
+		
+		if (resources == null) {
+			init(Locale.getDefault());
+		}
+		
+		return resources.getString(msgid);
 
-		return msgid.substring(indexOf + 1);
+		
 	}
 }

@@ -85,7 +85,7 @@ public class GettextResourceTest {
 
 	@Test
 	public void testMoReaderGtk20() throws Exception {
-		GettextResource r = new GettextResource("gtk20");
+		GettextResource r = new GettextResource(Locale.ITALIAN, "gtk20");
 		assertEquals("Impossibile recuperare informazioni sul file", r._("Could not retrieve information about the file"));
 		assertEquals("Usati di recente", r._("Recently Used"));
 	}
@@ -109,7 +109,7 @@ public class GettextResourceTest {
 
 	@Test
 	public void testMoReaderLocale() throws Exception {
-		GettextResource r = new GettextResource("nautilus");
+		GettextResource r = new GettextResource(Locale.ITALIAN, "nautilus");
 		assertEquals("ieri", r._("yesterday"));
 	}
 
@@ -117,7 +117,7 @@ public class GettextResourceTest {
 
 	@Test
 	public void testMoReaderGtk20Properties() throws Exception {
-		GettextResource r = new GettextResource("gtk20-properties");
+		GettextResource r = new GettextResource(Locale.ITALIAN, "gtk20-properties");
 		assertEquals("La direzione verso cui punta la freccia", r._("The direction the arrow should point"));
 	}
 
