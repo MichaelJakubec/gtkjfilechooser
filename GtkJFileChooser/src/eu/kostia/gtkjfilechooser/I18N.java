@@ -36,6 +36,9 @@ import java.util.Locale;
 public class I18N {
 	static private GettextResource resources = null;
 	static private boolean resourcesNotFound = false;
+	static {
+		init(Locale.getDefault());
+	}
 	
 	static public void init(Locale locale) {
 		if (GettextResource.hasTranslation(locale, "gtk20")) {

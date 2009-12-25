@@ -215,17 +215,18 @@ public class GettextResource extends ResourceBundle {
 	}
 
 	private static String findMoFile(Locale loc, String localedir, String textdomain) {
-		String moFilename = localedir + File.separator + loc.toString() + File.separator
-				+ "LC_MESSAGES" + File.separator + textdomain + ".mo";
-		if (!new File(moFilename).exists()) {
-			moFilename = localedir + File.separator + loc.getLanguage() + File.separator
-					+ "LC_MESSAGES" + File.separator + textdomain + ".mo";
-			if (!new File(moFilename).exists()) {
-				return null;
-			}
-		}
-
-		return moFilename;
+		return null;
+//		String moFilename = localedir + File.separator + loc.toString() + File.separator
+//				+ "LC_MESSAGES" + File.separator + textdomain + ".mo";
+//		if (!new File(moFilename).exists()) {
+//			moFilename = localedir + File.separator + loc.getLanguage() + File.separator
+//					+ "LC_MESSAGES" + File.separator + textdomain + ".mo";
+//			if (!new File(moFilename).exists()) {
+//				return null;
+//			}
+//		}
+//
+//		return moFilename;
 	}
 
 	/**
