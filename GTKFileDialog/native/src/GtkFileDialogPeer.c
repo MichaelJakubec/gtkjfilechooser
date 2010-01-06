@@ -2,10 +2,13 @@
 #include <gtk/gtk.h>
 #include "GtkFileDialogPeer.h"
 
-
 GtkWidget *dialog;
 const char* _title;
-static JNIEnv *_env;
+
+struct filterdata {
+	JNIEnv *env;
+	jobject obj;
+};
 
 /*
  * Class:     sun_awt_X11_GtkFileDialogPeer
@@ -18,7 +21,6 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_init
 	const char *title = (*env)->GetStringUTFChars(env, jtitle, 0);
 	gtk_init(NULL, NULL);
 	_title = title;
-	_env = env;
 }
 
 JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_destroy
@@ -94,19 +96,32 @@ JNIEXPORT jstring JNICALL Java_sun_awt_X11_GtkFileDialogPeer_run(JNIEnv *env,
  and passes it to the Java method.  The Java method will call the filter's
  accept() method and will give back the return value. */
 static gboolean filenameFilterCallback(const GtkFileFilterInfo *filter_info,
-		gpointer obj) {
-	jclass cx;
+		gpointer data) {
+
+	jclass cls = NULL;
 	jmethodID methodID;
 	jstring *filename;
+	gboolean accepted;
 
-	cx = (*_env)->GetObjectClass(_env, (jobject) obj);
+	JNIEnv *env;
+	env = ((struct filterdata)data).env;
 
-	methodID = (*_env)->GetMethodID(_env, cx, "filenameFilterCallback",
-			"(Ljava/lang/String;)Z");
+	jobject obj;
+	obj = ((struct filterdata)data).obj;
 
-	filename = (*_env)->NewStringUTF(_env, filter_info->filename);
+	cls = (*env)->GetObjectClass(env, obj);
+	g_print("111\n");
 
-	return (*_env)->CallBooleanMethod(_env, obj, methodID, filename);
+	methodID = (*env)->GetMethodID(env, cls, "filenameFilterCallback", "(Ljava/lang/String;)Z");
+	g_print("115\n");
+
+	filename = (*env)->NewStringUTF(env, filter_info->filename);
+	g_print("118\n");
+
+	accepted = (*env)->CallBooleanMethod(env, obj, methodID, filename);
+	g_print("121\n");
+
+	return accepted;
 }
 
 /*
@@ -119,8 +134,38 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_setFilenameFilterNativ
 	GtkFileFilter *filter;
 	filter = gtk_file_filter_new();
 
+	//TODO instead of passing the java object (obj), pass a struct with env (JNIEnv) and obj (jobject)
+
+	struct filterdata *data;
+	data.env = env;
+	data.obj = obj;
+
 	gtk_file_filter_add_custom(filter, GTK_FILE_FILTER_FILENAME,
-			filenameFilterCallback, obj, NULL);
+			filenameFilterCallback, data, NULL);
 
 	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filter);
+}
+
+/*
+ * Class:     sun_awt_X11_GtkFileDialogPeer
+ * Method:    filenameFilterCallbackTest
+ * Signature: (Ljava/lang/String;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_sun_awt_X11_GtkFileDialogPeer_filenameFilterCallbackTest
+  (JNIEnv *env, jobject obj, jstring str) {
+	jclass cls = NULL;
+	jmethodID methodID;
+	gboolean accepted;
+
+	cls = (*env)->GetObjectClass(env, (jobject) obj);
+	g_print("111\n");
+
+	methodID = (*env)->GetMethodID(env, cls, "filenameFilterCallback", "(Ljava/lang/String;)Z");
+	g_print("115\n");
+
+
+	accepted = (*env)->CallBooleanMethod(env, obj, methodID, str);
+	g_print("121\n");
+
+	return accepted;
 }

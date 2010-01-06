@@ -28,6 +28,8 @@ public class GtkFileDialogPeer implements FileDialogPeer {
 
 	native void setFilenameFilterNative(FilenameFilter filter);
 	
+	native boolean filenameFilterCallbackTest(String fullname);
+
 	@Override
 	public void setFile(String file) {
 		setFileNative(file);
@@ -59,6 +61,11 @@ public class GtkFileDialogPeer implements FileDialogPeer {
 	 * accept() method and give back the return value.
 	 */
 	boolean filenameFilterCallback(String fullname) {
+		if (filter == null) {
+			// no filter, accept all.
+			return true;
+		}
+		
 		String filename = fullname.substring(fullname.lastIndexOf(File.separator) + 1);
 		String dirname = fullname.substring(0, fullname.lastIndexOf(File.separator));
 
