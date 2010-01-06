@@ -15,7 +15,9 @@ public class GtkFileDialogPeerTest {
 		fdp.init("My File Dialog");
 		fdp.setMode(0);		
 		
-		//fdp.setFilenameFilter(createTextFileFilter());
+		System.out.println("test: " + fdp.filenameFilterCallbackTest("prova"));
+		
+		fdp.setFilenameFilter(createTextFileFilter());
 		fdp.setVisible(true);
 		
 		String filename = fd.getFile();
