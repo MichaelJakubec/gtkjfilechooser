@@ -35,5 +35,5 @@ libGtkFileDialogPeer.so:
 	-static -lc
 
 GtkFileDialogPeer.h:
-	${JAVA_HOME}/bin/javah -classpath $(JAVA_BIN) -d native/src sun.awt.X11.GtkFileDialogPeer
+	${JAVA_HOME}/bin/javah -classpath $(JAVA_BIN) -o native/src/GtkFileDialogPeer.h sun.awt.X11.GtkFileDialogPeer
 	
