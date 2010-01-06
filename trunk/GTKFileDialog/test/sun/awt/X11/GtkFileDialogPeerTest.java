@@ -1,23 +1,21 @@
 package sun.awt.X11;
 
 import java.io.File;
-
-import javax.swing.JFrame;
+import java.io.FilenameFilter;
 
 public class GtkFileDialogPeerTest {
 	static {
 		System.load(new File("native/bin/libGtkFileDialogPeer.so").getAbsolutePath());
 	}
 	
-	public static void main(String[] args) throws Exception {
-		JFrame f = new JFrame();
-		
-		GtkFileDialog fd = new GtkFileDialog(null, "MY File Dialog");
+	public static void main(String[] args) throws Exception {		
+		GtkFileDialog fd = new GtkFileDialog(null, "My File Dialog");
 		
 		GtkFileDialogPeer fdp = new GtkFileDialogPeer(fd);
 		fdp.init("My File Dialog");
 		fdp.setMode(0);		
 		
+		//fdp.setFilenameFilter(createTextFileFilter());
 		fdp.setVisible(true);
 		
 		String filename = fd.getFile();
@@ -25,8 +23,15 @@ public class GtkFileDialogPeerTest {
 			System.out.println("Filename: " + filename);	
 		}
 		
-		//Thread.sleep(1000);
-		
-		//fdp.setVisible(true);
+		fdp.destroy();
+	}
+
+	private static FilenameFilter createTextFileFilter() {
+		return new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String name) {				
+				return name.endsWith(".txt");
+			}			
+		};
 	}
 }

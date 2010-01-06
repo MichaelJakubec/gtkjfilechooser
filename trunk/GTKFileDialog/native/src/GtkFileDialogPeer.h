@@ -17,19 +17,19 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_init
 
 /*
  * Class:     sun_awt_X11_GtkFileDialogPeer
- * Method:    setDirectory
- * Signature: (Ljava/lang/String;)V
+ * Method:    destroy
+ * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_setDirectory
-  (JNIEnv *, jobject, jstring);
+JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_destroy
+  (JNIEnv *, jobject);
 
 /*
  * Class:     sun_awt_X11_GtkFileDialogPeer
- * Method:    setFile
- * Signature: (Ljava/lang/String;)V
+ * Method:    run
+ * Signature: ()Ljava/lang/String;
  */
-JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_setFile
-  (JNIEnv *, jobject, jstring);
+JNIEXPORT jstring JNICALL Java_sun_awt_X11_GtkFileDialogPeer_run
+  (JNIEnv *, jobject);
 
 /*
  * Class:     sun_awt_X11_GtkFileDialogPeer
@@ -41,11 +41,27 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_setMode
 
 /*
  * Class:     sun_awt_X11_GtkFileDialogPeer
- * Method:    run
- * Signature: ()Ljava/lang/String;
+ * Method:    setDirectoryNative
+ * Signature: (Ljava/lang/String;)V
  */
-JNIEXPORT jstring JNICALL Java_sun_awt_X11_GtkFileDialogPeer_run
-  (JNIEnv *, jobject);
+JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_setDirectoryNative
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     sun_awt_X11_GtkFileDialogPeer
+ * Method:    setFileNative
+ * Signature: (Ljava/lang/String;)V
+ */
+JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_setFileNative
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     sun_awt_X11_GtkFileDialogPeer
+ * Method:    setFilenameFilterNative
+ * Signature: (Ljava/io/FilenameFilter;)V
+ */
+JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_setFilenameFilterNative
+  (JNIEnv *, jobject, jobject);
 
 #ifdef __cplusplus
 }
