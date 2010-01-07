@@ -14,9 +14,7 @@ public class GtkFileDialogPeerTest {
 		GtkFileDialogPeer fdp = new GtkFileDialogPeer(fd);
 		fdp.init("My File Dialog");
 		fdp.setMode(0);		
-		
-		System.out.println("test: " + fdp.filenameFilterCallbackTest("prova"));
-		
+				
 		fdp.setFilenameFilter(createTextFileFilter());
 		fdp.setVisible(true);
 		
@@ -32,7 +30,7 @@ public class GtkFileDialogPeerTest {
 		return new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {				
-				return name.endsWith(".txt");
+				return name.endsWith(".log");
 			}			
 		};
 	}

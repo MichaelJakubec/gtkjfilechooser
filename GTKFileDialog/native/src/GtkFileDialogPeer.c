@@ -103,23 +103,28 @@ static gboolean filenameFilterCallback(const GtkFileFilterInfo *filter_info,
 	jstring *filename;
 	gboolean accepted;
 
+	Filterdata *fd;
+	fd = data;
+
 	JNIEnv *env;
-	env = ((Filterdata*)data).env;
+	env = fd->env;
 
 	jobject obj;
-	obj = ((Filterdata*)data).obj;
+	obj = fd->obj;
+	g_print("114\n");
 
 	cls = (*env)->GetObjectClass(env, obj);
-	g_print("111\n");
+	g_print("118 class: %s\n", cls);
 
-	methodID = (*env)->GetMethodID(env, cls, "filenameFilterCallback", "(Ljava/lang/String;)Z");
-	g_print("115\n");
+	methodID = (*env)->GetMethodID(env, cls, "filenameFilterCallback",
+			"(Ljava/lang/String;)Z");
+	g_print("121\n");
 
 	filename = (*env)->NewStringUTF(env, filter_info->filename);
-	g_print("118\n");
+	g_print("124 filename: %s\n", filename);
 
 	accepted = (*env)->CallBooleanMethod(env, obj, methodID, filename);
-	g_print("121\n");
+	g_print("127 accepted: %d\n", accepted);
 
 	return accepted;
 }
@@ -134,36 +139,10 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_setFilenameFilterNativ
 	GtkFileFilter *filter;
 	filter = gtk_file_filter_new();
 
-	//TODO instead of passing the java object (obj), pass a struct with env (JNIEnv) and obj (jobject)
-
-	Filterdata *data = {env, obj};
+	Filterdata fd = {env, obj};
 
 	gtk_file_filter_add_custom(filter, GTK_FILE_FILTER_FILENAME,
-			filenameFilterCallback, data, NULL);
+			filenameFilterCallback, (gpointer) &fd, NULL);
 
 	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filter);
-}
-
-/*
- * Class:     sun_awt_X11_GtkFileDialogPeer
- * Method:    filenameFilterCallbackTest
- * Signature: (Ljava/lang/String;)Z
- */
-JNIEXPORT jboolean JNICALL Java_sun_awt_X11_GtkFileDialogPeer_filenameFilterCallbackTest
-  (JNIEnv *env, jobject obj, jstring str) {
-	jclass cls = NULL;
-	jmethodID methodID;
-	gboolean accepted;
-
-	cls = (*env)->GetObjectClass(env, (jobject) obj);
-	g_print("111\n");
-
-	methodID = (*env)->GetMethodID(env, cls, "filenameFilterCallback", "(Ljava/lang/String;)Z");
-	g_print("115\n");
-
-
-	accepted = (*env)->CallBooleanMethod(env, obj, methodID, str);
-	g_print("121\n");
-
-	return accepted;
 }
