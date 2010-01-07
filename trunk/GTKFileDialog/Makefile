@@ -37,3 +37,6 @@ libGtkFileDialogPeer.so:
 GtkFileDialogPeer.h:
 	${JAVA_HOME}/bin/javah -classpath $(JAVA_BIN) -o native/src/GtkFileDialogPeer.h sun.awt.X11.GtkFileDialogPeer
 	
+StructTest: init
+	$(CC) -Wall -g $(C_SRC)/StructTest.c -o $(C_BIN)/StructTest `pkg-config --cflags gtk+-2.0` \
+	`pkg-config --libs gtk+-2.0`

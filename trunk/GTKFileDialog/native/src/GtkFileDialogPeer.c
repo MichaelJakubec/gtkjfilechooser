@@ -5,10 +5,10 @@
 GtkWidget *dialog;
 const char* _title;
 
-struct filterdata {
+typedef struct {
 	JNIEnv *env;
 	jobject obj;
-};
+} Filterdata;
 
 /*
  * Class:     sun_awt_X11_GtkFileDialogPeer
@@ -104,10 +104,10 @@ static gboolean filenameFilterCallback(const GtkFileFilterInfo *filter_info,
 	gboolean accepted;
 
 	JNIEnv *env;
-	env = ((struct filterdata)data).env;
+	env = ((Filterdata*)data).env;
 
 	jobject obj;
-	obj = ((struct filterdata)data).obj;
+	obj = ((Filterdata*)data).obj;
 
 	cls = (*env)->GetObjectClass(env, obj);
 	g_print("111\n");
@@ -136,9 +136,7 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_setFilenameFilterNativ
 
 	//TODO instead of passing the java object (obj), pass a struct with env (JNIEnv) and obj (jobject)
 
-	struct filterdata *data;
-	data.env = env;
-	data.obj = obj;
+	Filterdata *data = {env, obj};
 
 	gtk_file_filter_add_custom(filter, GTK_FILE_FILTER_FILENAME,
 			filenameFilterCallback, data, NULL);
