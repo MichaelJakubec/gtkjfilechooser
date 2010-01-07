@@ -2,147 +2,107 @@
 #include <gtk/gtk.h>
 #include "GtkFileDialogPeer.h"
 
-GtkWidget *dialog;
-const char* _title;
+static JavaVM *java_vm;
 
-typedef struct {
-	JNIEnv *env;
-	jobject obj;
-} Filterdata;
+union env_union {
+	void *void_env;
+	JNIEnv *jni_env;
+};
+
+JNIEnv *gdk_env() {
+	union env_union tmp;
+	g_assert((*java_vm)->GetEnv(java_vm, &tmp.void_env, JNI_VERSION_1_2)
+			== JNI_OK);
+	return tmp.jni_env;
+}
 
 /*
  * Class:     sun_awt_X11_GtkFileDialogPeer
  * Method:    init
- * Signature: (Ljava/lang/String;)V
+ * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_init
-(JNIEnv *env, jobject obj, jstring jtitle)
-{
-	const char *title = (*env)->GetStringUTFChars(env, jtitle, 0);
+(JNIEnv *env, jclass cls) {
+	g_assert((*env)->GetJavaVM(env, &java_vm) == 0);
 	gtk_init(NULL, NULL);
-	_title = title;
 }
 
-JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_destroy
-(JNIEnv *env, jobject obj) {
-	gtk_widget_destroy(dialog);
-}
-/*
- * Class:     sun_awt_X11_GtkFileDialogPeer
- * Method:    setDirectory
- * Signature: (Ljava/lang/String;)V
- */
-JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_setDirectoryNative (JNIEnv *env, jobject obj, jstring jdir) {
-	const char *directory = (*env)->GetStringUTFChars(env, jdir, 0);
-	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), directory);
+static gboolean filenameFilterCallback (const GtkFileFilterInfo *filter_info,
+                                        gpointer obj)
+{
+  jclass cx;
+  jmethodID id;
+  jstring *filename;
+  gboolean accepted;
 
-	(*env)->ReleaseStringUTFChars(env, jdir, directory);
+  cx = (*gdk_env())->GetObjectClass (gdk_env(), (jobject) obj);
+  id = (*gdk_env())->GetMethodID (gdk_env(), cx, "filenameFilterCallback",
+                                             "(Ljava/lang/String;)Z");
+
+  filename = (*gdk_env())->NewStringUTF(gdk_env(), filter_info->filename);
+
+  accepted = (*gdk_env())->CallBooleanMethod(gdk_env(), obj, id, filename);
+  return accepted;
 }
 
-/*
- * Class:     sun_awt_X11_GtkFileDialogPeer
- * Method:    setFile
- * Signature: (Ljava/lang/String;)V
- */
-JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_setFileNative
-(JNIEnv *env, jobject obj, jstring jfile) {
-	const char *filename = (*env)->GetStringUTFChars(env, jfile, 0);
-	gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dialog), filename);
-
-	(*env)->ReleaseStringUTFChars(env, jfile, filename);
-}
 
 /*
  * Class:     sun_awt_X11_GtkFileDialogPeer
- * Method:    setMode
- * Signature: (I)V
+ * Method:    start
+ * Signature: (Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/io/FilenameFilter;)Ljava/lang/String;
  */
-JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_setMode
-(JNIEnv *env, jobject obj, jint mode) {
+JNIEXPORT jstring JNICALL Java_sun_awt_X11_GtkFileDialogPeer_start(JNIEnv *env,
+		jobject jpeer, jstring jtitle, jint mode, jstring jdir, jstring jfile,
+		jobject jfilter) {
+
+	const char *title = (*env)->GetStringUTFChars(env, jtitle, 0);
+
+	GtkWidget *dialog;
 	if (mode == 1) {
-		dialog = gtk_file_chooser_dialog_new(_title, NULL,
+		dialog = gtk_file_chooser_dialog_new(title, NULL,
 				GTK_FILE_CHOOSER_ACTION_SAVE, GTK_STOCK_CANCEL,
 				GTK_RESPONSE_CANCEL, GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL);
 	} else {
-		dialog = gtk_file_chooser_dialog_new(_title, NULL,
+		dialog = gtk_file_chooser_dialog_new(title, NULL,
 				GTK_FILE_CHOOSER_ACTION_OPEN, GTK_STOCK_CANCEL,
 				GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
 	}
-}
 
-const char* run() {
-	char *filename = NULL;
+	(*env)->ReleaseStringUTFChars(env, jtitle, title);
 
-	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
-		filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+
+	// Set the directory
+	if (jdir != NULL) {
+		const char *dir = (*env)->GetStringUTFChars(env, jdir, 0);
+		gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), dir);
+		(*env)->ReleaseStringUTFChars(env, jdir, dir);
 	}
 
-	return filename;
-}
 
-/*
- * Class:     sun_awt_X11_GtkFileDialogPeer
- * Method:    run
- * Signature: ()Ljava/lang/String;
- */
-JNIEXPORT jstring JNICALL Java_sun_awt_X11_GtkFileDialogPeer_run(JNIEnv *env,
-		jobject obj) {
-	const char *filename = run();
-	return (*env)->NewStringUTF(env, filename);
-}
+	// Set the filename
+	if (jfile != NULL) {
+		const char *filename = (*env)->GetStringUTFChars(env, jfile, 0);
+		gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dialog), filename);
+		(*env)->ReleaseStringUTFChars(env, jfile, filename);
+	}
 
-/* This function interfaces with the Java callback method of the same name.
- This function extracts the filename from the GtkFileFilterInfo object,
- and passes it to the Java method.  The Java method will call the filter's
- accept() method and will give back the return value. */
-static gboolean filenameFilterCallback(const GtkFileFilterInfo *filter_info,
-		gpointer data) {
 
-	jclass cls = NULL;
-	jmethodID methodID;
-	jstring *filename;
-	gboolean accepted;
+	// Set the file filter
+	if (jfilter != NULL) {
+		GtkFileFilter *filter;
+		filter = gtk_file_filter_new();
+		gtk_file_filter_add_custom(filter, GTK_FILE_FILTER_FILENAME,
+				filenameFilterCallback, jpeer, NULL);
+		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filter);
+	}
 
-	Filterdata *fd;
-	fd = data;
+	char *choosed_file = NULL;
 
-	JNIEnv *env;
-	env = fd->env;
+	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+		choosed_file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+	}
 
-	jobject obj;
-	obj = fd->obj;
-	g_print("114\n");
+	gtk_widget_destroy(dialog);
 
-	cls = (*env)->GetObjectClass(env, obj);
-	g_print("118 class: %s\n", cls);
-
-	methodID = (*env)->GetMethodID(env, cls, "filenameFilterCallback",
-			"(Ljava/lang/String;)Z");
-	g_print("121\n");
-
-	filename = (*env)->NewStringUTF(env, filter_info->filename);
-	g_print("124 filename: %s\n", filename);
-
-	accepted = (*env)->CallBooleanMethod(env, obj, methodID, filename);
-	g_print("127 accepted: %d\n", accepted);
-
-	return accepted;
-}
-
-/*
- * Class:     sun_awt_X11_GtkFileDialogPeer
- * Method:    setFilenameFilterNative
- * Signature: (Ljava/io/FilenameFilter;)V
- */
-JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_setFilenameFilterNative
-(JNIEnv *env, jobject obj, jobject filefilter) {
-	GtkFileFilter *filter;
-	filter = gtk_file_filter_new();
-
-	Filterdata fd = {env, obj};
-
-	gtk_file_filter_add_custom(filter, GTK_FILE_FILTER_FILENAME,
-			filenameFilterCallback, (gpointer) &fd, NULL);
-
-	gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filter);
+	return (*env)->NewStringUTF(env, choosed_file);
 }
