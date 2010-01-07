@@ -63,14 +63,6 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_setFileNative
 JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_setFilenameFilterNative
   (JNIEnv *, jobject, jobject);
 
-/*
- * Class:     sun_awt_X11_GtkFileDialogPeer
- * Method:    filenameFilterCallbackTest
- * Signature: (Ljava/lang/String;)Z
- */
-JNIEXPORT jboolean JNICALL Java_sun_awt_X11_GtkFileDialogPeer_filenameFilterCallbackTest
-  (JNIEnv *, jobject, jstring);
-
 #ifdef __cplusplus
 }
 #endif
