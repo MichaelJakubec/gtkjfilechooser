@@ -96,8 +96,9 @@ JNIEXPORT jstring JNICALL Java_sun_awt_X11_GtkFileDialogPeer_start(JNIEnv *env,
 		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filter);
 	}
 
-	char *choosed_file = NULL;
+	//TODO read UI property from UIManager.get(..) or UIManager.getString(key);
 
+	char *choosed_file = NULL;
 	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
 		choosed_file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
 	}

@@ -29,10 +29,7 @@ public class GtkFileDialogPeer implements FileDialogPeer {
 
 	@Override
 	public void setFilenameFilter(FilenameFilter filter) {
-		// delegated to FileDialog#setFilenameFilter(String)
-		// TODO implement: see gtkfiledialogpeer.c in project classpath
-		// http://csourcesearch.com/java/fid6412A0C71A758438F9E09C45D9AD414C004A43AC.aspx?s=GtkFileDialogPeer.java#L1
-		// http://csourcesearch.com/c/fid91CC5D776375EFBA9028496BF036728F4A1A5A1A.aspx?s=accept#L74
+		// delegated to FileDialog#setFilenameFilter(String)		
 	}
 
 	public void setVisible(boolean vis) {
