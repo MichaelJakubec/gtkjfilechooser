@@ -33,10 +33,12 @@ public class GtkFileDialogPeer implements FileDialogPeer {
 	}
 
 	public void setVisible(boolean vis) {
-		String filename = start(fd.getTitle(), fd.getMode(), fd.getDirectory(),
-				fd.getFile(), fd.getFilenameFilter());
-		
-		fd.setFile(filename);
+		if (vis) {
+			String filename = start(fd.getTitle(), fd.getMode(), fd.getDirectory(),
+					fd.getFile(), fd.getFilenameFilter());
+			
+			fd.setFile(filename);	
+		}
 	}
 
 	/*

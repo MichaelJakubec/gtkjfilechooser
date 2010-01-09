@@ -6,12 +6,13 @@ import java.io.File;
 
 public class GtkFileDialog extends FileDialog {
 	static {
-		System.load(new File("native/bin/libGtkFileDialogPeer.so").getAbsolutePath());
+		System.load(new File("native/bin/libGtkFileDialogPeer.so")
+				.getAbsolutePath());
 		GtkFileDialogPeer.init();
 	}
 
 	private static final long serialVersionUID = 1L;
-	
+
 	static public int SELECT_FOLDER = 2;
 	static public int CREATE_FOLDER = 3;
 
@@ -27,7 +28,7 @@ public class GtkFileDialog extends FileDialog {
 	public void setMode(int mode) {
 		this.mode = mode;
 	}
-	
+
 	@Override
 	public int getMode() {
 		return mode;
@@ -35,12 +36,12 @@ public class GtkFileDialog extends FileDialog {
 
 	@Override
 	public void addNotify() {
-		//do nothing
-	}	
-	
+		// do nothing
+	}
+
 	@Override
 	public void setVisible(boolean b) {
-			this.peer.setVisible(b);
+		this.peer.setVisible(b);
 	}
-	
+
 }
