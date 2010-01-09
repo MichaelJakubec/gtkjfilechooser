@@ -1,20 +1,46 @@
 package sun.awt.X11;
 
-import java.awt.Dialog;
 import java.awt.FileDialog;
-
+import java.awt.Frame;
+import java.io.File;
 
 public class GtkFileDialog extends FileDialog {
+	static {
+		System.load(new File("native/bin/libGtkFileDialogPeer.so").getAbsolutePath());
+		GtkFileDialogPeer.init();
+	}
 
-	public GtkFileDialog(Dialog parent, String title) {
+	private static final long serialVersionUID = 1L;
+	
+	static public int SELECT_FOLDER = 2;
+	static public int CREATE_FOLDER = 3;
+
+	private int mode;
+	private GtkFileDialogPeer peer;
+
+	public GtkFileDialog(Frame parent, String title) {
 		super(parent, title);
+		this.peer = new GtkFileDialogPeer(this);
 	}
 
 	@Override
-	public void addNotify() {		
-		super.addNotify();
-		
-		//TODO
-		//peer = new GtkFileDialogPeer(this);
+	public void setMode(int mode) {
+		this.mode = mode;
 	}
+	
+	@Override
+	public int getMode() {
+		return mode;
+	}
+
+	@Override
+	public void addNotify() {
+		//do nothing
+	}	
+	
+	@Override
+	public void setVisible(boolean b) {
+			this.peer.setVisible(b);
+	}
+	
 }

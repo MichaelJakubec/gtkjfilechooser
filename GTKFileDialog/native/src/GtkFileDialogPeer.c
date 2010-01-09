@@ -62,7 +62,16 @@ JNIEXPORT jstring JNICALL Java_sun_awt_X11_GtkFileDialogPeer_start(JNIEnv *env,
 		dialog = gtk_file_chooser_dialog_new(title, NULL,
 				GTK_FILE_CHOOSER_ACTION_SAVE, GTK_STOCK_CANCEL,
 				GTK_RESPONSE_CANCEL, GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL);
+	} else if (mode == 2) {
+		dialog = gtk_file_chooser_dialog_new(title, NULL,
+				GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER, GTK_STOCK_CANCEL,
+				GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
+	} else if (mode == 3) {
+		dialog = gtk_file_chooser_dialog_new(title, NULL,
+				GTK_FILE_CHOOSER_ACTION_CREATE_FOLDER, GTK_STOCK_CANCEL,
+				GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
 	} else {
+		//Default action OPEN
 		dialog = gtk_file_chooser_dialog_new(title, NULL,
 				GTK_FILE_CHOOSER_ACTION_OPEN, GTK_STOCK_CANCEL,
 				GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
@@ -97,6 +106,9 @@ JNIEXPORT jstring JNICALL Java_sun_awt_X11_GtkFileDialogPeer_start(JNIEnv *env,
 	}
 
 	//TODO read UI property from UIManager.get(..) or UIManager.getString(key);
+
+	//Other Properties
+	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER(dialog), TRUE);
 
 	char *choosed_file = NULL;
 	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
