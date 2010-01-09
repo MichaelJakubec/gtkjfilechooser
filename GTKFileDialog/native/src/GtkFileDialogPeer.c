@@ -110,7 +110,6 @@ JNIEXPORT jstring JNICALL Java_sun_awt_X11_GtkFileDialogPeer_start(JNIEnv *env,
 	#endif
 
 	char *choosed_file = NULL;
-
 	// this recursive main loop gives the effect of a modal dialog
 	if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
 		choosed_file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
