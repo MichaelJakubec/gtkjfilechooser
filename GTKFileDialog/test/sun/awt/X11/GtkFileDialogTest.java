@@ -2,6 +2,8 @@ package sun.awt.X11;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FilenameFilter;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -34,6 +36,7 @@ public class GtkFileDialogTest {
 			public void actionPerformed(ActionEvent e) {
 				GtkFileDialog fd = new GtkFileDialog(frame, "My File Dialog");
 				fd.setMode(0);
+//				fd.setFilenameFilter(createTextFileFilter());
 				fd.setVisible(true);
 
 				if (fd.getFile() != null) {
@@ -48,6 +51,16 @@ public class GtkFileDialogTest {
 		frame.setVisible(true);
 	}
 
+	FilenameFilter createTextFileFilter() {
+		return new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String name) {
+				// return name.endsWith(".log");
+				return name.endsWith(".txt");
+			}
+		};
+	}
+	
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 

@@ -80,8 +80,10 @@ static void handle_response(GtkWidget *dialog, gint responseId, gpointer obj) {
 		(*env())->CallVoidMethod(env(), obj, id, jfilename);
 		g_free(filename);
 	}
+
 	gtk_widget_hide(dialog);
 	gtk_widget_destroy(dialog);
+	//gdk_window_destroy(dialog->window);
 	gtk_main_quit();
 }
 
