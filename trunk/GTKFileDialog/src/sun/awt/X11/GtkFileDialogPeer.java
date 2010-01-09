@@ -15,11 +15,11 @@ public class GtkFileDialogPeer implements FileDialogPeer {
 
 	static native void init();
 
-	native String start(String title, int mode, String dir, String file, FilenameFilter filter);
+	native void start(String title, int mode, String dir, String file, FilenameFilter filter);
 
 	@Override
 	public void setFile(String file) {
-		// delegated to FileDialog#setFile(String)
+		fd.setFile(file);
 	}
 
 	@Override
@@ -34,10 +34,8 @@ public class GtkFileDialogPeer implements FileDialogPeer {
 
 	public void setVisible(boolean vis) {
 		if (vis) {
-			String filename = start(fd.getTitle(), fd.getMode(), fd.getDirectory(),
+			start(fd.getTitle(), fd.getMode(), fd.getDirectory(),
 					fd.getFile(), fd.getFilenameFilter());
-			
-			fd.setFile(filename);	
 		}
 	}
 

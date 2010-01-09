@@ -2,6 +2,8 @@
 #include <string.h>
 
 GtkWidget *dialog;
+GtkWidget *window;
+
 const char* _title;
 
 void set_directory(const char *directory) {
@@ -12,12 +14,13 @@ void set_directory(const char *directory) {
  * LOAD = 0; SAVE = 1;
  */
 void set_mode(int mode) {
+
 	if (mode == 1) {
-		dialog = gtk_file_chooser_dialog_new(_title, NULL,
+		dialog = gtk_file_chooser_dialog_new(_title, GTK_WINDOW(window),
 				GTK_FILE_CHOOSER_ACTION_SAVE, GTK_STOCK_CANCEL,
 				GTK_RESPONSE_CANCEL, GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL);
 	} else {
-		dialog = gtk_file_chooser_dialog_new(_title, NULL,
+		dialog = gtk_file_chooser_dialog_new(_title, GTK_WINDOW(window),
 				GTK_FILE_CHOOSER_ACTION_OPEN, GTK_STOCK_CANCEL,
 				GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
 	}
@@ -26,6 +29,8 @@ void set_mode(int mode) {
 void init(const char* title) {
 	gtk_init(NULL, NULL);
 	_title = title;
+	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+
 	set_mode(0);
 }
 
@@ -42,9 +47,21 @@ const char* run() {
 		filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
 	}
 
-	gtk_widget_destroy(dialog);
+	gtk_widget_destroy(window);
 
 	return filename;
+}
+
+static void handle_response(GtkDialog *dialog __attribute__((unused)), gint responseId, char *_filename) {
+	char *filename = NULL;
+	if (responseId == GTK_RESPONSE_ACCEPT) {
+		filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+		g_print("C->Filename 1: %s\n", filename);
+
+		_filename = *filename;
+	}
+	gtk_widget_hide(GTK_WIDGET(dialog));
+	gtk_main_quit();
 }
 
 int main(int argc, char *argv[]) {
@@ -56,9 +73,17 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	set_filter("*.txt", "Only text files");
-	const char *filename = run();
-	g_print("Filename: %s\n", filename);
+	//set_filter("*.txt", "Only text files");
+
+	char *filename = NULL;
+	g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(handle_response),
+			filename);
+	gtk_widget_show(dialog);
+	gtk_main();
+
+	g_print("C->Filename 2: %s\n", filename);
+	//const char *filename = run();
+	//g_print("Filename: %s\n", filename);
 
 	return 0;
 }
