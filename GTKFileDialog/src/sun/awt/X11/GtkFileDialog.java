@@ -43,5 +43,10 @@ public class GtkFileDialog extends FileDialog {
 	public void setVisible(boolean b) {
 		this.peer.setVisible(b);
 	}
-
+	
+	@Override
+	public void dispose() {
+		this.peer = null;
+		super.dispose();		
+	}	
 }

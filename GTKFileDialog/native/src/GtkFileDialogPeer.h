@@ -18,9 +18,9 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_init
 /*
  * Class:     sun_awt_X11_GtkFileDialogPeer
  * Method:    start
- * Signature: (Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/io/FilenameFilter;)Ljava/lang/String;
+ * Signature: (Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/io/FilenameFilter;)V
  */
-JNIEXPORT jstring JNICALL Java_sun_awt_X11_GtkFileDialogPeer_start
+JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_start
   (JNIEnv *, jobject, jstring, jint, jstring, jstring, jobject);
 
 #ifdef __cplusplus
