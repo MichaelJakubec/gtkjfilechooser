@@ -81,6 +81,7 @@ static void handle_response(GtkWidget *dialog, gint responseId, gpointer obj) {
 		g_free(filename);
 	}
 	gtk_widget_hide(dialog);
+	gtk_widget_destroy(dialog);
 	gtk_main_quit();
 }
 
