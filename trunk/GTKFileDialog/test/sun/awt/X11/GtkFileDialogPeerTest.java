@@ -11,6 +11,7 @@ public class GtkFileDialogPeerTest {
 
 	public static void main(String[] args) throws Exception {
 		GtkFileDialog fd = new GtkFileDialog(null, "My File Dialog");
+		fd.setMode(GtkFileDialog.SELECT_FOLDER);
 		fd.setFilenameFilter(createTextFileFilter());
 		fd.setDirectory(System.getProperty("user.home"));
 
