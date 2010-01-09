@@ -99,25 +99,22 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_start(JNIEnv *env,
 
 	const char *title = (*env)->GetStringUTFChars(env, jtitle, 0);
 
-	GtkWidget *window;
-	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-
 	GtkWidget *dialog;
 	if (mode == 1) {
-		dialog = gtk_file_chooser_dialog_new(title, GTK_WINDOW(window),
+		dialog = gtk_file_chooser_dialog_new(title, NULL,
 				GTK_FILE_CHOOSER_ACTION_SAVE, GTK_STOCK_CANCEL,
 				GTK_RESPONSE_CANCEL, GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL);
 	} else if (mode == 2) {
-		dialog = gtk_file_chooser_dialog_new(title, GTK_WINDOW(window),
+		dialog = gtk_file_chooser_dialog_new(title, NULL,
 				GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER, GTK_STOCK_CANCEL,
 				GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
 	} else if (mode == 3) {
-		dialog = gtk_file_chooser_dialog_new(title, GTK_WINDOW(window),
+		dialog = gtk_file_chooser_dialog_new(title, NULL,
 				GTK_FILE_CHOOSER_ACTION_CREATE_FOLDER, GTK_STOCK_CANCEL,
 				GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
 	} else {
 		//Default action OPEN
-		dialog = gtk_file_chooser_dialog_new(title, GTK_WINDOW(window),
+		dialog = gtk_file_chooser_dialog_new(title, NULL,
 				GTK_FILE_CHOOSER_ACTION_OPEN, GTK_STOCK_CANCEL,
 				GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
 	}
