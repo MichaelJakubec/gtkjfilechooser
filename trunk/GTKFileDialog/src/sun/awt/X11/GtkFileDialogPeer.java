@@ -51,9 +51,12 @@ public class GtkFileDialogPeer implements FileDialogPeer {
 			return true;
 		}
 		
-		String filename = fullname.substring(fullname.lastIndexOf(File.separator) + 1);
-		String dirname = fullname.substring(0, fullname.lastIndexOf(File.separator));
+		File file = new File(fullname);
+		return fd.getFilenameFilter().accept(new File(file.getParent()), file.getName());
+	}
 
-		return fd.getFilenameFilter().accept(new File(dirname), filename);
+	public void dispose() {
+		//TODO dispose
+		System.out.println("dispose GtkFileDialogPeer (TODO)");
 	}	
 }
