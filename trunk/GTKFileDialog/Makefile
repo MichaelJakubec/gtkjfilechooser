@@ -16,7 +16,7 @@ CC=gcc
 
 JAVA_HOME=/usr/java/default
 
-all: GtkFileDialog libGtkFileDialogPeer.so
+all: build
 
 init:
 	mkdir -p $(C_BIN)
