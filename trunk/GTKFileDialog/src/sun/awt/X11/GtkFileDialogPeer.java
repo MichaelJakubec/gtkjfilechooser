@@ -58,5 +58,21 @@ public class GtkFileDialogPeer implements FileDialogPeer {
 	public void dispose() {
 		//TODO dispose
 		System.out.println("dispose GtkFileDialogPeer (TODO)");
+		//UnsafeXDisposerRecord#dispose
+		//ref. http://bugs.sun.com/view_bug.do?bug_id=6853592
+		try {
+			Class<?> cls = Class.forName("sun.awt.X11.XlibWrapper");
+//			long displayString = XlibWrapper.XDisplayString(XToolkit.getDisplay());
+//
+//	        if (displayString == 0) {
+//	            throw new XException("XDisplayString returns NULL");
+//	        }
+//
+//	        long newDisplay = XlibWrapper.XOpenDisplay(displayString);
+//	        XlibWrapper.XCloseDisplay(newDisplay);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}	
 }

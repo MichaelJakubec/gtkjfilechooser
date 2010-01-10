@@ -22,7 +22,17 @@ public class GtkFileDialogTest {
 
 	public void testInFrame() {
 		final JFrame frame = new JFrame();
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		//DISPOSE_ON_CLOSE to reproduce the error:
+//		Gdk-ERROR **: The program '<unknown>' received an X Window System error.
+//		This probably reflects a bug in the program.
+//		The error was 'BadWindow (invalid Window parameter)'.
+//		  (Details: serial 317 error_code 3 request_code 20 minor_code 0)
+//		  (Note to programmers: normally, X errors are reported asynchronously;
+//		   that is, you will receive the error a while after causing it.
+//		   To debug your program, run it with the --sync command line
+//		   option to change this behavior. You can then get a meaningful
+//		   backtrace from your debugger if you break on the gdk_x_error() function.)
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JPanel p = new JPanel();
 
