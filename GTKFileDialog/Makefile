@@ -9,6 +9,7 @@ JAVA_BIN=bin
 
 #Source folder for Java
 JAVA_SRC=src
+JAVA_TEST=test
 
 #C++ Compiler
 CC=gcc
@@ -19,9 +20,11 @@ all: GtkFileDialog libGtkFileDialogPeer.so
 
 init:
 	mkdir -p $(C_BIN)
+	mkdir -p $(JAVA_SRC)
 	
 clean:
-	rm -f $(C_BIN)/*
+	rm -rf $(C_BIN)/*
+	rm -rf $(JAVA_BIN)/*
 
 GtkFileDialog: init
 	$(CC) -Wall -g $(C_SRC)/GtkFileDialog.c -o $(C_BIN)/GtkFileDialog `pkg-config --cflags gtk+-2.0` \
@@ -37,3 +40,11 @@ libGtkFileDialogPeer.so:
 GtkFileDialogPeer.h:
 	${JAVA_HOME}/bin/javah -classpath $(JAVA_BIN) -o native/src/GtkFileDialogPeer.h sun.awt.X11.GtkFileDialogPeer
 	
+build: libGtkFileDialogPeer.so
+	${JAVA_HOME}/bin/javac -sourcepath $(JAVA_SRC) -d $(JAVA_BIN) `find $(JAVA_SRC) -name *.java`
+
+build.test: build	
+	${JAVA_HOME}/bin/javac -sourcepath $(JAVA_SRC):$(JAVA_TEST) -d $(JAVA_BIN) `find $(JAVA_TEST) -name *.java`
+	
+test: build.test
+	${JAVA_HOME}/bin/java -cp $(JAVA_BIN) sun.awt.X11.GtkFileDialogTest
