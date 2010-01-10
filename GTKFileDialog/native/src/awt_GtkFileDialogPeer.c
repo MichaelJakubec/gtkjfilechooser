@@ -1,6 +1,6 @@
 #include <jni.h>
 #include <gtk/gtk.h>
-#include "GtkFileDialogPeer.h"
+#include "awt_GtkFileDialogPeer.h"
 
 /**
  * The global AWT lock object.
