@@ -20,7 +20,7 @@ all: build
 
 init:
 	mkdir -p $(C_BIN)
-	mkdir -p $(JAVA_SRC)
+	mkdir -p $(JAVA_BIN)
 	
 clean:
 	rm -rf $(C_BIN)/*
@@ -34,13 +34,13 @@ libGtkFileDialogPeer.so:
 	$(CC) -o $(C_BIN)/libGtkFileDialogPeer.so -shared -Wl,-soname,$(C_BIN)/libGtkFileDialogPeer.so \
 	`pkg-config --cflags gtk+-2.0` `pkg-config --libs gtk+-2.0` `pkg-config --libs gthread-2.0` \
 	-I${JAVA_HOME}/include -I${JAVA_HOME}/include/linux \
-	$(C_SRC)/GtkFileDialogPeer.c \
+	$(C_SRC)/awt_GtkFileDialogPeer.c \
 	-static -lc
 
-GtkFileDialogPeer.h:
-	${JAVA_HOME}/bin/javah -classpath $(JAVA_BIN) -o native/src/GtkFileDialogPeer.h sun.awt.X11.GtkFileDialogPeer
+awt_GtkFileDialogPeer.h:
+	${JAVA_HOME}/bin/javah -classpath $(JAVA_BIN) -o native/src/awt_GtkFileDialogPeer.h sun.awt.X11.GtkFileDialogPeer
 	
-build: libGtkFileDialogPeer.so
+build: init libGtkFileDialogPeer.so
 	${JAVA_HOME}/bin/javac -sourcepath $(JAVA_SRC) -d $(JAVA_BIN) `find $(JAVA_SRC) -name *.java`
 
 build.test: build	
