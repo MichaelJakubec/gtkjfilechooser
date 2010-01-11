@@ -1,5 +1,6 @@
 package sun.awt.X11;
 
+import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -39,13 +40,16 @@ public class GtkFileDialogTest {
 		final JTextField tf = new JTextField(30);
 		p.add(tf);
 
-		JButton open = new JButton("...");
-		open.addActionListener(new ActionListener() {
+		JButton newFileDialog = new JButton("New file dialog...");
+		newFileDialog.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				GtkFileDialog fd = new GtkFileDialog(frame, "My File Dialog");
+				GtkFileDialog fd = new GtkFileDialog(frame, "New File Dialog");
 				fd.setMode(0);
+				if ((new File(tf.getText())).exists()) {
+					fd.setFile(tf.getText());
+				}
 //				fd.setFilenameFilter(createTextFileFilter());
 				fd.setVisible(true);
 
@@ -54,7 +58,26 @@ public class GtkFileDialogTest {
 				}
 			}
 		});
-		p.add(open);
+		p.add(newFileDialog);
+		JButton oldFileDialog = new JButton("Old file dialog...");
+		oldFileDialog.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FileDialog fd = new FileDialog(frame, "Old File Dialog");
+				fd.setMode(0);
+				if ((new File(tf.getText())).exists()) {
+					fd.setFile(tf.getText());
+				}
+//				fd.setFilenameFilter(createTextFileFilter());
+				fd.setVisible(true);
+
+				if (fd.getFile() != null) {
+					tf.setText(fd.getFile());
+				}
+			}
+		});
+		p.add(oldFileDialog);
 
 		frame.getContentPane().add(p);
 		frame.pack();
