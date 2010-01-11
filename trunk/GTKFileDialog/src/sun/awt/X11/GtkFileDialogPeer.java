@@ -18,8 +18,10 @@ public class GtkFileDialogPeer implements FileDialogPeer {
 	native void start(String title, int mode, String dir, String file, FilenameFilter filter);
 
 	@Override
-	public void setFile(String file) {
-		fd.setFile(file);
+	public void setFile(String filename) {
+		File file = new File(filename);
+		fd.setFile(file.getName());
+		fd.setDirectory(file.getParent() + File.separator);
 	}
 
 	@Override
