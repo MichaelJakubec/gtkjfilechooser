@@ -1,11 +1,13 @@
 package sun.awt.X11;
 
+import java.awt.BorderLayout;
 import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FilenameFilter;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -36,6 +38,7 @@ public class GtkFileDialogTest {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.LINE_AXIS));
 
 		final JTextField tf = new JTextField(30);
 		p.add(tf);
@@ -54,7 +57,7 @@ public class GtkFileDialogTest {
 				fd.setVisible(true);
 
 				if (fd.getFile() != null) {
-					tf.setText(fd.getFile());
+					tf.setText(fd.getDirectory()+fd.getFile());
 				}
 			}
 		});
@@ -73,7 +76,7 @@ public class GtkFileDialogTest {
 				fd.setVisible(true);
 
 				if (fd.getFile() != null) {
-					tf.setText(fd.getFile());
+					tf.setText(fd.getDirectory()+ fd.getFile());
 				}
 			}
 		});
