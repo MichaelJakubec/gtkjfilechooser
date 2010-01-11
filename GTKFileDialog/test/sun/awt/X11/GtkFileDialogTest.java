@@ -1,6 +1,5 @@
 package sun.awt.X11;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
@@ -8,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FilenameFilter;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -38,12 +38,14 @@ public class GtkFileDialogTest {
 //		   backtrace from your debugger if you break on the gdk_x_error() function.)
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		JPanel mainPanel = new JPanel(new BorderLayout());
-
+		JPanel mainPanel = new JPanel();
+		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.LINE_AXIS));
 		final JTextField tf = new JTextField(30);
-		mainPanel.add(tf, BorderLayout.CENTER);
-
-		JPanel buttonsPanel = new JPanel();
+		tf.setMaximumSize(new Dimension(Short.MAX_VALUE, tf.getPreferredSize().height));
+		
+		mainPanel.add(tf);
+		mainPanel.add(Box.createRigidArea(new Dimension(5,0)));
+		
 		JButton newFileDialog = new JButton("New file dialog...");
 		newFileDialog.addActionListener(new ActionListener() {
 
@@ -61,8 +63,10 @@ public class GtkFileDialogTest {
 					tf.setText(fd.getDirectory()+fd.getFile());
 				}
 			}
-		});
-		buttonsPanel.add(newFileDialog);
+		});		
+		mainPanel.add(newFileDialog);
+		mainPanel.add(Box.createRigidArea(new Dimension(5,0)));
+		
 		JButton oldFileDialog = new JButton("Old file dialog...");
 		oldFileDialog.addActionListener(new ActionListener() {
 
@@ -81,13 +85,14 @@ public class GtkFileDialogTest {
 				}
 			}
 		});
-		buttonsPanel.add(oldFileDialog);
-		mainPanel.add(buttonsPanel, BorderLayout.LINE_END);
+		
+		mainPanel.add(oldFileDialog);
 		
 		frame.getContentPane().add(mainPanel);
 		frame.pack();
 		frame.setVisible(true);
 	}
+
 
 	FilenameFilter createTextFileFilter() {
 		return new FilenameFilter() {
@@ -98,7 +103,7 @@ public class GtkFileDialogTest {
 			}
 		};
 	}
-	
+		
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
 
