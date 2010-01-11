@@ -1,6 +1,7 @@
 package sun.awt.X11;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -37,12 +38,12 @@ public class GtkFileDialogTest {
 //		   backtrace from your debugger if you break on the gdk_x_error() function.)
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.LINE_AXIS));
+		JPanel mainPanel = new JPanel(new BorderLayout());
 
 		final JTextField tf = new JTextField(30);
-		p.add(tf);
+		mainPanel.add(tf, BorderLayout.CENTER);
 
+		JPanel buttonsPanel = new JPanel();
 		JButton newFileDialog = new JButton("New file dialog...");
 		newFileDialog.addActionListener(new ActionListener() {
 
@@ -61,7 +62,7 @@ public class GtkFileDialogTest {
 				}
 			}
 		});
-		p.add(newFileDialog);
+		buttonsPanel.add(newFileDialog);
 		JButton oldFileDialog = new JButton("Old file dialog...");
 		oldFileDialog.addActionListener(new ActionListener() {
 
@@ -80,9 +81,10 @@ public class GtkFileDialogTest {
 				}
 			}
 		});
-		p.add(oldFileDialog);
-
-		frame.getContentPane().add(p);
+		buttonsPanel.add(oldFileDialog);
+		mainPanel.add(buttonsPanel, BorderLayout.LINE_END);
+		
+		frame.getContentPane().add(mainPanel);
 		frame.pack();
 		frame.setVisible(true);
 	}
