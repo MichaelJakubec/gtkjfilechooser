@@ -48,3 +48,4 @@ build.test: build
 	
 test: build.test
 	${JAVA_HOME}/bin/java -cp $(JAVA_BIN) sun.awt.X11.GtkFileDialogTest
+	
