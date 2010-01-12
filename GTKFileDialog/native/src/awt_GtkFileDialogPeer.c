@@ -1,5 +1,5 @@
 #include <jni.h>
-#include <gtk/gtk.h>
+#include "gtk2_interface.h"
 #include "awt_GtkFileDialogPeer.h"
 
 /**
@@ -15,8 +15,7 @@ union env_union {
 
 JNIEnv *env() {
 	union env_union tmp;
-	g_assert((*java_vm)->GetEnv(java_vm, &tmp.void_env, JNI_VERSION_1_2)
-			== JNI_OK);
+	(*java_vm)->GetEnv(java_vm, &tmp.void_env, JNI_VERSION_1_2)	== JNI_OK;
 	return tmp.jni_env;
 }
 
@@ -39,7 +38,7 @@ static void unlock() {
  */
 JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_init
 (JNIEnv *env, jclass cls) {
-	g_assert((*env)->GetJavaVM(env, &java_vm) == 0);
+	(*env)->GetJavaVM(env, &java_vm) == 0;
 
 	/* init threads */
 	if (!g_thread_supported()) {
