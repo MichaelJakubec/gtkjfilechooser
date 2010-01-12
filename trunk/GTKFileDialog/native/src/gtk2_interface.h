@@ -28,13 +28,6 @@
 #include <stdlib.h>
 #include <jni.h>
 
-#define G_TYPE_CHECK_INSTANCE_CAST(instance, g_type, c_type)    (_G_TYPE_CIC ((instance), (g_type), c_type))
-#define GTK_FILE_CHOOSER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_FILE_CHOOSER, GtkFileChooser))
-
-#define GTK_STOCK_CANCEL           "gtk-cancel"
-#define GTK_STOCK_SAVE             "gtk-save"
-#define GTK_STOCK_OPEN             "gtk-open"
-
 typedef enum _WidgetType
 {
     BUTTON,                     /* GtkButton */
@@ -533,35 +526,6 @@ typedef enum
   GTK_PROGRESS_TOP_TO_BOTTOM
 } GtkProgressBarOrientation;
 
-typedef enum
-{
-  /* GTK returns this if a response widget has no response_id,
-   * or if the dialog gets programmatically hidden or destroyed.
-   */
-  GTK_RESPONSE_NONE = -1,
-
-  /* GTK won't return these unless you pass them in
-   * as the response for an action widget. They are
-   * for your convenience.
-   */
-  GTK_RESPONSE_REJECT = -2,
-  GTK_RESPONSE_ACCEPT = -3,
-
-  /* If the dialog is deleted. */
-  GTK_RESPONSE_DELETE_EVENT = -4,
-
-  /* These are returned from GTK dialogs, and you can also use them
-   * yourself if you like.
-   */
-  GTK_RESPONSE_OK     = -5,
-  GTK_RESPONSE_CANCEL = -6,
-  GTK_RESPONSE_CLOSE  = -7,
-  GTK_RESPONSE_YES    = -8,
-  GTK_RESPONSE_NO     = -9,
-  GTK_RESPONSE_APPLY  = -10,
-  GTK_RESPONSE_HELP   = -11
-} GtkResponseType;
-
 typedef struct _GtkProgress       GtkProgress;
 
 struct _GtkProgress
@@ -591,40 +555,6 @@ struct _GtkProgressBar
   guint activity_dir : 1;
   guint ellipsize : 3;
 };
-
-typedef struct _GtkWindow GtkWindow;
-
-typedef struct _GtkFileChooser      GtkFileChooser;
-
-typedef enum
-{
-  GTK_FILE_CHOOSER_ACTION_OPEN,
-  GTK_FILE_CHOOSER_ACTION_SAVE,
-  GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
-  GTK_FILE_CHOOSER_ACTION_CREATE_FOLDER
-} GtkFileChooserAction;
-
-typedef struct _GtkFileFilter GtkFileFilter;
-
-typedef enum {
-  GTK_FILE_FILTER_FILENAME     = 1 << 0,
-  GTK_FILE_FILTER_URI          = 1 << 1,
-  GTK_FILE_FILTER_DISPLAY_NAME = 1 << 2,
-  GTK_FILE_FILTER_MIME_TYPE    = 1 << 3
-} GtkFileFilterFlags;
-
-typedef struct {
-  GtkFileFilterFlags contains;
-
-  const gchar *filename;
-  const gchar *uri;
-  const gchar *display_name;
-  const gchar *mime_type;
-} GtkFileFilterInfo;
-
-typedef gboolean (*GtkFileFilterFunc) (const GtkFileFilterInfo *filter_info,
-				       gpointer                 data);
-typedef void (*GDestroyNotify) (gpointer       data);
 
 /*
  * Converts java.lang.String object to UTF-8 character string.
@@ -730,27 +660,5 @@ int (*fp_gdk_pixbuf_get_n_channels)(const GdkPixbuf *pixbuf);
 int (*fp_gdk_pixbuf_get_rowstride)(const GdkPixbuf *pixbuf);
 int (*fp_gdk_pixbuf_get_width)(const GdkPixbuf *pixbuf);
 GdkPixbuf *(*fp_gdk_pixbuf_new_from_file)(const char *filename, GError **error);
-
-gchar *gtk_file_chooser_get_filename(GtkFileChooser *chooser);
-void gtk_widget_hide(GtkWidget *widget);
-void gtk_widget_destroy(GtkWidget *widget);
-void gtk_main_quit(void);
-void gdk_threads_enter(void);
-GtkWidget *gtk_file_chooser_dialog_new              (const gchar          *title,
-						     GtkWindow            *parent,
-						     GtkFileChooserAction  action,
-						     const gchar          *first_button_text,
-						     ...);
-gboolean gtk_file_chooser_set_current_folder(GtkFileChooser *chooser,
-                                                         const gchar *filename);
-gboolean gtk_file_chooser_set_filename(GtkFileChooser *chooser,
-                                                         const char *filename);
-void gtk_file_filter_add_custom         (GtkFileFilter      *filter,
-					 GtkFileFilterFlags  needed,
-					 GtkFileFilterFunc   func,
-					 gpointer            data,
-					 GDestroyNotify      notify);
-void gtk_file_chooser_set_filter (GtkFileChooser *chooser,
-					   GtkFileFilter  *filter);
 
 #endif /* !_GTK2_INTERFACE_H */
