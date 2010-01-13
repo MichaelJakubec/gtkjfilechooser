@@ -30,13 +30,20 @@ GtkFileDialog: init
 	$(CC) -Wall -g $(C_SRC)/GtkFileDialog.c -o $(C_BIN)/GtkFileDialog `pkg-config --cflags gtk+-2.0` \
 	`pkg-config --libs gtk+-2.0`
 	
-libGtkFileDialogPeer.so:
+libGtkFileDialogPeer.so.old:
 	$(CC) -o $(C_BIN)/libGtkFileDialogPeer.so -shared -Wl,-soname,$(C_BIN)/libGtkFileDialogPeer.so \
 	`pkg-config --cflags gtk+-2.0` `pkg-config --libs gtk+-2.0` `pkg-config --libs gthread-2.0` \
 	-I${JAVA_HOME}/include -I${JAVA_HOME}/include/linux \
 	$(C_SRC)/awt_GtkFileDialogPeer.c \
 	-static -lc
 
+libGtkFileDialogPeer.so:
+	$(CC) -o $(C_BIN)/libGtkFileDialogPeer.so -shared -Wl,-soname,$(C_BIN)/libGtkFileDialogPeer.so \
+	`pkg-config --cflags gtk+-2.0` `pkg-config --libs gtk+-2.0` `pkg-config --libs gthread-2.0` \
+	-I${JAVA_HOME}/include -I${JAVA_HOME}/include/linux \
+	$(C_SRC)/awt_GtkFileDialogPeer.c \
+	-static -lc
+	
 awt_GtkFileDialogPeer.h:
 	${JAVA_HOME}/bin/javah -classpath $(JAVA_BIN) -o native/src/awt_GtkFileDialogPeer.h sun.awt.X11.GtkFileDialogPeer
 	

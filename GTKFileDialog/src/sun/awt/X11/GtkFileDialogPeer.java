@@ -41,12 +41,6 @@ public class GtkFileDialogPeer implements FileDialogPeer {
 		}
 	}
 
-	/*
-	 * This method interacts with the native callback function of the same name.
-	 * The native function will extract the filename from the GtkFileFilterInfo
-	 * object and send it to this method, which will in turn call the filter's
-	 * accept() method and give back the return value.
-	 */
 	boolean filenameFilterCallback(String fullname) {		
 		if (fd.getFilenameFilter() == null) {
 			// no filter, accept all.
