@@ -16,6 +16,8 @@ CC=gcc
 
 JAVA_HOME=/usr/java/default
 
+NATIVE_SUN_AWT=/home/c.cerbo/openjdk/jdk7/mytl/jdk/src/solaris/native/sun/awt
+
 all: build
 
 init:
@@ -37,12 +39,17 @@ libGtkFileDialogPeer.so.old:
 	$(C_SRC)/awt_GtkFileDialogPeer.c \
 	-static -lc
 
-libGtkFileDialogPeer.so:
+libGtk2Interface.so:
+	$(CC) -o $(C_BIN)/libGtk2Interface.so -shared -Wl,-soname,$(C_BIN)/libGtk2Interface.so \
+	-I${JAVA_HOME}/include -I${JAVA_HOME}/include/linux -I/usr/include/ \
+	$(C_SRC)/gtk2_interface.c \
+	-ldl -lX11
+	
+libGtkFileDialogPeer.so: libGtk2Interface.so
 	$(CC) -o $(C_BIN)/libGtkFileDialogPeer.so -shared -Wl,-soname,$(C_BIN)/libGtkFileDialogPeer.so \
-	`pkg-config --cflags gtk+-2.0` `pkg-config --libs gtk+-2.0` `pkg-config --libs gthread-2.0` \
 	-I${JAVA_HOME}/include -I${JAVA_HOME}/include/linux \
-	$(C_SRC)/awt_GtkFileDialogPeer.c \
-	-static -lc
+	$(C_BIN)/libGtk2Interface.so \
+	$(C_SRC)/awt_GtkFileDialogPeer.c
 	
 awt_GtkFileDialogPeer.h:
 	${JAVA_HOME}/bin/javah -classpath $(JAVA_BIN) -o native/src/awt_GtkFileDialogPeer.h sun.awt.X11.GtkFileDialogPeer
@@ -55,4 +62,10 @@ build.test: build
 	
 test: build.test
 	${JAVA_HOME}/bin/java -cp $(JAVA_BIN) sun.awt.X11.GtkFileDialogTest
-	
+
+copy:
+	cp $(C_SRC)/awt_GtkFileDialogPeer.c $(NATIVE_SUN_AWT)
+	cp $(C_SRC)/awt_GtkFileDialogPeer.h $(NATIVE_SUN_AWT)
+	cp $(C_SRC)/gtk2_interface.c $(NATIVE_SUN_AWT)
+	cp $(C_SRC)/gtk2_interface.h $(NATIVE_SUN_AWT)
+		

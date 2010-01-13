@@ -375,7 +375,7 @@ static void* dl_symbol(const char* name) {
 	return result;
 }
 
-gboolean gtk2_check_version(guint required_major, guint required_minor,
+gboolean gtk2_check_version_args(guint required_major, guint required_minor,
 		guint required_micro) {
 	if (gtk2_libhandle != NULL) {
 		/* We've already successfully opened the GTK libs, so return true. */
@@ -404,7 +404,7 @@ gboolean gtk2_check_version(guint required_major, guint required_minor,
 
 /* Check for GTK 2.2+ */
 gboolean gtk2_check_version() {
-	return gtk2_check_version(2, 2, 0);
+	return gtk2_check_version_args(2, 2, 0);
 }
 
 gboolean gtk2_load() {
@@ -564,6 +564,41 @@ gboolean gtk2_load() {
 		fp_gtk_arrow_set = dl_symbol("gtk_arrow_set");
 		fp_gtk_widget_size_request = dl_symbol("gtk_widget_size_request");
 		fp_gtk_range_get_adjustment = dl_symbol("gtk_range_get_adjustment");
+
+		/**
+		 * Functions for awt_GtkFileDialogPeer.c
+		 */
+		fp_gtk_file_chooser_get_filename = dl_symbol(
+				"gtk_file_chooser_get_filename");
+		fp_gtk_widget_hide = dl_symbol("gtk_widget_hide");
+		fp_gtk_widget_destroy0 = dl_symbol("gtk_widget_destroy");
+		fp_gtk_main_quit = dl_symbol("gtk_main_quit");
+		fp_gdk_threads_enter = dl_symbol("gdk_threads_enter");
+		fp_gdk_threads_leave = dl_symbol("gdk_threads_leave");
+		fp_gtk_file_chooser_dialog_new = dl_symbol(
+				"gtk_file_chooser_dialog_new");
+		fp_gtk_file_chooser_set_current_folder = dl_symbol(
+				"gtk_file_chooser_set_current_folder");
+		fp_gtk_file_chooser_set_filename = dl_symbol(
+				"gtk_file_chooser_set_filename");
+		fp_gtk_file_filter_add_custom = dl_symbol("gtk_file_filter_add_custom");
+		fp_gtk_file_chooser_set_filter = dl_symbol(
+				"gtk_file_chooser_set_filter");
+		fp_gtk_file_chooser_get_type = dl_symbol("gtk_file_chooser_get_type");
+		fp_gtk_file_filter_new = dl_symbol("gtk_file_filter_new");
+		fp_gtk_file_chooser_set_do_overwrite_confirmation = dl_symbol(
+				"gtk_file_chooser_set_do_overwrite_confirmation");
+		fp_g_signal_connect_data = dl_symbol("g_signal_connect_data");
+		fp_gtk_widget_show = dl_symbol("gtk_widget_show");
+		fp_gtk_main = dl_symbol("gtk_main");
+		fp_g_thread_supported = dl_symbol("g_thread_supported");
+		fp_gdk_threads_set_lock_functions = dl_symbol(
+				"gdk_threads_set_lock_functions");
+		//original signature: void g_thread_init(GThreadFunctions *vtable);
+		fp_g_thread_init = dl_symbol("g_thread_init");
+		fp_gdk_threads_init = dl_symbol("gdk_threads_init");
+		//use 'gtk_init_check'
+		fp_gtk_init = dl_symbol("gtk_init");
 
 		/* Some functions may be missing in pre-2.4 GTK.
 		 We handle them specially here.
@@ -2060,111 +2095,4 @@ jobject gtk2_get_setting(JNIEnv *env, Setting property) {
 	}
 
 	return NULL;
-}
-
-/**
- * Functions for awt_GtkFileDialogPeer.c
- */
-
-gchar *fp_gtk_file_chooser_get_filename(GtkFileChooser *chooser) {
-	return dl_symbol("gtk_file_chooser_get_filename")(chooser);
-}
-
-void fp_gtk_widget_hide(GtkWidget *widget) {
-	dl_symbol("gtk_widget_hide")(widget);
-}
-
-void fp_gtk_widget_destroy(GtkWidget *widget) {
-	dl_symbol("gtk_widget_destroy")(widget);
-}
-
-void fp_gtk_main_quit(void) {
-	dl_symbol("gtk_main_quit");
-}
-
-void fp_gdk_threads_enter(void) {
-	dl_symbol("gdk_threads_enter");
-}
-
-void fp_gdk_threads_leave(void) {
-	dl_symbol("gdk_threads_leave");
-}
-
-GtkWidget *fp_gtk_file_chooser_dialog_new(const gchar *title,
-		GtkWindow *parent, GtkFileChooserAction action,
-		const gchar *first_button_text, ...) {
-	return dl_symbol("gtk_file_chooser_dialog_new")(title, parent, action,
-			first_button_text);
-}
-
-gboolean fp_gtk_file_chooser_set_current_folder(GtkFileChooser *chooser,
-		const gchar *filename) {
-	return dl_symbol("gtk_file_chooser_set_current_folder")(chooser, filename);
-}
-
-gboolean fp_gtk_file_chooser_set_filename(GtkFileChooser *chooser,
-		const char *filename) {
-	return dl_symbol("gtk_file_chooser_set_filename")(chooser, filename);
-}
-
-void fp_gtk_file_filter_add_custom(GtkFileFilter *filter,
-		GtkFileFilterFlags needed, GtkFileFilterFunc func, gpointer data,
-		GDestroyNotify notify) {
-	dl_symbol("gtk_file_filter_add_custom")(filter, needed, func, data, notify);
-}
-
-void fp_gtk_file_chooser_set_filter(GtkFileChooser *chooser,
-		GtkFileFilter *filter) {
-	dl_symbol("gtk_file_chooser_set_filter")(chooser, filename);
-}
-
-GType fp_gtk_file_chooser_get_type(void) {
-	return dl_symbol("gtk_file_chooser_get_type");
-}
-
-GtkFileFilter *fp_gtk_file_filter_new(void) {
-	return dl_symbol("gtk_file_filter_new");
-}
-
-void fp_gtk_file_chooser_set_do_overwrite_confirmation(GtkFileChooser *chooser,
-		gboolean do_overwrite_confirmation) {
-	dl_symbol("gtk_file_chooser_set_do_overwrite_confirmation")(chooser,
-			do_overwrite_confirmation);
-}
-
-gulong fp_g_signal_connect_data(gpointer instance,
-		const gchar *detailed_signal, GCallback c_handler, gpointer data,
-		GClosureNotify destroy_data, GConnectFlags connect_flags) {
-	return dl_symbol("g_signal_connect_data")(instance, detailed_signal,
-			c_handler, data, destroy_data, connect_flags);
-}
-
-void fp_gtk_widget_show(GtkWidget *widget) {
-	dl_symbol("gtk_widget_show")(widget);
-}
-
-void fp_gtk_main(void) {
-	dl_symbol("gtk_main");
-}
-
-gboolean fp_g_thread_supported() {
-	return dl_symbol("g_thread_supported");
-}
-
-void fp_gdk_threads_set_lock_functions(GCallback enter_fn, GCallback leave_fn) {
-	dl_symbol("gdk_threads_set_lock_functions")(enter_fn, leave_fn);
-}
-
-//original signature: void g_thread_init(GThreadFunctions *vtable);
-void fp_g_thread_init() {
-	dl_symbol("g_thread_init")(NULL);
-}
-
-void fp_gdk_threads_init(void) {
-	dl_symbol("gdk_threads_init");
-}
-
-//use 'gtk_init_check'
-void fp_gtk_init(void) {
-	dl_symbol("gtk_init")(NULL, NULL);
 }

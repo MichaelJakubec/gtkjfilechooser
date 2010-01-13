@@ -615,8 +615,7 @@ const char *getStrFor(JNIEnv *env, jstring value);
  * effect and returns success.
  * Returns FALSE on failure and TRUE on success.
  */
-gboolean gtk2_check_version(guint required_major, guint required_minor,
-		guint required_micro);
+gboolean gtk2_check_version_args(guint, guint, guint);
 gboolean gtk2_check_version();
 
 /*
@@ -711,36 +710,38 @@ GdkPixbuf *(*fp_gdk_pixbuf_new_from_file)(const char *filename, GError **error);
 /**
  * Functions for awt_GtkFileDialogPeer.c
  */
-gchar *fp_gtk_file_chooser_get_filename(GtkFileChooser *chooser);
-void fp_gtk_widget_hide(GtkWidget *widget);
-void fp_gtk_widget_destroy(GtkWidget *widget);
-void fp_gtk_main_quit(void);
-void fp_gdk_threads_enter(void);
-void fp_gdk_threads_leave(void);
-GtkWidget *fp_gtk_file_chooser_dialog_new(const gchar *title, GtkWindow *parent,
+gchar* (*fp_gtk_file_chooser_get_filename)(GtkFileChooser *chooser);
+void (*fp_gtk_widget_hide)(GtkWidget *widget);
+void (*fp_gtk_widget_destroy0)(GtkWidget *widget);
+void (*fp_gtk_main_quit)(void);
+void (*fp_gdk_threads_enter)(void);
+void (*fp_gdk_threads_leave)(void);
+GtkWidget* (*fp_gtk_file_chooser_dialog_new)(const gchar *title, GtkWindow *parent,
 		GtkFileChooserAction action, const gchar *first_button_text, ...);
-gboolean fp_gtk_file_chooser_set_current_folder(GtkFileChooser *chooser,
+gboolean (*fp_gtk_file_chooser_set_current_folder)(GtkFileChooser *chooser,
 		const gchar *filename);
-gboolean fp_gtk_file_chooser_set_filename(GtkFileChooser *chooser,
+gboolean (*fp_gtk_file_chooser_set_filename)(GtkFileChooser *chooser,
 		const char *filename);
-void fp_gtk_file_filter_add_custom(GtkFileFilter *filter,
+void (*fp_gtk_file_filter_add_custom)(GtkFileFilter *filter,
 		GtkFileFilterFlags needed, GtkFileFilterFunc func, gpointer data,
 		GDestroyNotify notify);
-void fp_gtk_file_chooser_set_filter(GtkFileChooser *chooser, GtkFileFilter *filter);
-GType fp_gtk_file_chooser_get_type(void);
-GtkFileFilter *fp_gtk_file_filter_new(void);
-void fp_gtk_file_chooser_set_do_overwrite_confirmation(GtkFileChooser *chooser,
+void (*fp_gtk_file_chooser_set_filter)(GtkFileChooser *chooser, GtkFileFilter *filter);
+GType (*fp_gtk_file_chooser_get_type)(void);
+GtkFileFilter* (*fp_gtk_file_filter_new)(void);
+void (*fp_gtk_file_chooser_set_do_overwrite_confirmation)(GtkFileChooser *chooser,
 		gboolean do_overwrite_confirmation);
-gulong fp_g_signal_connect_data(gpointer instance, const gchar *detailed_signal,
+gulong (*fp_g_signal_connect_data)(gpointer instance, const gchar *detailed_signal,
 		GCallback c_handler, gpointer data, GClosureNotify destroy_data,
 		GConnectFlags connect_flags);
-void fp_gtk_widget_show(GtkWidget *widget);
-void fp_gtk_main(void);
+void (*fp_gtk_widget_show)(GtkWidget *widget);
+void (*fp_gtk_main)(void);
 
-gboolean fp_g_thread_supported();
-void fp_gdk_threads_set_lock_functions(GCallback enter_fn, GCallback leave_fn);
-void fp_g_thread_init(); //original signature: void g_thread_init(GThreadFunctions *vtable);
-void fp_gdk_threads_init(void);
-void fp_gtk_init(); //use 'gtk_init_check'
+gboolean (*fp_g_thread_supported)();
+void (*fp_gdk_threads_set_lock_functions)(GCallback enter_fn, GCallback leave_fn);
+//original signature: void g_thread_init(GThreadFunctions *vtable);
+void (*fp_g_thread_init)(gpointer vtable);
+void (*fp_gdk_threads_init)(void);
+//use 'gtk_init_check'
+void (*fp_gtk_init) (int *argc, char ***argv);
 
 #endif /* !_GTK2_INTERFACE_H */
