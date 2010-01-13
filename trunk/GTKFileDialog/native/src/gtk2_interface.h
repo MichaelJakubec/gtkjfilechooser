@@ -30,14 +30,19 @@
 
 #define _G_TYPE_CIC(ip, gt, ct)       ((ct*) ip)
 #define G_TYPE_CHECK_INSTANCE_CAST(instance, g_type, c_type)    (_G_TYPE_CIC ((instance), (g_type), c_type))
-#define GTK_TYPE_FILE_CHOOSER             (gtk_file_chooser_get_type ())
+#define GTK_TYPE_FILE_CHOOSER             (fp_gtk_file_chooser_get_type ())
 #define GTK_FILE_CHOOSER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_FILE_CHOOSER, GtkFileChooser))
 
 #define GTK_STOCK_CANCEL           "gtk-cancel"
 #define GTK_STOCK_SAVE             "gtk-save"
 #define GTK_STOCK_OPEN             "gtk-open"
-#define g_signal_connect(instance, detailed_signal, c_handler, data) \
-    g_signal_connect_data ((instance), (detailed_signal), (c_handler), (data), NULL, (GConnectFlags) 0)
+#define fp_g_signal_connect(instance, detailed_signal, c_handler, data) \
+    fp_g_signal_connect_data ((instance), (detailed_signal), (c_handler), (data), NULL, (GConnectFlags) 0)
+#define	G_CALLBACK(f) ((GCallback) (f))
+#define	G_TYPE_FUNDAMENTAL_SHIFT	(2)
+#define	G_TYPE_MAKE_FUNDAMENTAL(x)	((GType) ((x) << G_TYPE_FUNDAMENTAL_SHIFT))
+#define G_TYPE_OBJECT G_TYPE_MAKE_FUNDAMENTAL (20)
+#define G_OBJECT(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), G_TYPE_OBJECT, GObject))
 
 typedef enum _WidgetType {
 	BUTTON, /* GtkButton */
@@ -584,7 +589,20 @@ typedef struct {
 
 typedef gboolean (*GtkFileFilterFunc)(const GtkFileFilterInfo *filter_info,
 		gpointer data);
+
 typedef void (*GDestroyNotify)(gpointer data);
+
+typedef void (*GCallback) (void);
+
+typedef struct _GClosure GClosure;
+
+typedef void  (*GClosureNotify) (gpointer data, GClosure *closure);
+
+typedef enum
+{
+  G_CONNECT_AFTER	= 1 << 0,
+  G_CONNECT_SWAPPED	= 1 << 1
+} GConnectFlags;
 
 /*
  * Converts java.lang.String object to UTF-8 character string.
@@ -597,6 +615,8 @@ const char *getStrFor(JNIEnv *env, jstring value);
  * effect and returns success.
  * Returns FALSE on failure and TRUE on success.
  */
+gboolean gtk2_check_version(guint required_major, guint required_minor,
+		guint required_micro);
 gboolean gtk2_check_version();
 
 /*
@@ -688,30 +708,39 @@ int (*fp_gdk_pixbuf_get_rowstride)(const GdkPixbuf *pixbuf);
 int (*fp_gdk_pixbuf_get_width)(const GdkPixbuf *pixbuf);
 GdkPixbuf *(*fp_gdk_pixbuf_new_from_file)(const char *filename, GError **error);
 
-gchar *gtk_file_chooser_get_filename(GtkFileChooser *chooser);
-void gtk_widget_hide(GtkWidget *widget);
-void gtk_widget_destroy(GtkWidget *widget);
-void gtk_main_quit(void);
-void gdk_threads_enter(void);
-GtkWidget *gtk_file_chooser_dialog_new(const gchar *title, GtkWindow *parent,
+/**
+ * Functions for awt_GtkFileDialogPeer.c
+ */
+gchar *fp_gtk_file_chooser_get_filename(GtkFileChooser *chooser);
+void fp_gtk_widget_hide(GtkWidget *widget);
+void fp_gtk_widget_destroy(GtkWidget *widget);
+void fp_gtk_main_quit(void);
+void fp_gdk_threads_enter(void);
+void fp_gdk_threads_leave(void);
+GtkWidget *fp_gtk_file_chooser_dialog_new(const gchar *title, GtkWindow *parent,
 		GtkFileChooserAction action, const gchar *first_button_text, ...);
-gboolean gtk_file_chooser_set_current_folder(GtkFileChooser *chooser,
+gboolean fp_gtk_file_chooser_set_current_folder(GtkFileChooser *chooser,
 		const gchar *filename);
-gboolean gtk_file_chooser_set_filename(GtkFileChooser *chooser,
+gboolean fp_gtk_file_chooser_set_filename(GtkFileChooser *chooser,
 		const char *filename);
-void gtk_file_filter_add_custom(GtkFileFilter *filter,
+void fp_gtk_file_filter_add_custom(GtkFileFilter *filter,
 		GtkFileFilterFlags needed, GtkFileFilterFunc func, gpointer data,
 		GDestroyNotify notify);
-void
-gtk_file_chooser_set_filter(GtkFileChooser *chooser, GtkFileFilter *filter);
-GType gtk_file_chooser_get_type(void);
-GtkFileFilter *gtk_file_filter_new(void);
-void gtk_file_chooser_set_do_overwrite_confirmation(GtkFileChooser *chooser,
+void fp_gtk_file_chooser_set_filter(GtkFileChooser *chooser, GtkFileFilter *filter);
+GType fp_gtk_file_chooser_get_type(void);
+GtkFileFilter *fp_gtk_file_filter_new(void);
+void fp_gtk_file_chooser_set_do_overwrite_confirmation(GtkFileChooser *chooser,
 		gboolean do_overwrite_confirmation);
-gulong g_signal_connect_data(gpointer instance, const gchar *detailed_signal,
+gulong fp_g_signal_connect_data(gpointer instance, const gchar *detailed_signal,
 		GCallback c_handler, gpointer data, GClosureNotify destroy_data,
 		GConnectFlags connect_flags);
+void fp_gtk_widget_show(GtkWidget *widget);
+void fp_gtk_main(void);
 
-//TODO functions from:
-///usr/include/glib-2.0/gobject
+gboolean fp_g_thread_supported();
+void fp_gdk_threads_set_lock_functions(GCallback enter_fn, GCallback leave_fn);
+void fp_g_thread_init(); //original signature: void g_thread_init(GThreadFunctions *vtable);
+void fp_gdk_threads_init(void);
+void fp_gtk_init(); //use 'gtk_init_check'
+
 #endif /* !_GTK2_INTERFACE_H */

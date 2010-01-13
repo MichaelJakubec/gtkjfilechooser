@@ -41,14 +41,14 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_init
 	(*env)->GetJavaVM(env, &java_vm) == 0;
 
 	/* init threads */
-	if (!g_thread_supported()) {
-		gdk_threads_set_lock_functions(&lock, &unlock);
-		g_thread_init(NULL);
+	if (!fp_g_thread_supported()) {
+		fp_gdk_threads_set_lock_functions(&lock, &unlock);
+		fp_g_thread_init();
 	}
-	gdk_threads_init();
+	fp_gdk_threads_init();
 
 	/* init gtk */
-	gtk_init(NULL, NULL);
+	fp_gtk_init();
 }
 
 static gboolean filenameFilterCallback(const GtkFileFilterInfo *filter_info,
@@ -66,7 +66,7 @@ static gboolean filenameFilterCallback(const GtkFileFilterInfo *filter_info,
 static void handle_response(GtkWidget *dialog, gint responseId, gpointer obj) {
 	char *filename = NULL;
 	if (responseId == GTK_RESPONSE_ACCEPT) {
-		filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+		filename = fp_gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
 
 		jclass cx = (*env())->GetObjectClass(env(), (jobject) obj);
 
@@ -77,13 +77,13 @@ static void handle_response(GtkWidget *dialog, gint responseId, gpointer obj) {
 				(*env())->NewStringUTF(env(), filename);
 
 		(*env())->CallVoidMethod(env(), obj, id, jfilename);
-		g_free(filename);
+		//g_free(filename);
 	}
 
-	gtk_widget_hide(dialog);
-	gtk_widget_destroy(dialog);
+	fp_gtk_widget_hide(dialog);
+	fp_gtk_widget_destroy(dialog);
 	//gdk_window_destroy(dialog->window);
-	gtk_main_quit();
+	fp_gtk_main_quit();
 }
 
 /*
@@ -96,26 +96,26 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_start(JNIEnv *env,
 		jobject jfilter) {
 
 	global_lock = (*env)->NewGlobalRef(env, jpeer);
-	gdk_threads_enter();
+	fp_gdk_threads_enter();
 
 	const char *title = (*env)->GetStringUTFChars(env, jtitle, 0);
 
 	GtkWidget *dialog;
 	if (mode == 1) {
-		dialog = gtk_file_chooser_dialog_new(title, NULL,
+		dialog = fp_gtk_file_chooser_dialog_new(title, NULL,
 				GTK_FILE_CHOOSER_ACTION_SAVE, GTK_STOCK_CANCEL,
 				GTK_RESPONSE_CANCEL, GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL);
 	} else if (mode == 2) {
-		dialog = gtk_file_chooser_dialog_new(title, NULL,
+		dialog = fp_gtk_file_chooser_dialog_new(title, NULL,
 				GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER, GTK_STOCK_CANCEL,
 				GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
 	} else if (mode == 3) {
-		dialog = gtk_file_chooser_dialog_new(title, NULL,
+		dialog = fp_gtk_file_chooser_dialog_new(title, NULL,
 				GTK_FILE_CHOOSER_ACTION_CREATE_FOLDER, GTK_STOCK_CANCEL,
 				GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
 	} else {
 		//Default action OPEN
-		dialog = gtk_file_chooser_dialog_new(title, NULL,
+		dialog = fp_gtk_file_chooser_dialog_new(title, NULL,
 				GTK_FILE_CHOOSER_ACTION_OPEN, GTK_STOCK_CANCEL,
 				GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
 	}
@@ -125,36 +125,36 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_start(JNIEnv *env,
 	// Set the directory
 	if (jdir != NULL) {
 		const char *dir = (*env)->GetStringUTFChars(env, jdir, 0);
-		gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), dir);
+		fp_gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), dir);
 		(*env)->ReleaseStringUTFChars(env, jdir, dir);
 	}
 
 	// Set the filename
 	if (jfile != NULL) {
 		const char *filename = (*env)->GetStringUTFChars(env, jfile, 0);
-		gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dialog), filename);
+		fp_gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(dialog), filename);
 		(*env)->ReleaseStringUTFChars(env, jfile, filename);
 	}
 
 	// Set the file filter
 	if (jfilter != NULL) {
 		GtkFileFilter *filter;
-		filter = gtk_file_filter_new();
-		gtk_file_filter_add_custom(filter, GTK_FILE_FILTER_FILENAME,
+		filter = fp_gtk_file_filter_new();
+		fp_gtk_file_filter_add_custom(filter, GTK_FILE_FILTER_FILENAME,
 				filenameFilterCallback, jpeer, NULL);
-		gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filter);
+		fp_gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filter);
 	}
 
 
 	//Other Properties
-#if GTK_MINOR_VERSION >= 8
-	gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER(dialog), TRUE);
-#endif
+	if (gtk2_check_version(2, 8, 0)) {
+		fp_gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER(dialog), TRUE);
+	}
 
-	g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(handle_response),
+	fp_g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(handle_response),
 			jpeer);
-	gtk_widget_show(dialog);
+	fp_gtk_widget_show(dialog);
 
-	gtk_main();
-	gdk_threads_leave();
+	fp_gtk_main();
+	fp_gdk_threads_leave();
 }
