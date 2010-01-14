@@ -6,11 +6,11 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 public class GtkFileDialogPeer implements FileDialogPeer {
-	private FileDialog fd;
+	private FileDialog target;
 
-	public GtkFileDialogPeer(FileDialog fd) {
+	public GtkFileDialogPeer(FileDialog target) {
 		super();
-		this.fd = fd;
+		this.target = target;
 	}
 
 	static native void init();
@@ -19,9 +19,9 @@ public class GtkFileDialogPeer implements FileDialogPeer {
 
 	@Override
 	public void setFile(String filename) {
-		File file = new File(filename);
-		fd.setFile(file.getName());
-		fd.setDirectory(file.getParent() + File.separator);
+		File filen = new File(filename);
+		target.setFile(filen.getName());
+		target.setDirectory(filen.getParent() + File.separator);
 	}
 
 	@Override
@@ -36,19 +36,19 @@ public class GtkFileDialogPeer implements FileDialogPeer {
 
 	public void setVisible(boolean vis) {
 		if (vis) {
-			start(fd.getTitle(), fd.getMode(), fd.getDirectory(),
-					fd.getFile(), fd.getFilenameFilter());
+			start(target.getTitle(), target.getMode(), target.getDirectory(),
+					target.getFile(), target.getFilenameFilter());
 		}
 	}
 
 	boolean filenameFilterCallback(String fullname) {		
-		if (fd.getFilenameFilter() == null) {
+		if (target.getFilenameFilter() == null) {
 			// no filter, accept all.
 			return true;
 		}
 		
-		File file = new File(fullname);
-		return fd.getFilenameFilter().accept(new File(file.getParent()), file.getName());
+		File filen = new File(fullname);
+		return target.getFilenameFilter().accept(new File(filen.getParent()), filen.getName());
 	}
 
 	public void dispose() {
