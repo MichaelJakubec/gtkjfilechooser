@@ -110,7 +110,7 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_start(JNIEnv *env,
 		jobject jfilter) {
 
 	global_lock = (*env)->NewGlobalRef(env, jpeer);
-	fp_gdk_threads_enter();
+	//fp_gdk_threads_enter();
 
 	const char *title = (*env)->GetStringUTFChars(env, jtitle, 0);
 
@@ -170,5 +170,5 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_start(JNIEnv *env,
 	fp_gtk_widget_show(dialog);
 
 	fp_gtk_main();
-	fp_gdk_threads_leave();
+	//fp_gdk_threads_leave();
 }
