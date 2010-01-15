@@ -1,6 +1,7 @@
 #include <jni.h>
+#include <stdio.h>
 #include "gtk2_interface.h"
-#include "sun_awt_X11_GtkFileDialogPeer.h"
+#include "awt_GtkFileDialogPeer.h"
 
 /**
  * The global AWT lock object.
@@ -19,15 +20,20 @@ JNIEnv *env() {
 	return tmp.jni_env;
 }
 
+static void log(char *text) {
+	//TODO use logging instead of printf
+	printf("%s\n", text);
+}
+
 static void lock() {
 	if ((*env())->MonitorEnter(env(), global_lock) != JNI_OK) {
-		g_print("failure while entering GTK monitor\n");
+		log("failure while entering GTK monitor\n");
 	}
 }
 
 static void unlock() {
 	if ((*env())->MonitorExit(env(), global_lock)) {
-		g_print("failure while exiting GTK monitor\n");
+		log("failure while exiting GTK monitor\n");
 	}
 }
 
@@ -40,15 +46,23 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_init
 (JNIEnv *env, jclass cls) {
 	(*env)->GetJavaVM(env, &java_vm) == 0;
 
+	log("Init..");
+
 	/* init threads */
-	if (!fp_g_thread_supported()) {
-		fp_gdk_threads_set_lock_functions(&lock, &unlock);
-		fp_g_thread_init();
-	}
-	fp_gdk_threads_init();
+//	if (!fp_g_thread_supported()) {
+//		fp_gdk_threads_set_lock_functions(&lock, &unlock);
+//		fp_g_thread_init(NULL);
+//	}
+//	fp_gdk_threads_init();
 
 	/* init gtk */
-	fp_gtk_init();
+//	fp_gtk_init(NULL, NULL);
+
+	if (gtk2_load()) {
+		log("Init successfully");
+	} else {
+		log("Init failed");
+	}
 }
 
 static gboolean filenameFilterCallback(const GtkFileFilterInfo *filter_info,
@@ -81,7 +95,7 @@ static void handle_response(GtkWidget *dialog, gint responseId, gpointer obj) {
 	}
 
 	fp_gtk_widget_hide(dialog);
-	fp_gtk_widget_destroy(dialog);
+	fp_gtk_widget_destroy0(dialog);
 	//gdk_window_destroy(dialog->window);
 	fp_gtk_main_quit();
 }
@@ -96,7 +110,7 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_start(JNIEnv *env,
 		jobject jfilter) {
 
 	global_lock = (*env)->NewGlobalRef(env, jpeer);
-	fp_gdk_threads_enter();
+	//fp_gdk_threads_enter();
 
 	const char *title = (*env)->GetStringUTFChars(env, jtitle, 0);
 
@@ -147,14 +161,14 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_start(JNIEnv *env,
 
 
 	//Other Properties
-	if (gtk2_check_version(2, 8, 0) {
-		fp_gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER(dialog), TRUE);
-	}
+	//if (gtk2_check_version_args(2, 8, 0)) {
+	fp_gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER(dialog), TRUE);
+	//}
 
 	fp_g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(handle_response),
 			jpeer);
 	fp_gtk_widget_show(dialog);
 
 	fp_gtk_main();
-	fp_gdk_threads_leave();
+	//fp_gdk_threads_leave();
 }
