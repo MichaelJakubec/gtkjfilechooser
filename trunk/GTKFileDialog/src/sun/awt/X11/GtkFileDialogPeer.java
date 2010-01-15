@@ -6,19 +6,13 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 public class GtkFileDialogPeer implements FileDialogPeer {
-	
-	static {
-		GtkFileDialogPeer.init();
-	}
-	
+		
 	private FileDialog target;
 
 	public GtkFileDialogPeer(FileDialog target) {
 		super();
 		this.target = target;
 	}
-
-	static native void init();
 
 	native void start(String title, int mode, String dir, String file, FilenameFilter filter);
 

@@ -8,7 +8,6 @@ public class GtkFileDialog extends FileDialog {
 	static {
 		System.load(new File("native/bin/libGtkFileDialogPeer.so").getAbsolutePath());
 		System.load(new File("native/bin/libGtk2Interface.so").getAbsolutePath());
-		GtkFileDialogPeer.init();
 	}
 
 	private static final long serialVersionUID = 1L;

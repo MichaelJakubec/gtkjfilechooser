@@ -9,14 +9,6 @@ extern "C" {
 #endif
 /*
  * Class:     sun_awt_X11_GtkFileDialogPeer
- * Method:    init
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_init
-  (JNIEnv *, jclass);
-
-/*
- * Class:     sun_awt_X11_GtkFileDialogPeer
  * Method:    start
  * Signature: (Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/io/FilenameFilter;)V
  */
