@@ -569,6 +569,13 @@ const char *getStrFor(JNIEnv *env, jstring value);
  */
 gboolean gtk2_check_version();
 
+/**
+ * Returns :
+ *	NULL if the GTK+ library is compatible with the given version, or a string
+ *	describing the version mismatch.
+ */
+gchar* (*fp_gtk_check_version)(guint required_major, guint required_minor,
+		                       guint required_micro);
 /*
  * Load the gtk2 library.  If the library is already loaded this method has no
  * effect and returns success.
@@ -651,6 +658,7 @@ jobject gtk2_get_setting(JNIEnv *env, Setting property);
 void gtk2_set_range_value(WidgetType widget_type, jdouble value,
                           jdouble min, jdouble max, jdouble visible);
 
+void (*fp_g_free)(gpointer mem);
 void (*fp_g_object_unref)(gpointer object);
 int (*fp_gdk_pixbuf_get_bits_per_sample)(const GdkPixbuf *pixbuf);
 guchar *(*fp_gdk_pixbuf_get_pixels)(const GdkPixbuf *pixbuf);

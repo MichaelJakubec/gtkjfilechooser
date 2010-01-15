@@ -52,7 +52,7 @@ public class GtkFileDialogTest {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				GtkFileDialog fd = new GtkFileDialog(frame, "New File Dialog");
-				fd.setMode(0);
+				fd.setMode(1);
 				if ((new File(tf.getText())).exists()) {
 					fd.setFile(tf.getText());
 				}

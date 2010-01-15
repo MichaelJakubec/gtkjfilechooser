@@ -151,7 +151,6 @@ static GtkWidget *gtk2_widgets[_GTK_WIDGET_TYPE_SIZE];
 /*************************
  * Glib function pointers
  *************************/
-static void     (*fp_g_free)(gpointer mem);
 
 static gboolean (*fp_g_main_context_iteration)(GMainContext *context,
                                              gboolean may_block);
@@ -205,9 +204,6 @@ static void (*fp_gdk_drawable_get_size)(GdkDrawable *drawable,
 /************************
  * Gtk function pointers
  ************************/
-static gchar*   (*fp_gtk_check_version)(guint required_major,
-                                        guint required_minor,
-                                        guint required_micro);
 static gboolean (*fp_gtk_init_check)(int* argc, char** argv);
 
 /* Painting */

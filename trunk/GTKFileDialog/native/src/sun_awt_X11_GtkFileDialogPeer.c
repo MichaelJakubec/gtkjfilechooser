@@ -52,20 +52,20 @@ static gboolean filenameFilterCallback(const GtkFileFilterInfo *filter_info,
 
 static void handle_response(GtkWidget *dialog, gint responseId, gpointer obj) {
 	char *filename = NULL;
-	printf("response id: %d\n", responseId);
+
 	if (responseId == GTK_RESPONSE_ACCEPT) {
 		filename = fp_gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
 	}
 
 	jclass cx = (*env())->GetObjectClass(env(), (jobject) obj);
 
-	jmethodID id = (*env())->GetMethodID(env(), cx, "setFile",
+	jmethodID id = (*env())->GetMethodID(env(), cx, "setFileInternal",
 			"(Ljava/lang/String;)V");
 
 	jstring jfilename = (*env())->NewStringUTF(env(), filename);
 
 	(*env())->CallVoidMethod(env(), obj, id, jfilename);
-	//g_free(filename);
+	fp_g_free(filename);
 
 	fp_gtk_widget_hide(dialog);
 	fp_gtk_widget_destroy0(dialog);
@@ -73,19 +73,19 @@ static void handle_response(GtkWidget *dialog, gint responseId, gpointer obj) {
 	fp_gtk_main_quit();
 }
 
-void init(JNIEnv *env) {
+void init_GtkFileDialogPeer(JNIEnv *env) {
 	if (java_vm == NULL) {
 		if ((*env)->GetJavaVM(env, &java_vm) == 0) {
 			log_GtkFileDialogPeer("java_vm init successfully");
 		} else {
 			log_GtkFileDialogPeer("java_vm init failed");
 		}
-	}
 
-	if (gtk2_load()) {
-		log_GtkFileDialogPeer("gtk2_load init successfully");
-	} else {
-		log_GtkFileDialogPeer("gtk2_load init failed");
+		if (gtk2_load()) {
+			log_GtkFileDialogPeer("gtk2_load init successfully");
+		} else {
+			log_GtkFileDialogPeer("gtk2_load init failed");
+		}
 	}
 }
 
@@ -97,7 +97,8 @@ void init(JNIEnv *env) {
 JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_start(JNIEnv *env,
 		jobject jpeer, jstring jtitle, jint mode, jstring jdir, jstring jfile,
 		jobject jfilter) {
-	init(env);
+
+	init_GtkFileDialogPeer(env);
 
 	global_lock = (*env)->NewGlobalRef(env, jpeer);
 	//fp_gdk_threads_enter();
@@ -150,9 +151,9 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_start(JNIEnv *env,
 	}
 
 	//Other Properties
-	//if (gtk2_check_version_args(2, 8, 0)) {
-	fp_gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER(dialog), TRUE);
-	//}
+	if (fp_gtk_check_version(2, 8, 0) == NULL) {
+		fp_gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER(dialog), TRUE);
+	}
 
 	fp_g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(handle_response),
 			jpeer);
