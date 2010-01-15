@@ -1,6 +1,7 @@
 #include <jni.h>
 #include <stdio.h>
 #include "gtk2_interface.h"
+#include "gtk_file_chooser_interface.h"
 #include "sun_awt_X11_GtkFileDialogPeer.h"
 
 /**
@@ -34,34 +35,6 @@ static void lock() {
 static void unlock() {
 	if ((*env())->MonitorExit(env(), global_lock)) {
 		log_GtkFileDialogPeer("failure while exiting GTK monitor\n");
-	}
-}
-
-/*
- * Class:     sun_awt_X11_GtkFileDialogPeer
- * Method:    init
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_init
-(JNIEnv *env, jclass cls) {
-	(*env)->GetJavaVM(env, &java_vm) == 0;
-
-	log_GtkFileDialogPeer("Init..");
-
-	/* init threads */
-	//	if (!fp_g_thread_supported()) {
-	//		fp_gdk_threads_set_lock_functions(&lock, &unlock);
-	//		fp_g_thread_init(NULL);
-	//	}
-	//	fp_gdk_threads_init();
-
-	/* init gtk */
-	//	fp_gtk_init(NULL, NULL);
-
-	if (gtk2_load()) {
-		log_GtkFileDialogPeer("*** Init successfully ***");
-	} else {
-		log_GtkFileDialogPeer("Init failed");
 	}
 }
 
@@ -100,6 +73,22 @@ static void handle_response(GtkWidget *dialog, gint responseId, gpointer obj) {
 	fp_gtk_main_quit();
 }
 
+void init(JNIEnv *env) {
+	if (java_vm == NULL) {
+		if ((*env)->GetJavaVM(env, &java_vm) == 0) {
+			log_GtkFileDialogPeer("java_vm init successfully");
+		} else {
+			log_GtkFileDialogPeer("java_vm init failed");
+		}
+	}
+
+	if (gtk2_load()) {
+		log_GtkFileDialogPeer("gtk2_load init successfully");
+	} else {
+		log_GtkFileDialogPeer("gtk2_load init failed");
+	}
+}
+
 /*
  * Class:     sun_awt_X11_GtkFileDialogPeer
  * Method:    start
@@ -108,6 +97,7 @@ static void handle_response(GtkWidget *dialog, gint responseId, gpointer obj) {
 JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_start(JNIEnv *env,
 		jobject jpeer, jstring jtitle, jint mode, jstring jdir, jstring jfile,
 		jobject jfilter) {
+	init(env);
 
 	global_lock = (*env)->NewGlobalRef(env, jpeer);
 	//fp_gdk_threads_enter();

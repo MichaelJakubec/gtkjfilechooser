@@ -4,11 +4,6 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 public class GtkFileDialogPeerTest {
-	static {
-		System.load(new File("native/bin/libGtkFileDialogPeer.so").getAbsolutePath());
-		GtkFileDialogPeer.init();
-	}
-
 	public static void main(String[] args) throws Exception {
 		GtkFileDialog fd = new GtkFileDialog(null, "My File Dialog");
 		fd.setMode(GtkFileDialog.SELECT_FOLDER);
