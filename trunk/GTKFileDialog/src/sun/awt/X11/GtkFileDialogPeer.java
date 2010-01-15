@@ -6,6 +6,11 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 public class GtkFileDialogPeer implements FileDialogPeer {
+	
+	static {
+		GtkFileDialogPeer.init();
+	}
+	
 	private FileDialog target;
 
 	public GtkFileDialogPeer(FileDialog target) {
@@ -19,9 +24,14 @@ public class GtkFileDialogPeer implements FileDialogPeer {
 
 	@Override
 	public void setFile(String filename) {
-		File filen = new File(filename);
-		target.setFile(filen.getName());
-		target.setDirectory(filen.getParent() + File.separator);
+		if (filename == null) {
+			target.setFile(null);
+			target.setDirectory(null);
+		} else {
+			File filen = new File(filename);
+			target.setFile(filen.getName());
+			target.setDirectory(filen.getParent() + File.separator);
+		}
 	}
 
 	@Override

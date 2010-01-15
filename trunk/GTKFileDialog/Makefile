@@ -45,7 +45,7 @@ libGtk2Interface.so:
 	$(CC) -o $(C_BIN)/libGtk2Interface.so -shared -Wl,-soname,$(C_BIN)/libGtk2Interface.so \
 	-I${JAVA_HOME}/include -I${JAVA_HOME}/include/linux -I/usr/include/ \
 	$(C_SRC)/gtk2_interface.c \
-	-ldl -lX11
+	
 	
 libGtkFileDialogPeer.so: libGtk2Interface.so
 	$(CC) -o $(C_BIN)/libGtkFileDialogPeer.so -shared -Wl,-soname,$(C_BIN)/libGtkFileDialogPeer.so \
@@ -73,4 +73,4 @@ copy:
 		
 test_file_dialog:
 	$(ALT_JDK_IMPORT_PATH)/bin/javac -d $(JAVA_BIN) test/sun/awt/X11/FileDialogTest.java
-	$(ALT_JDK_IMPORT_PATH)/bin/java -cp bin sun.awt.X11.FileDialogTest 
+	$(ALT_JDK_IMPORT_PATH)/bin/java -cp $(JAVA_BIN) sun.awt.X11.FileDialogTest 

@@ -568,37 +568,28 @@ gboolean gtk2_load() {
 		/**
 		 * Functions for awt_GtkFileDialogPeer.c
 		 */
-		fp_gtk_file_chooser_get_filename = dl_symbol(
-				"gtk_file_chooser_get_filename");
+		fp_gtk_file_chooser_get_filename = dl_symbol("gtk_file_chooser_get_filename");
 		fp_gtk_widget_hide = dl_symbol("gtk_widget_hide");
 		fp_gtk_widget_destroy0 = dl_symbol("gtk_widget_destroy");
 		fp_gtk_main_quit = dl_symbol("gtk_main_quit");
-		fp_gdk_threads_enter = dl_symbol("gdk_threads_enter");
-		fp_gdk_threads_leave = dl_symbol("gdk_threads_leave");
-		fp_gtk_file_chooser_dialog_new = dl_symbol(
-				"gtk_file_chooser_dialog_new");
-		fp_gtk_file_chooser_set_current_folder = dl_symbol(
-				"gtk_file_chooser_set_current_folder");
-		fp_gtk_file_chooser_set_filename = dl_symbol(
-				"gtk_file_chooser_set_filename");
+		fp_gtk_file_chooser_dialog_new = dl_symbol("gtk_file_chooser_dialog_new");
+		fp_gtk_file_chooser_set_current_folder = dl_symbol("gtk_file_chooser_set_current_folder");
+		fp_gtk_file_chooser_set_filename = dl_symbol("gtk_file_chooser_set_filename");
 		fp_gtk_file_filter_add_custom = dl_symbol("gtk_file_filter_add_custom");
-		fp_gtk_file_chooser_set_filter = dl_symbol(
-				"gtk_file_chooser_set_filter");
+		fp_gtk_file_chooser_set_filter = dl_symbol("gtk_file_chooser_set_filter");
 		fp_gtk_file_chooser_get_type = dl_symbol("gtk_file_chooser_get_type");
 		fp_gtk_file_filter_new = dl_symbol("gtk_file_filter_new");
-		fp_gtk_file_chooser_set_do_overwrite_confirmation = dl_symbol(
-				"gtk_file_chooser_set_do_overwrite_confirmation");
+		fp_gtk_file_chooser_set_do_overwrite_confirmation = dl_symbol("gtk_file_chooser_set_do_overwrite_confirmation");
 		fp_g_signal_connect_data = dl_symbol("g_signal_connect_data");
 		fp_gtk_widget_show = dl_symbol("gtk_widget_show");
 		fp_gtk_main = dl_symbol("gtk_main");
-		fp_g_thread_supported = dl_symbol("g_thread_supported");
-		fp_gdk_threads_set_lock_functions = dl_symbol(
-				"gdk_threads_set_lock_functions");
-		//original signature: void g_thread_init(GThreadFunctions *vtable);
-		fp_g_thread_init = dl_symbol("g_thread_init");
+
+		fp_gdk_threads_enter = dl_symbol("gdk_threads_enter");
+		fp_gdk_threads_leave = dl_symbol("gdk_threads_leave");
 		fp_gdk_threads_init = dl_symbol("gdk_threads_init");
-		//use 'gtk_init_check'
-		fp_gtk_init = dl_symbol("gtk_init");
+		fp_gdk_threads_set_lock_functions = dl_symbol("gdk_threads_set_lock_functions");
+		//fp_g_thread_supported = dl_symbol("g_thread_supported");
+		//fp_g_thread_init = dl_symbol("g_thread_init");
 
 		/* Some functions may be missing in pre-2.4 GTK.
 		 We handle them specially here.
