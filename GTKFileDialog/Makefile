@@ -18,7 +18,7 @@ JAVA_HOME=/usr/java/default
 
 NATIVE_SUN_AWT=/home/c.cerbo/openjdk/jdk7/mytl/jdk/src/solaris/native/sun/awt
 
-ALT_JDK_IMPORT_PATH=/home/c.cerbo/openjdk/jdk7/mytl/build/linux-i586/j2sdk-image
+ALT_JDK_IMPORT_PATH=/home/c.cerbo/openjdk/jdk7/mytl/build/linux-i586
 
 all: build
 
@@ -65,12 +65,13 @@ build.test: build
 test: build.test
 	${JAVA_HOME}/bin/java -cp $(JAVA_BIN) sun.awt.X11.GtkFileDialogTest
 
-copy:
-	cp $(C_SRC)/sun_awt_X11_GtkFileDialogPeer.c $(NATIVE_SUN_AWT)
+copy:	
 	cp $(C_SRC)/sun_awt_X11_GtkFileDialogPeer.h $(NATIVE_SUN_AWT)
-	cp $(C_SRC)/gtk2_interface.c $(NATIVE_SUN_AWT)
+	cp $(C_SRC)/sun_awt_X11_GtkFileDialogPeer.c $(NATIVE_SUN_AWT)	
+	cp $(C_SRC)/gtk_file_chooser_interface.h $(NATIVE_SUN_AWT)
 	cp $(C_SRC)/gtk2_interface.h $(NATIVE_SUN_AWT)
+	cp $(C_SRC)/gtk2_interface.c $(NATIVE_SUN_AWT)
 		
 test_file_dialog:
 	$(ALT_JDK_IMPORT_PATH)/bin/javac -d $(JAVA_BIN) test/sun/awt/X11/FileDialogTest.java
-	$(ALT_JDK_IMPORT_PATH)/bin/java -cp $(JAVA_BIN) sun.awt.X11.FileDialogTest 
+	$(ALT_JDK_IMPORT_PATH)/bin/java -cp $(JAVA_BIN) sun.awt.X11.FileDialogTest
