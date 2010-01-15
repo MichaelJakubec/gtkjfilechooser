@@ -56,9 +56,11 @@ public class GtkFileDialogTest {
 				if ((new File(tf.getText())).exists()) {
 					fd.setFile(tf.getText());
 				}
-//				fd.setFilenameFilter(createTextFileFilter());
+				//fd.setFilenameFilter(createTextFileFilter());
 				fd.setVisible(true);
 
+				System.out.println("dir: " + fd.getDirectory());
+				System.out.println("file: " + fd.getFile());
 				if (fd.getFile() != null) {
 					tf.setText(fd.getDirectory()+fd.getFile());
 				}
@@ -80,7 +82,9 @@ public class GtkFileDialogTest {
 //				fd.setFilenameFilter(createTextFileFilter());
 				fd.setVisible(true);
 
-				if (fd.getFile() != null) {
+				System.out.println("dir: " + fd.getDirectory());
+				System.out.println("file: " + fd.getFile());
+				if (fd.getFile() != null) {					
 					tf.setText(fd.getDirectory()+ fd.getFile());
 				}
 			}
