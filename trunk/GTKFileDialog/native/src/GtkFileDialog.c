@@ -1,10 +1,20 @@
 #include <gtk/gtk.h>
 #include <string.h>
+#include <dlfcn.h>
+
+#define GTK2_LIB "libgtk-x11-2.0.so.0"
+#define GTHREAD_LIB "libgthread.so"
+
+static void *gtk2_libhandle = NULL;
+static void *gthread_libhandle = NULL;
 
 GtkWidget *dialog;
 GtkWidget *window;
 
 const char* _title;
+
+void (*fp_gtk_init)(int *argc, char ***argv);
+void (*fp_g_thread_init)(GThreadFunctions *vtable);
 
 void set_directory(const char *directory) {
 	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), directory);
@@ -27,12 +37,20 @@ void set_mode(int mode) {
 }
 
 void init(const char* title) {
-	/* init threads */
-	if (!g_thread_supported()) {
-		g_thread_init(NULL);
-	}
+    gtk2_libhandle = dlopen(GTK2_LIB, RTLD_LAZY | RTLD_LOCAL);
+    gthread_libhandle = dlopen(GTHREAD_LIB, RTLD_LAZY | RTLD_LOCAL);
 
-	gtk_init(NULL, NULL);
+	/* init threads */
+	//if (!g_thread_supported()) {
+		g_thread_init(NULL);
+	//}
+
+	//fp_g_thread_init = dlsym(gthread_libhandle, "g_thread_init");
+	//fp_g_thread_init(NULL);
+
+	fp_gtk_init = dlsym(gtk2_libhandle, "gtk_init");
+	fp_gtk_init(NULL, NULL);
+	//gtk_init(NULL, NULL);
 
 	_title = title;
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
