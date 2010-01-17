@@ -83,10 +83,7 @@ typedef enum {
  */
 gchar* (*fp_gtk_file_chooser_get_filename)(GtkFileChooser *chooser);
 void (*fp_gtk_widget_hide)(GtkWidget *widget);
-void (*fp_gtk_widget_destroy0)(GtkWidget *widget);
 void (*fp_gtk_main_quit)(void);
-void (*fp_gdk_threads_enter)(void);
-void (*fp_gdk_threads_leave)(void);
 GtkWidget* (*fp_gtk_file_chooser_dialog_new)(const gchar *title,
 		GtkWindow *parent, GtkFileChooserAction action,
 		const gchar *first_button_text, ...);
