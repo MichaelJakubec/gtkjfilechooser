@@ -27,7 +27,13 @@ void set_mode(int mode) {
 }
 
 void init(const char* title) {
+	/* init threads */
+	if (!g_thread_supported()) {
+		g_thread_init(NULL);
+	}
+
 	gtk_init(NULL, NULL);
+
 	_title = title;
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
@@ -52,13 +58,11 @@ const char* run() {
 	return filename;
 }
 
-static void handle_response(GtkDialog *dialog __attribute__((unused)), gint responseId, char *_filename) {
+static void handle_response(GtkDialog *dialog __attribute__((unused)), gint responseId, gpointer data) {
 	char *filename = NULL;
 	if (responseId == GTK_RESPONSE_ACCEPT) {
 		filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-		g_print("C->Filename 1: %s\n", filename);
-
-		_filename = *filename;
+		g_print("Filename: %s\n", filename);
 	}
 	gtk_widget_hide(GTK_WIDGET(dialog));
 	gtk_main_quit();
@@ -75,15 +79,10 @@ int main(int argc, char *argv[]) {
 
 	//set_filter("*.txt", "Only text files");
 
-	char *filename = NULL;
 	g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(handle_response),
-			filename);
+			NULL);
 	gtk_widget_show(dialog);
 	gtk_main();
-
-	g_print("C->Filename 2: %s\n", filename);
-	//const char *filename = run();
-	//g_print("Filename: %s\n", filename);
 
 	return 0;
 }
