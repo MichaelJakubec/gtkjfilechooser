@@ -8,10 +8,6 @@
 #define G_TYPE_CHECK_INSTANCE_CAST(instance, g_type, c_type)    (_G_TYPE_CIC ((instance), (g_type), c_type))
 #define GTK_TYPE_FILE_CHOOSER             (fp_gtk_file_chooser_get_type ())
 #define GTK_FILE_CHOOSER(obj) (G_TYPE_CHECK_INSTANCE_CAST ((obj), GTK_TYPE_FILE_CHOOSER, GtkFileChooser))
-
-#define GTK_STOCK_CANCEL           "gtk-cancel"
-#define GTK_STOCK_SAVE             "gtk-save"
-#define GTK_STOCK_OPEN             "gtk-open"
 #define fp_g_signal_connect(instance, detailed_signal, c_handler, data) \
     fp_g_signal_connect_data ((instance), (detailed_signal), (c_handler), (data), NULL, (GConnectFlags) 0)
 #define	G_CALLBACK(f) ((GCallback) (f))
@@ -19,26 +15,15 @@
 #define	G_TYPE_MAKE_FUNDAMENTAL(x)	((GType) ((x) << G_TYPE_FUNDAMENTAL_SHIFT))
 #define G_TYPE_OBJECT G_TYPE_MAKE_FUNDAMENTAL (20)
 #define G_OBJECT(object) (G_TYPE_CHECK_INSTANCE_CAST ((object), G_TYPE_OBJECT, GObject))
+#define GTK_STOCK_CANCEL           "gtk-cancel"
+#define GTK_STOCK_SAVE             "gtk-save"
+#define GTK_STOCK_OPEN             "gtk-open"
 
 typedef enum {
-	/* GTK returns this if a response widget has no response_id,
-	 * or if the dialog gets programmatically hidden or destroyed.
-	 */
 	GTK_RESPONSE_NONE = -1,
-
-	/* GTK won't return these unless you pass them in
-	 * as the response for an action widget. They are
-	 * for your convenience.
-	 */
 	GTK_RESPONSE_REJECT = -2,
 	GTK_RESPONSE_ACCEPT = -3,
-
-	/* If the dialog is deleted. */
 	GTK_RESPONSE_DELETE_EVENT = -4,
-
-	/* These are returned from GTK dialogs, and you can also use them
-	 * yourself if you like.
-	 */
 	GTK_RESPONSE_OK = -5,
 	GTK_RESPONSE_CANCEL = -6,
 	GTK_RESPONSE_CLOSE = -7,
@@ -92,8 +77,9 @@ typedef enum {
 	G_CONNECT_AFTER = 1 << 0, G_CONNECT_SWAPPED = 1 << 1
 } GConnectFlags;
 
+
 /**
- * Functions for awt_GtkFileDialogPeer.c
+ * Function Pointers for GtkFileChooser
  */
 gchar* (*fp_gtk_file_chooser_get_filename)(GtkFileChooser *chooser);
 void (*fp_gtk_widget_hide)(GtkWidget *widget);
@@ -122,14 +108,5 @@ gulong (*fp_g_signal_connect_data)(gpointer instance,
 		GClosureNotify destroy_data, GConnectFlags connect_flags);
 void (*fp_gtk_widget_show)(GtkWidget *widget);
 void (*fp_gtk_main)(void);
-
-gboolean (*fp_g_thread_supported)();
-void (*fp_gdk_threads_set_lock_functions)(GCallback enter_fn,
-		GCallback leave_fn);
-//original signature: void g_thread_init(GThreadFunctions *vtable);
-void (*fp_g_thread_init)(gpointer vtable);
-void (*fp_gdk_threads_init)(void);
-//use 'gtk_init_check'
-void (*fp_gtk_init)(int *argc, char ***argv);
 
 #endif /* !_GTK_FILE_CHOOSER_INTERFACE_H */

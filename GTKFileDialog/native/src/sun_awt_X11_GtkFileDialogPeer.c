@@ -4,10 +4,6 @@
 #include "gtk_file_chooser_interface.h"
 #include "sun_awt_X11_GtkFileDialogPeer.h"
 
-/**
- * The global AWT lock object.
- */
-static jobject global_lock;
 static JavaVM *java_vm;
 
 union env_union {
@@ -19,23 +15,6 @@ JNIEnv *env() {
 	union env_union tmp;
 	(*java_vm)->GetEnv(java_vm, &tmp.void_env, JNI_VERSION_1_2) == JNI_OK;
 	return tmp.jni_env;
-}
-
-static void log_GtkFileDialogPeer(char *text) {
-	//TODO use logging instead of printf
-	printf("%s\n", text);
-}
-
-static void lock() {
-	if ((*env())->MonitorEnter(env(), global_lock) != JNI_OK) {
-		log_GtkFileDialogPeer("failure while entering GTK monitor\n");
-	}
-}
-
-static void unlock() {
-	if ((*env())->MonitorExit(env(), global_lock)) {
-		log_GtkFileDialogPeer("failure while exiting GTK monitor\n");
-	}
 }
 
 static gboolean filenameFilterCallback(const GtkFileFilterInfo *filter_info,
@@ -68,24 +47,14 @@ static void handle_response(GtkWidget *dialog, gint responseId, gpointer obj) {
 	fp_g_free(filename);
 
 	fp_gtk_widget_hide(dialog);
-	fp_gtk_widget_destroy0(dialog);
-	//gdk_window_destroy(dialog->window);
+	fp_gtk_widget_destroy(dialog);
 	fp_gtk_main_quit();
 }
 
 void init_GtkFileDialogPeer(JNIEnv *env) {
 	if (java_vm == NULL) {
-		if ((*env)->GetJavaVM(env, &java_vm) == 0) {
-			log_GtkFileDialogPeer("java_vm init successfully");
-		} else {
-			log_GtkFileDialogPeer("java_vm init failed");
-		}
-
-		if (gtk2_load()) {
-			log_GtkFileDialogPeer("gtk2_load init successfully");
-		} else {
-			log_GtkFileDialogPeer("gtk2_load init failed");
-		}
+		(*env)->GetJavaVM(env, &java_vm);
+		gtk2_load();
 	}
 }
 
@@ -100,26 +69,16 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_start(JNIEnv *env,
 
 	init_GtkFileDialogPeer(env);
 
-	global_lock = (*env)->NewGlobalRef(env, jpeer);
-	//fp_gdk_threads_enter();
-
 	const char *title = (*env)->GetStringUTFChars(env, jtitle, 0);
 
 	GtkWidget *dialog;
 	if (mode == 1) {
+		// Save action
 		dialog = fp_gtk_file_chooser_dialog_new(title, NULL,
 				GTK_FILE_CHOOSER_ACTION_SAVE, GTK_STOCK_CANCEL,
 				GTK_RESPONSE_CANCEL, GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL);
-	} else if (mode == 2) {
-		dialog = fp_gtk_file_chooser_dialog_new(title, NULL,
-				GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER, GTK_STOCK_CANCEL,
-				GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
-	} else if (mode == 3) {
-		dialog = fp_gtk_file_chooser_dialog_new(title, NULL,
-				GTK_FILE_CHOOSER_ACTION_CREATE_FOLDER, GTK_STOCK_CANCEL,
-				GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
 	} else {
-		//Default action OPEN
+		// Default action OPEN
 		dialog = fp_gtk_file_chooser_dialog_new(title, NULL,
 				GTK_FILE_CHOOSER_ACTION_OPEN, GTK_STOCK_CANCEL,
 				GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
@@ -160,5 +119,4 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_start(JNIEnv *env,
 	fp_gtk_widget_show(dialog);
 
 	fp_gtk_main();
-	//fp_gdk_threads_leave();
 }
