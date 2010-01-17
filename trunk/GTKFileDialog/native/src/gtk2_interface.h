@@ -668,5 +668,6 @@ int (*fp_gdk_pixbuf_get_n_channels)(const GdkPixbuf *pixbuf);
 int (*fp_gdk_pixbuf_get_rowstride)(const GdkPixbuf *pixbuf);
 int (*fp_gdk_pixbuf_get_width)(const GdkPixbuf *pixbuf);
 GdkPixbuf *(*fp_gdk_pixbuf_new_from_file)(const char *filename, GError **error);
+void (*fp_gtk_widget_destroy)(GtkWidget *widget);
 
 #endif /* !_GTK2_INTERFACE_H */

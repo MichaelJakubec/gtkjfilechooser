@@ -32,7 +32,7 @@ clean:
 
 GtkFileDialog: init
 	$(CC) -Wall -g $(C_SRC)/GtkFileDialog.c -o $(C_BIN)/GtkFileDialog `pkg-config --cflags gtk+-2.0` \
-	`pkg-config --libs gtk+-2.0`
+	`pkg-config --libs gtk+-2.0` -lgthread-2.0
 	
 libGtkFileDialogPeer.so.old:
 	$(CC) -o $(C_BIN)/libGtkFileDialogPeer.so -shared -Wl,-soname,$(C_BIN)/libGtkFileDialogPeer.so \

@@ -327,7 +327,6 @@ static void (*fp_gtk_menu_shell_append)(GtkMenuShell *menu_shell,
 static void (*fp_gtk_menu_item_set_submenu)(GtkMenuItem *menu_item,
         GtkWidget *submenu);
 static void (*fp_gtk_widget_realize)(GtkWidget *widget);
-static void (*fp_gtk_widget_destroy)(GtkWidget *widget);
 static GdkPixbuf* (*fp_gtk_widget_render_icon)(GtkWidget *widget,
         const gchar *stock_id, GtkIconSize size, const gchar *detail);
 static void (*fp_gtk_widget_set_name)(GtkWidget *widget, const gchar *name);
@@ -412,12 +411,11 @@ gboolean gtk2_check_version()
 }
 
 /**
- * Functions for awt_GtkFileDialogPeer.c
+ * Functions for sun_awt_X11_GtkFileDialogPeer.c
  */
 void gtk_file_chooser_load() {
 	fp_gtk_file_chooser_get_filename = dl_symbol("gtk_file_chooser_get_filename");
 	fp_gtk_widget_hide = dl_symbol("gtk_widget_hide");
-	fp_gtk_widget_destroy0 = dl_symbol("gtk_widget_destroy");
 	fp_gtk_main_quit = dl_symbol("gtk_main_quit");
 	fp_gtk_file_chooser_dialog_new = dl_symbol("gtk_file_chooser_dialog_new");
 	fp_gtk_file_chooser_set_current_folder = dl_symbol("gtk_file_chooser_set_current_folder");
@@ -430,13 +428,6 @@ void gtk_file_chooser_load() {
 	fp_g_signal_connect_data = dl_symbol("g_signal_connect_data");
 	fp_gtk_widget_show = dl_symbol("gtk_widget_show");
 	fp_gtk_main = dl_symbol("gtk_main");
-
-	fp_gdk_threads_enter = dl_symbol("gdk_threads_enter");
-	fp_gdk_threads_leave = dl_symbol("gdk_threads_leave");
-	fp_gdk_threads_init = dl_symbol("gdk_threads_init");
-	fp_gdk_threads_set_lock_functions = dl_symbol("gdk_threads_set_lock_functions");
-	//fp_g_thread_supported = dl_symbol("g_thread_supported");
-	//fp_g_thread_init = dl_symbol("g_thread_init");
 }
 
 gboolean gtk2_load()
@@ -448,6 +439,7 @@ gboolean gtk2_load()
     char *gtk_modules_env;
 
     gtk2_libhandle = dlopen(GTK2_LIB, RTLD_LAZY | RTLD_LOCAL);
+
     if (gtk2_libhandle == NULL)
         return FALSE;
 
@@ -622,6 +614,9 @@ gboolean gtk2_load()
         fp_gtk_range_get_adjustment =
             dl_symbol("gtk_range_get_adjustment");
 
+        /**
+         * Functions for sun_awt_X11_GtkFileDialogPeer.c
+         */
         gtk_file_chooser_load();
 
         /* Some functions may be missing in pre-2.4 GTK.

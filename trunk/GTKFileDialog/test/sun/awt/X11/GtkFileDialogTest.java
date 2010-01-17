@@ -21,7 +21,9 @@ public class GtkFileDialogTest {
 		GtkFileDialog fd = new GtkFileDialog(null, "My File Dialog");
 		fd.setMode(0);
 		fd.setVisible(true);
-		System.out.println("File: " + fd.getFile());
+		
+		System.out.println("dir: " + fd.getDirectory());
+		System.out.println("file: " + fd.getFile());
 	}
 
 	public void testInFrame() {
@@ -52,7 +54,7 @@ public class GtkFileDialogTest {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				GtkFileDialog fd = new GtkFileDialog(frame, "New File Dialog");
-				fd.setMode(1);
+				fd.setMode(0);
 				if ((new File(tf.getText())).exists()) {
 					fd.setFile(tf.getText());
 				}
@@ -113,8 +115,8 @@ public class GtkFileDialogTest {
 
 			@Override
 			public void run() {
-				// new GtkFileDialogTest().testAlone();
-				new GtkFileDialogTest().testInFrame();
+				new GtkFileDialogTest().testAlone();
+				//new GtkFileDialogTest().testInFrame();
 			}
 		});
 
