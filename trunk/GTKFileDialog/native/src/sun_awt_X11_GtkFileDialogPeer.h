@@ -11,18 +11,18 @@ extern "C" {
 
 /*
  * Class:     sun_awt_X11_GtkFileDialogPeer
- * Method:    show
+ * Method:    run
  * Signature: (Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/io/FilenameFilter;)V
  */
-JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_show
+JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_run
   (JNIEnv *, jobject, jstring, jint, jstring, jstring, jobject);
 
 /*
  * Class:     sun_awt_X11_GtkFileDialogPeer
- * Method:    hide
+ * Method:    quit
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_hide
+JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_quit
   (JNIEnv *, jobject);
 
 #ifdef __cplusplus
