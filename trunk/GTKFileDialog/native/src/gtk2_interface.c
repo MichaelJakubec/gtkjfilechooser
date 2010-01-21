@@ -30,7 +30,6 @@
 #include <string.h>
 #include "gtk2_interface.h"
 #include "java_awt_Transparency.h"
-#include "gtk_file_chooser_interface.h"
 
 #define GTK2_LIB "libgtk-x11-2.0.so.0"
 

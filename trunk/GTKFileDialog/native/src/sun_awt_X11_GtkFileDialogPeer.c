@@ -1,7 +1,6 @@
 #include <jni.h>
 #include <stdio.h>
 #include "gtk2_interface.h"
-#include "gtk_file_chooser_interface.h"
 #include "sun_awt_X11_GtkFileDialogPeer.h"
 
 static JavaVM *jvm;
