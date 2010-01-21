@@ -6,22 +6,23 @@
 static JavaVM *jvm;
 static GtkWidget *dialog = NULL;
 
+// In order to Cache some method IDs
+static jmethodID filenameFilterCallbackMethodID = NULL;
+static jmethodID setFileInternalMethodID = NULL;
+
 static gboolean filenameFilterCallback(const GtkFileFilterInfo *filter_info,
 		gpointer obj) {
-	static jmethodID methodID = NULL;
-
 	JNIEnv *env = (JNIEnv *) JNU_GetEnv(jvm, JNI_VERSION_1_2);
 
-	if (methodID == NULL) {
-		// Cache methodID in a static variable
+	if (filenameFilterCallbackMethodID == NULL) {
 		jclass cx = (*env)->GetObjectClass(env, (jobject) obj);
-		methodID = (*env)->GetMethodID(env, cx, "filenameFilterCallback",
+		filenameFilterCallbackMethodID = (*env)->GetMethodID(env, cx, "filenameFilterCallback",
 				"(Ljava/lang/String;)Z");
 	}
 
 	jstring filename = (*env)->NewStringUTF(env, filter_info->filename);
 
-	return (*env)->CallBooleanMethod(env, obj, methodID, filename);
+	return (*env)->CallBooleanMethod(env, obj, filenameFilterCallbackMethodID, filename);
 }
 
 void init_GtkFileDialogPeer(JNIEnv *env) {
@@ -45,6 +46,8 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_hide
 		fp_gtk_main_quit();
 		dialog = NULL;
 	}
+
+	gtk2_unload();
 }
 
 static void handle_response(GtkWidget *aDialog, gint responseId, gpointer obj) {
@@ -56,14 +59,15 @@ static void handle_response(GtkWidget *aDialog, gint responseId, gpointer obj) {
 		filename = fp_gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(aDialog));
 	}
 
-	jclass cx = (*env)->GetObjectClass(env, (jobject) obj);
-
-	jmethodID id = (*env)->GetMethodID(env, cx, "setFileInternal",
-			"(Ljava/lang/String;)V");
+	if (setFileInternalMethodID == NULL) {
+		jclass cx = (*env)->GetObjectClass(env, (jobject) obj);
+		setFileInternalMethodID = (*env)->GetMethodID(env, cx, "setFileInternal",
+				"(Ljava/lang/String;)V");
+	}
 
 	jstring jfilename = (*env)->NewStringUTF(env, filename);
 
-	(*env)->CallVoidMethod(env, obj, id, jfilename);
+	(*env)->CallVoidMethod(env, obj, setFileInternalMethodID, jfilename);
 	fp_g_free(filename);
 
 	Java_sun_awt_X11_GtkFileDialogPeer_hide(NULL, NULL);
