@@ -115,8 +115,8 @@ public class GtkFileDialogTest {
 
 			@Override
 			public void run() {
-				new GtkFileDialogTest().testAlone();
-				//new GtkFileDialogTest().testInFrame();
+				//new GtkFileDialogTest().testAlone();
+				new GtkFileDialogTest().testInFrame();
 			}
 		});
 

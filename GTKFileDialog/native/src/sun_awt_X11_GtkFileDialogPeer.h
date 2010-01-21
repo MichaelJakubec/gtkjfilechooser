@@ -7,13 +7,23 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+
 /*
  * Class:     sun_awt_X11_GtkFileDialogPeer
- * Method:    start
+ * Method:    show
  * Signature: (Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/io/FilenameFilter;)V
  */
-JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_start
+JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_show
   (JNIEnv *, jobject, jstring, jint, jstring, jstring, jobject);
+
+/*
+ * Class:     sun_awt_X11_GtkFileDialogPeer
+ * Method:    hide
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_hide
+  (JNIEnv *, jobject);
 
 #ifdef __cplusplus
 }

@@ -4,28 +4,56 @@
 #include "sun_awt_X11_GtkFileDialogPeer.h"
 
 static JavaVM *jvm;
+static GtkWidget *dialog = NULL;
 
 static gboolean filenameFilterCallback(const GtkFileFilterInfo *filter_info,
 		gpointer obj) {
+	static jmethodID methodID = NULL;
+
 	JNIEnv *env = (JNIEnv *) JNU_GetEnv(jvm, JNI_VERSION_1_2);
 
-	jclass cx = (*env)->GetObjectClass(env, (jobject) obj);
-
-	jmethodID id = (*env)->GetMethodID(env, cx, "filenameFilterCallback",
-			"(Ljava/lang/String;)Z");
+	if (methodID == NULL) {
+		// Cache methodID in a static variable
+		jclass cx = (*env)->GetObjectClass(env, (jobject) obj);
+		methodID = (*env)->GetMethodID(env, cx, "filenameFilterCallback",
+				"(Ljava/lang/String;)Z");
+	}
 
 	jstring filename = (*env)->NewStringUTF(env, filter_info->filename);
 
-	return (*env)->CallBooleanMethod(env, obj, id, filename);
+	return (*env)->CallBooleanMethod(env, obj, methodID, filename);
 }
 
-static void handle_response(GtkWidget *dialog, gint responseId, gpointer obj) {
+void init_GtkFileDialogPeer(JNIEnv *env) {
+	if (jvm == NULL) {
+		(*env)->GetJavaVM(env, &jvm);
+		gtk2_load();
+	}
+}
+
+/*
+ * Class:     sun_awt_X11_GtkFileDialogPeer
+ * Method:    hide
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_hide
+  (JNIEnv *env, jobject jpeer) {
+	if (dialog != NULL) {
+		fp_gtk_widget_hide(dialog);
+		fp_gtk_widget_destroy(dialog);
+
+		fp_gtk_main_quit();
+		dialog = NULL;
+	}
+}
+
+static void handle_response(GtkWidget *aDialog, gint responseId, gpointer obj) {
 	JNIEnv *env = (JNIEnv *) JNU_GetEnv(jvm, JNI_VERSION_1_2);
 
 	char *filename = NULL;
 
 	if (responseId == GTK_RESPONSE_ACCEPT) {
-		filename = fp_gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+		filename = fp_gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(aDialog));
 	}
 
 	jclass cx = (*env)->GetObjectClass(env, (jobject) obj);
@@ -38,24 +66,15 @@ static void handle_response(GtkWidget *dialog, gint responseId, gpointer obj) {
 	(*env)->CallVoidMethod(env, obj, id, jfilename);
 	fp_g_free(filename);
 
-	fp_gtk_widget_hide(dialog);
-	fp_gtk_widget_destroy(dialog);
-	fp_gtk_main_quit();
-}
-
-void init_GtkFileDialogPeer(JNIEnv *env) {
-	if (jvm == NULL) {
-		(*env)->GetJavaVM(env, &jvm);
-		gtk2_load();
-	}
+	Java_sun_awt_X11_GtkFileDialogPeer_hide(NULL, NULL);
 }
 
 /*
  * Class:     sun_awt_X11_GtkFileDialogPeer
- * Method:    start
+ * Method:    show
  * Signature: (Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/io/FilenameFilter;)V
  */
-JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_start(JNIEnv *env,
+JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_show(JNIEnv *env,
 		jobject jpeer, jstring jtitle, jint mode, jstring jdir, jstring jfile,
 		jobject jfilter) {
 
@@ -63,7 +82,6 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_start(JNIEnv *env,
 
 	const char *title = (*env)->GetStringUTFChars(env, jtitle, 0);
 
-	GtkWidget *dialog;
 	if (mode == 1) {
 		// Save action
 		dialog = fp_gtk_file_chooser_dialog_new(title, NULL,
