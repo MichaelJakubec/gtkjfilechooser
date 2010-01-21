@@ -4,46 +4,39 @@
 #include "gtk_file_chooser_interface.h"
 #include "sun_awt_X11_GtkFileDialogPeer.h"
 
-static JavaVM *java_vm;
-
-union env_union {
-	void *void_env;
-	JNIEnv *jni_env;
-};
-
-JNIEnv *env() {
-	union env_union tmp;
-	(*java_vm)->GetEnv(java_vm, &tmp.void_env, JNI_VERSION_1_2) == JNI_OK;
-	return tmp.jni_env;
-}
+static JavaVM *jvm;
 
 static gboolean filenameFilterCallback(const GtkFileFilterInfo *filter_info,
 		gpointer obj) {
-	jclass cx = (*env())->GetObjectClass(env(), (jobject) obj);
+	JNIEnv *env = (JNIEnv *) JNU_GetEnv(jvm, JNI_VERSION_1_2);
 
-	jmethodID id = (*env())->GetMethodID(env(), cx, "filenameFilterCallback",
+	jclass cx = (*env)->GetObjectClass(env, (jobject) obj);
+
+	jmethodID id = (*env)->GetMethodID(env, cx, "filenameFilterCallback",
 			"(Ljava/lang/String;)Z");
 
-	jstring filename = (*env())->NewStringUTF(env(), filter_info->filename);
+	jstring filename = (*env)->NewStringUTF(env, filter_info->filename);
 
-	return (*env())->CallBooleanMethod(env(), obj, id, filename);
+	return (*env)->CallBooleanMethod(env, obj, id, filename);
 }
 
 static void handle_response(GtkWidget *dialog, gint responseId, gpointer obj) {
+	JNIEnv *env = (JNIEnv *) JNU_GetEnv(jvm, JNI_VERSION_1_2);
+
 	char *filename = NULL;
 
 	if (responseId == GTK_RESPONSE_ACCEPT) {
 		filename = fp_gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
 	}
 
-	jclass cx = (*env())->GetObjectClass(env(), (jobject) obj);
+	jclass cx = (*env)->GetObjectClass(env, (jobject) obj);
 
-	jmethodID id = (*env())->GetMethodID(env(), cx, "setFileInternal",
+	jmethodID id = (*env)->GetMethodID(env, cx, "setFileInternal",
 			"(Ljava/lang/String;)V");
 
-	jstring jfilename = (*env())->NewStringUTF(env(), filename);
+	jstring jfilename = (*env)->NewStringUTF(env, filename);
 
-	(*env())->CallVoidMethod(env(), obj, id, jfilename);
+	(*env)->CallVoidMethod(env, obj, id, jfilename);
 	fp_g_free(filename);
 
 	fp_gtk_widget_hide(dialog);
@@ -52,8 +45,8 @@ static void handle_response(GtkWidget *dialog, gint responseId, gpointer obj) {
 }
 
 void init_GtkFileDialogPeer(JNIEnv *env) {
-	if (java_vm == NULL) {
-		(*env)->GetJavaVM(env, &java_vm);
+	if (jvm == NULL) {
+		(*env)->GetJavaVM(env, &jvm);
 		gtk2_load();
 	}
 }
