@@ -44,10 +44,10 @@ class GtkFileDialogPeer /* extends XDialogPeer */ implements FileDialogPeer {
 		this.fd = fd;
 	}
 
-	private native void show(String title, int mode, String dir, String file,
+	private native void run(String title, int mode, String dir, String file,
 			FilenameFilter filter);
 
-	private native void hide();
+	private native void quit();
 
 	void setFileInternal(String filename) {
 		if (filename == null || filename.trim().isEmpty()) {
@@ -76,10 +76,10 @@ class GtkFileDialogPeer /* extends XDialogPeer */ implements FileDialogPeer {
 		XToolkit.awtLock();
 		try {
 			if (b) {
-				show(fd.getTitle(), fd.getMode(), fd.getDirectory(), fd
+				run(fd.getTitle(), fd.getMode(), fd.getDirectory(), fd
 						.getFile(), fd.getFilenameFilter());
 			} else {
-				hide();
+				quit();
 			}
 		} finally {
 			XToolkit.awtUnlock();
@@ -88,7 +88,7 @@ class GtkFileDialogPeer /* extends XDialogPeer */ implements FileDialogPeer {
     
 	//@Override //TODO uncomment
     public void dispose() {
-        hide();
+    	quit();
     }
     
 	@Override

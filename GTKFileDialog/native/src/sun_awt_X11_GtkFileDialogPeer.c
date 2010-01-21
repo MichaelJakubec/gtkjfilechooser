@@ -37,7 +37,7 @@ void init_GtkFileDialogPeer(JNIEnv *env) {
  * Method:    hide
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_hide
+JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_quit
   (JNIEnv *env, jobject jpeer) {
 	if (dialog != NULL) {
 		fp_gtk_widget_hide(dialog);
@@ -70,7 +70,7 @@ static void handle_response(GtkWidget *aDialog, gint responseId, gpointer obj) {
 	(*env)->CallVoidMethod(env, obj, setFileInternalMethodID, jfilename);
 	fp_g_free(filename);
 
-	Java_sun_awt_X11_GtkFileDialogPeer_hide(NULL, NULL);
+	Java_sun_awt_X11_GtkFileDialogPeer_quit(NULL, NULL);
 }
 
 /*
@@ -78,7 +78,7 @@ static void handle_response(GtkWidget *aDialog, gint responseId, gpointer obj) {
  * Method:    show
  * Signature: (Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/io/FilenameFilter;)V
  */
-JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_show(JNIEnv *env,
+JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_run(JNIEnv *env,
 		jobject jpeer, jstring jtitle, jint mode, jstring jdir, jstring jfile,
 		jobject jfilter) {
 
