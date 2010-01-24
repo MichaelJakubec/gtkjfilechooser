@@ -19,7 +19,8 @@ JAVA_HOME=/usr/java/default
 NATIVE_SUN_AWT=/home/c.cerbo/openjdk/jdk7/mytl/jdk/src/solaris/native/sun/awt
 SUN_AWT_X11=/home/c.cerbo/openjdk/jdk7/mytl/jdk/src/solaris/classes/sun/awt/X11
 
-ALT_JDK_IMPORT_PATH=/home/c.cerbo/openjdk/jdk7/mytl/build/linux-i586
+ALT_JDK_IMPORT_PATH=/home/c.cerbo/openjdk-awt/jdk/build/linux-i586
+
 
 all: build
 
@@ -76,3 +77,4 @@ copy:
 test_file_dialog:
 	$(ALT_JDK_IMPORT_PATH)/bin/javac -d $(JAVA_BIN) test/sun/awt/X11/FileDialogTest.java
 	$(ALT_JDK_IMPORT_PATH)/bin/java -cp $(JAVA_BIN) sun.awt.X11.FileDialogTest
+
