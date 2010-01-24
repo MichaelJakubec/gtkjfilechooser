@@ -27,7 +27,6 @@ public class GtkFileDialogTest {
 	}
 
 	public void testInFrame() {
-		final JFrame frame = new JFrame();
 		//DISPOSE_ON_CLOSE to reproduce the error:
 //		Gdk-ERROR **: The program '<unknown>' received an X Window System error.
 //		This probably reflects a bug in the program.
@@ -38,6 +37,8 @@ public class GtkFileDialogTest {
 //		   To debug your program, run it with the --sync command line
 //		   option to change this behavior. You can then get a meaningful
 //		   backtrace from your debugger if you break on the gdk_x_error() function.)
+		
+		final JFrame frame = new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JPanel mainPanel = new JPanel();

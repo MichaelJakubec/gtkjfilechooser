@@ -12,6 +12,49 @@ GtkWidget *dialog;
 GtkWidget *window;
 
 const char* _title;
+typedef struct _GMutex          GMutex;
+typedef struct _GCond           GCond;
+typedef struct _GPrivate        GPrivate;
+typedef struct _GStaticPrivate  GStaticPrivate;
+
+typedef struct _GThreadFunctions GThreadFunctions;
+struct _GThreadFunctions
+{
+  GMutex*  (*mutex_new)           (void);
+  void     (*mutex_lock)          (GMutex               *mutex);
+  gboolean (*mutex_trylock)       (GMutex               *mutex);
+  void     (*mutex_unlock)        (GMutex               *mutex);
+  void     (*mutex_free)          (GMutex               *mutex);
+  GCond*   (*cond_new)            (void);
+  void     (*cond_signal)         (GCond                *cond);
+  void     (*cond_broadcast)      (GCond                *cond);
+  void     (*cond_wait)           (GCond                *cond,
+                                   GMutex               *mutex);
+  gboolean (*cond_timed_wait)     (GCond                *cond,
+                                   GMutex               *mutex,
+                                   GTimeVal             *end_time);
+  void      (*cond_free)          (GCond                *cond);
+  GPrivate* (*private_new)        (GDestroyNotify        destructor);
+  gpointer  (*private_get)        (GPrivate             *private_key);
+  void      (*private_set)        (GPrivate             *private_key,
+                                   gpointer              data);
+  void      (*thread_create)      (GThreadFunc           func,
+                                   gpointer              data,
+                                   gulong                stack_size,
+                                   gboolean              joinable,
+                                   gboolean              bound,
+                                   GThreadPriority       priority,
+                                   gpointer              thread,
+                                   GError              **error);
+  void      (*thread_yield)       (void);
+  void      (*thread_join)        (gpointer              thread);
+  void      (*thread_exit)        (void);
+  void      (*thread_set_priority)(gpointer              thread,
+                                   GThreadPriority       priority);
+  void      (*thread_self)        (gpointer              thread);
+  gboolean  (*thread_equal)       (gpointer              thread1,
+				   gpointer              thread2);
+};
 
 void (*fp_gtk_init)(int *argc, char ***argv);
 void (*fp_g_thread_init)(GThreadFunctions *vtable);
@@ -42,11 +85,11 @@ void init(const char* title) {
 
 	/* init threads */
 	//if (!g_thread_supported()) {
-		g_thread_init(NULL);
+		//g_thread_init(NULL);
 	//}
 
-	//fp_g_thread_init = dlsym(gthread_libhandle, "g_thread_init");
-	//fp_g_thread_init(NULL);
+	fp_g_thread_init = dlsym(gthread_libhandle, "g_thread_init");
+	fp_g_thread_init(NULL);
 
 	fp_gtk_init = dlsym(gtk2_libhandle, "gtk_init");
 	fp_gtk_init(NULL, NULL);

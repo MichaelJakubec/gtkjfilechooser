@@ -34,13 +34,13 @@ import java.io.FilenameFilter;
  * 
  * @author c.cerbo
  */
-//TODO uncomment
-class GtkFileDialogPeer /* extends XDialogPeer */ implements FileDialogPeer {
+// TODO uncomment
+class GtkFileDialogPeer /* extends XDialogPeer */implements FileDialogPeer {
 
 	private FileDialog fd;
 
 	public GtkFileDialogPeer(FileDialog fd) {
-		//super((Dialog) fd); //TODO uncomment
+		// super((Dialog) fd); //TODO uncomment
 		this.fd = fd;
 	}
 
@@ -85,12 +85,12 @@ class GtkFileDialogPeer /* extends XDialogPeer */ implements FileDialogPeer {
 			XToolkit.awtUnlock();
 		}
 	}
-    
-	//@Override //TODO uncomment
-    public void dispose() {
-    	quit();
-    }
-    
+
+	// @Override //TODO uncomment
+	public void dispose() {
+		quit();
+	}
+
 	@Override
 	public void setDirectory(String dir) {
 		// We do not implement this method because we
