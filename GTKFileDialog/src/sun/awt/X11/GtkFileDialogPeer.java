@@ -108,5 +108,5 @@ class GtkFileDialogPeer /* extends XDialogPeer */implements FileDialogPeer {
 		// We do not implement this method because we
 		// have delegated to FileDialog#setFilenameFilter
 	}
-
+	
 }
