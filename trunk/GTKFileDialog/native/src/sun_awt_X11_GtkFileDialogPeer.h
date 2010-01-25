@@ -23,14 +23,6 @@ JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_run
 JNIEXPORT void JNICALL Java_sun_awt_X11_GtkFileDialogPeer_quit
   (JNIEnv *, jobject);
 
-/*
- * Class:     sun_awt_X11_GtkFileDialogPeer
- * Method:    native_gtk_check_version
- * Signature: (III)Ljava/lang/String;
- */
-JNIEXPORT jstring JNICALL Java_sun_awt_X11_GtkFileDialogPeer_native_1gtk_1check_1version
-  (JNIEnv *, jobject, jint, jint, jint);
-
 #ifdef __cplusplus
 }
 #endif
