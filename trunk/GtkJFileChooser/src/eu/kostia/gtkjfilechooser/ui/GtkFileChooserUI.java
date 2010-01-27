@@ -484,7 +484,7 @@ PropertyChangeListener, ActionListener {
 		});
 
 		// Since GTK 2.18.0 these buttons, as many others, have no icon more.
-		if (!(GtkVersion.check(2, 18, 0) != null && GtkVersion.check(2, 18, 0))) {
+		if (!(GtkVersion.check(2, 18, 0))) {
 			addBookmarkButton.setIcon(GtkStockIcon.get("gtk-add", Size.GTK_ICON_SIZE_BUTTON));
 			removeBookmarkButton.setIcon(GtkStockIcon.get("gtk-remove",	Size.GTK_ICON_SIZE_BUTTON));
 		}
@@ -727,7 +727,7 @@ PropertyChangeListener, ActionListener {
 			buttonPanel.add(approveButton);
 			
 			// Since GTK 2.18.0 these buttons, as many others, have no icon more.
-			if (!(GtkVersion.check(2, 18, 0) != null && GtkVersion.check(2, 18, 0))) {
+			if (!(GtkVersion.check(2, 18, 0))) {
 				if(getFileChooser().getDialogType() == JFileChooser.OPEN_DIALOG) {
 					approveButton.setIcon(GtkStockIcon.get("gtk-open", Size.GTK_ICON_SIZE_BUTTON));
 				} else {
