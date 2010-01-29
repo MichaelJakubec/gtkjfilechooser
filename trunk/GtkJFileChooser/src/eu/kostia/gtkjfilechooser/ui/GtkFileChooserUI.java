@@ -1554,7 +1554,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements
 	public void propertyChange(PropertyChangeEvent e) {
 		Object value = e.getNewValue();
 		if (value != null) {
-			// Prevent false property changes
+			// Prevent false property changes (issue 54)
 			if (value.getClass().isArray()
 					&& ArrayUtil.areArrayEqual(value, e.getOldValue())) {
 				return;
@@ -1720,6 +1720,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements
 		Log.debug("GtkFileChooserUI: Action: ", e.getActionCommand());
 		if (APPROVE_SELECTION.equals(cmd)) {
 			getFileChooser().setSelectedFile(fileBrowserPane.getSelectedFile());
+			getFileChooser().setSelectedFiles(fileBrowserPane.getSelectedFiles());
 			approveSelection();
 		} else if (ACTION_SAVE.equals(cmd)) {
 			approveButton.doClick();
