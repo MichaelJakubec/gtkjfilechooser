@@ -627,7 +627,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements
 	@Override
 	public Dimension getPreferredSize(JComponent c) {
 		Rectangle bound = GtkFileChooserSettings.get().getBound();
-		if (bound != null) {
+		if (bound != null && bound.width > 0 && bound.height > 0) {
 			return new Dimension(bound.width, bound.height);
 		}
 
@@ -1607,13 +1607,13 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements
 		} else if (EXPANDED_STATUS_CHANGED.equals(property)) {
 			boolean expanded = (Boolean) value;
 			GtkFileChooserSettings.get().setExpandFolders(expanded);
-			pack(expanded);
+			packSaveDialog(expanded);
 		} else if (FILE_VIEW_CHANGED_PROPERTY.equals(property)) {
 			dofileViewChanged((FileView) value);
 		}
 	}
 
-	private void pack(boolean expand) {
+	private void packSaveDialog(boolean expand) {
 		JDialog dialog = getAncestorDialog();
 
 		if (dialog == null) {
@@ -1693,7 +1693,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements
 			fileNameTextField.requestFocus();
 
 			if (saveDialogPanel != null) {
-				pack(GtkFileChooserSettings.get().getExpandFolders());
+				packSaveDialog(GtkFileChooserSettings.get().getExpandFolders());
 			}
 
 			FileWatcher.theFileWatcher().start();
