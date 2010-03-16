@@ -48,10 +48,22 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Position;
 
-public abstract class FindAction extends AbstractAction implements DocumentListener,
-		KeyListener {
-	
-	private JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3, 3));
+/**
+ * <p>
+ * FindAction
+ * </p>
+ * 
+ * Search for files or folders.
+ * 
+ * @author Costantino Cerbo
+ * @author s.tannenbaum@psi.de (patch Issue 58)
+ * 
+ */
+public abstract class FindAction extends AbstractAction implements
+		DocumentListener, KeyListener {
+
+	private JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 3,
+			3));
 	protected JTextField searchField;
 	private JPopupMenu popup = new JPopupMenu();
 	static final private int TIMEOUT = 5;
@@ -77,7 +89,8 @@ public abstract class FindAction extends AbstractAction implements DocumentListe
 			public void actionPerformed(ActionEvent e) {
 				popup.setVisible(false);
 			}
-		}, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_FOCUSED);
+		}, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+				JComponent.WHEN_FOCUSED);
 	}
 
 	public String getName() {
@@ -134,7 +147,8 @@ public abstract class FindAction extends AbstractAction implements DocumentListe
 	 * 
 	 * @return true if search is successful
 	 */
-	protected abstract boolean changed(JComponent comp, String text, Position.Bias bias);
+	protected abstract boolean changed(JComponent comp, String text,
+			Position.Bias bias);
 
 	/*-------------------------------------------------[ DocumentListener ]---------------------------------------------------*/
 
@@ -176,57 +190,75 @@ public abstract class FindAction extends AbstractAction implements DocumentListe
 
 	/*-------------------------------------------------[ Installation ]---------------------------------------------------*/
 
-	public void install(final JComponent comp) {		
+	public void install(final JComponent comp) {
 		comp.addKeyListener(new KeyAdapter() {
 			private static final int ALT_KEY = 65535;
 			private boolean isSearchEnabled = true;
-			
+
 			@Override
 			public void keyPressed(KeyEvent e) {
 				char ch = e.getKeyChar();
 				if (ALT_KEY == ch) {
-					// Workaround to disable incremental search when a key is pressed with ALT.
+					// Workaround to disable incremental search when a key is
+					// pressed with ALT.
 					isSearchEnabled = false;
 				}
-				
+
 				if (Character.isLetterOrDigit(ch) && isSearchEnabled) {
-					ActionEvent ae = new ActionEvent(comp, 1001, String.valueOf(ch));
+					ActionEvent ae = new ActionEvent(comp, 1001, String
+							.valueOf(ch));
 					actionPerformed(ae);
 				}
 			}
-			
+
 			@Override
 			public void keyReleased(KeyEvent e) {
 				char ch = e.getKeyChar();
 				if (ALT_KEY == ch) {
-					// enable again the incremental search: the key ALT was released.
+					// enable again the incremental search: the key ALT was
+					// released.
 					isSearchEnabled = true;
 				}
 			}
 		});
 
 		// Thread to close the popup after the timeout (5 seconds)
-		new Thread(new Runnable() {
+		// FIX Issue 58
+		new Thread("GTK-File-Chooser Popup-Monitor") {
 			@Override
 			public void run() {
-				while (!stop) {
-					long time = (System.currentTimeMillis() - lastKeyPressed) / 1000L;
-					if (time > TIMEOUT && popup.isShowing()) {
-						popup.setVisible(false);
-					}
-				}
+				try {
+					while (!stop) {
+						if (popup.isShowing()) {
+							long timeWaited = (System.currentTimeMillis() - lastKeyPressed);
+							long timeRemaining = Math.max(TIMEOUT * 1000
+									- timeWaited, 0);
 
+							if (timeRemaining == 0) {
+								popup.setVisible(false);
+							} else {
+								sleep(timeRemaining);
+							}
+						} else {
+							sleep(TIMEOUT * 1000);
+						}
+					}
+				} catch (InterruptedException exc) {
+					throw new RuntimeException(exc);
+				}
 			}
-		}).start();
+		}.start();
 
 		comp.addPropertyChangeListener(new PropertyChangeListener() {
 
 			@Override
-			public void propertyChange(PropertyChangeEvent evt) {				
-				// When die ancestor component for the table becomes null, stop the timeout thread.
-				if ("ancestor".equals(evt.getPropertyName()) && evt.getNewValue() == null ){
+			public void propertyChange(PropertyChangeEvent evt) {
+				// When die ancestor component for the table becomes null, stop
+				// the timeout thread.
+				if ("ancestor".equals(evt.getPropertyName())
+						&& evt.getNewValue() == null) {
 					stop = true;
-				}			
+				}
 			}
 
 		});
