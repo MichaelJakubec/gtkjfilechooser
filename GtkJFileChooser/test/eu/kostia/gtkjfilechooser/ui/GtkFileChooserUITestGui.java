@@ -52,7 +52,7 @@ public class GtkFileChooserUITestGui {
 		}
 	
 		GtkFileChooserUITestGui test = new GtkFileChooserUITestGui();
-		test.showOpenDialog();
+		test.showOpenDialog();	
 	}
 }
 
