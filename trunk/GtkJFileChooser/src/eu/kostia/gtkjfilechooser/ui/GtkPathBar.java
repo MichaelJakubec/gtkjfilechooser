@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     Costantino Cerbo - initial API and implementation
+ *     i30817 - Issue 60 (Layout improvements)
  ******************************************************************************/
 package eu.kostia.gtkjfilechooser.ui;
 
@@ -77,14 +78,13 @@ public class GtkPathBar extends JPanel {
 
 		setLayout(new BorderLayout());
 
-		backButton = createBackButton();
-		add(createPanel(new FlowLayout(FlowLayout.LEFT), backButton), LINE_START);
-
 		createButtonsPanel();
-		add(createPanel(new FlowLayout(FlowLayout.LEFT), buttonsPanel),	BorderLayout.CENTER);
+		
+		backButton = createBackButton();		
+		add(createPanel(flowLayout(FlowLayout.LEFT), backButton, buttonsPanel),	LINE_START);
 
 		forwardButton = createForwardButton();
-		add(createPanel(new FlowLayout(FlowLayout.RIGHT), forwardButton), LINE_END);
+		add(createPanel(flowLayout(FlowLayout.RIGHT), forwardButton), LINE_END);
 
 		int last = directories.length - 1;
 		currentStartIndex = last - VISIBLE_BUTTONS + 1;
@@ -92,14 +92,22 @@ public class GtkPathBar extends JPanel {
 		selectButton(directories.length - 1);
 	}
 
+	private FlowLayout flowLayout(int align) {
+		FlowLayout flowLayout = new FlowLayout(align, 0, 5);
+		flowLayout.setAlignOnBaseline(true);
+
+		return flowLayout;
+	}
+
 	public void setCurrentDirectory(File location) {
-		if (location.equals(getCurrentDirectory())){
+		if (location.equals(getCurrentDirectory())) {
 			return;
 		}
 
 		setDirectories(location);
 		createButtonsPanel();
-		add(createPanel(new FlowLayout(FlowLayout.RIGHT), forwardButton), LINE_END);
+		add(createPanel(new FlowLayout(FlowLayout.RIGHT), forwardButton),
+				LINE_END);
 
 		int last = directories.length - 1;
 		currentStartIndex = last - VISIBLE_BUTTONS + 1;
@@ -125,7 +133,10 @@ public class GtkPathBar extends JPanel {
 	}
 
 	private JButton createBackButton() {
-		JButton backButton = new JButton("<");
+		JButton backButton = new JButton(" \u2039 ");
+		Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 16);
+		backButton.setFont(font);
+
 		setStandardHeight(backButton);
 		backButton.addActionListener(new ActionListener() {
 			@Override
@@ -134,7 +145,8 @@ public class GtkPathBar extends JPanel {
 				if (currentStartIndex < 0) {
 					currentStartIndex = 0;
 				}
-				showButtons(currentStartIndex, currentStartIndex + VISIBLE_BUTTONS - 1);
+				showButtons(currentStartIndex, currentStartIndex
+						+ VISIBLE_BUTTONS - 1);
 			}
 		});
 		return backButton;
@@ -149,14 +161,14 @@ public class GtkPathBar extends JPanel {
 	private void createButtonsPanel() {
 		dirButtonsgroup = new ButtonGroup();
 		if (buttonsPanel == null) {
-			buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));	
+			buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		}
 
 		buttonsPanel.removeAll();
 
 		for (int i = 0; i < directories.length; i++) {
 			String dir = directories[i];
-			JToggleButton dirButton = new JToggleButton(){				
+			JToggleButton dirButton = new JToggleButton() {
 				private static final long serialVersionUID = 1L;
 
 				@Override
@@ -170,30 +182,35 @@ public class GtkPathBar extends JPanel {
 
 			dirButton.putClientProperty(DIRECTORY_INDEX, i);
 
-			if (dir.equals(File.separator)){
+			if (dir.equals(File.separator)) {
 				// Set root icon (the root button has no text)
-				dirButton.setIcon(GtkStockIcon.get("gtk-harddisk", Size.GTK_ICON_SIZE_BUTTON));
+				dirButton.setIcon(GtkStockIcon.get("gtk-harddisk",
+						Size.GTK_ICON_SIZE_BUTTON));
 			} else {
 				dirButton.setText(dir);
 			}
 
 			File tmp = getDirectory(i);
-			if (tmp.equals(new File(System.getProperty("user.home")))){
-				// user home icon		
-				dirButton.setIcon(GtkStockIcon.get("places/user-home", Size.GTK_ICON_SIZE_BUTTON));
+			if (tmp.equals(new File(System.getProperty("user.home")))) {
+				// user home icon
+				dirButton.setIcon(GtkStockIcon.get("places/user-home",
+						Size.GTK_ICON_SIZE_BUTTON));
 			}
 
-			if(tmp.equals(FreeDesktopUtil.getWellKnownDirPath(WellKnownDir.DESKTOP))) {
+			if (tmp.equals(FreeDesktopUtil
+					.getWellKnownDirPath(WellKnownDir.DESKTOP))) {
 				// desktop dir icon
-				dirButton.setIcon(GtkStockIcon.get("places/user-desktop", Size.GTK_ICON_SIZE_MENU));
-			} 
+				dirButton.setIcon(GtkStockIcon.get("places/user-desktop",
+						Size.GTK_ICON_SIZE_MENU));
+			}
 
 			dirButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					JToggleButton oldSelectedButton = selectedButton;
 					if (oldSelectedButton != null) {
-						Font plain = oldSelectedButton.getFont().deriveFont(Font.PLAIN);
+						Font plain = oldSelectedButton.getFont().deriveFont(
+								Font.PLAIN);
 						oldSelectedButton.setFont(plain);
 						oldSelectedButton.setForeground(Color.BLACK);
 					}
@@ -202,13 +219,13 @@ public class GtkPathBar extends JPanel {
 					Font bold = selectedButton.getFont().deriveFont(Font.BOLD);
 					selectedButton.setFont(bold);
 
-
 					// Update current dir
 					updateCurrentDir();
 
 					// Foward action to the main action listeners
 					for (ActionListener listener : actionListeners) {
-						ActionEvent myEvt = new ActionEvent(GtkPathBar.this, 1, "directory-selected");
+						ActionEvent myEvt = new ActionEvent(GtkPathBar.this, 1,
+								"directory-selected");
 						listener.actionPerformed(myEvt);
 					}
 				}
@@ -216,16 +233,18 @@ public class GtkPathBar extends JPanel {
 
 			dirButtonsgroup.add(dirButton);
 			buttonsPanel.add(dirButton);
-		}		
+		}
 	}
 
 	private void updateCurrentDir() {
-		int dirIndex = (Integer) selectedButton.getClientProperty(DIRECTORY_INDEX);
+		int dirIndex = (Integer) selectedButton
+				.getClientProperty(DIRECTORY_INDEX);
 
-		if (dirIndex == 0){
-			//If zero, it's the root dir (it's the only button with no text but just an icon)
+		if (dirIndex == 0) {
+			// If zero, it's the root dir (it's the only button with no text but
+			// just an icon)
 			currentDirectory = File.separator;
-			return;			
+			return;
 		}
 
 		StringBuilder sb = new StringBuilder(File.separator);
@@ -236,7 +255,7 @@ public class GtkPathBar extends JPanel {
 		currentDirectory = sb.toString();
 	}
 
-	private File getDirectory(int n){
+	private File getDirectory(int n) {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i <= n; i++) {
 			sb.append(directories[i]).append(File.separator);
@@ -245,7 +264,10 @@ public class GtkPathBar extends JPanel {
 	}
 
 	private JButton createForwardButton() {
-		JButton forwardButton = new JButton(">");
+		JButton forwardButton = new JButton(" \u203a ");
+		Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 16);
+		forwardButton.setFont(font);
+
 		setStandardHeight(forwardButton);
 		forwardButton.addActionListener(new ActionListener() {
 			@Override
@@ -255,7 +277,8 @@ public class GtkPathBar extends JPanel {
 					currentStartIndex--;
 				}
 
-				showButtons(currentStartIndex, currentStartIndex + VISIBLE_BUTTONS - 1);
+				showButtons(currentStartIndex, currentStartIndex
+						+ VISIBLE_BUTTONS - 1);
 			}
 		});
 		return forwardButton;
@@ -289,7 +312,7 @@ public class GtkPathBar extends JPanel {
 		Enumeration<AbstractButton> buttons = dirButtonsgroup.getElements();
 		while (buttons.hasMoreElements()) {
 			AbstractButton button = buttons.nextElement();
-			if (button.isSelected()){
+			if (button.isSelected()) {
 				if (buttons.hasMoreElements()) {
 					AbstractButton nextButton = buttons.nextElement();
 					nextButton.doClick();
@@ -303,7 +326,7 @@ public class GtkPathBar extends JPanel {
 		AbstractButton previousButton = null;
 		while (buttons.hasMoreElements()) {
 			AbstractButton button = buttons.nextElement();
-			if (button.isSelected()){
+			if (button.isSelected()) {
 				if (previousButton != null) {
 					previousButton.doClick();
 				}
@@ -314,11 +337,12 @@ public class GtkPathBar extends JPanel {
 	}
 
 	private void setDirectories(File location) throws IOError {
-		if (location == null){
+		if (location == null) {
 			throw new IllegalArgumentException("The location cannot be null!");
 		}
 
-		File parentDir = location.isDirectory() ? location : location.getParentFile();
+		File parentDir = location.isDirectory() ? location : location
+				.getParentFile();
 
 		String parentDirPath = null;
 		try {
@@ -333,7 +357,7 @@ public class GtkPathBar extends JPanel {
 		}
 		String[] dirs = parentDirPath.split(Pattern.quote(File.separator));
 
-		//Add Root dir
+		// Add Root dir
 		dirs[0] = File.separator;
 
 		directories = dirs;
