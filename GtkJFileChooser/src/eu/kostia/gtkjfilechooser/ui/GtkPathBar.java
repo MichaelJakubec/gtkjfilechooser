@@ -36,7 +36,10 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 
+import com.sun.java.swing.plaf.gtk.GTKConstants.ArrowType;
+
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil;
+import eu.kostia.gtkjfilechooser.GtkArrow;
 import eu.kostia.gtkjfilechooser.GtkStockIcon;
 import eu.kostia.gtkjfilechooser.FreeDesktopUtil.WellKnownDir;
 import eu.kostia.gtkjfilechooser.GtkStockIcon.Size;
@@ -133,10 +136,9 @@ public class GtkPathBar extends JPanel {
 	}
 
 	private JButton createBackButton() {
-		JButton backButton = new JButton(" \u2039 ");
-		Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 16);
-		backButton.setFont(font);
-
+		JButton backButton = new JButton();
+		backButton.add(new GtkArrow(ArrowType.LEFT));
+		
 		setStandardHeight(backButton);
 		backButton.addActionListener(new ActionListener() {
 			@Override
@@ -264,9 +266,8 @@ public class GtkPathBar extends JPanel {
 	}
 
 	private JButton createForwardButton() {
-		JButton forwardButton = new JButton(" \u203a ");
-		Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 16);
-		forwardButton.setFont(font);
+		JButton forwardButton = new JButton();
+		forwardButton.add(new GtkArrow(ArrowType.RIGHT));
 
 		setStandardHeight(forwardButton);
 		forwardButton.addActionListener(new ActionListener() {

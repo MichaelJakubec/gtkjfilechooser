@@ -7,7 +7,6 @@
  * 
  * Contributors:
  *     Costantino Cerbo - initial API and implementation
- *     i30817 - Issue 60 (Layout improvements)
  ******************************************************************************/
 /*
  * Copyright 2010 Costantino Cerbo.  All Rights Reserved.
@@ -169,10 +168,6 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements
 	private static int MIN_EXPANDED_HEIGHT = 500;
 
 	private static int MIN_WIDTH = 700;
-
-	private static final int BOTTOM_ROW_GAP = 6;
-
-	private static final int UPPER_BUTTON_GAP = 12;
 
 	private static Dimension MIN_SIZE = new Dimension(MIN_WIDTH,
 			MIN_EXPANDED_HEIGHT);
@@ -427,7 +422,6 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements
 		JPanel pathbar = new JPanel();
 		pathbar.setLayout(new BoxLayout(pathbar, BoxLayout.LINE_AXIS));
 		pathbar.add(showPositionButton);
-		pathbar.add(Box.createHorizontalStrut(UPPER_BUTTON_GAP));
 		pathbar.add(pathBarButtons);
 
 		// Create folder button
@@ -520,9 +514,8 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements
 					Size.GTK_ICON_SIZE_BUTTON));
 		}
 
-		JPanel buttonPanel = createPanelBoxLayout(BoxLayout.Y_AXIS, Box
-				.createVerticalStrut(BOTTOM_ROW_GAP), JPanelUtil.createPanel(
-				new GridLayout(1, 2), addBookmarkButton, removeBookmarkButton));
+		JPanel buttonPanel = JPanelUtil.createPanel(new GridLayout(1, 2),
+				addBookmarkButton, removeBookmarkButton);
 
 		locationsPane = new GtkLocationsPane();
 		locationsPane.addActionListener(new ActionListener() {
@@ -566,11 +559,8 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements
 		if (filterComboBox == null) {
 			createFilterComboBox();
 		}
-
-		rightPane.add(createPanelBoxLayout(BoxLayout.Y_AXIS, Box
-				.createVerticalStrut(BOTTOM_ROW_GAP), createPanelBoxLayout(Box
-				.createHorizontalGlue(), filterComboBox)),
-				BorderLayout.PAGE_END);
+		rightPane.add(createPanelBoxLayout(Box.createHorizontalGlue(),
+				filterComboBox), BorderLayout.PAGE_END);
 
 		// add to the file chooser
 		JSplitPane splitPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
@@ -1740,8 +1730,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements
 		Log.debug("GtkFileChooserUI: Action: ", e.getActionCommand());
 		if (APPROVE_SELECTION.equals(cmd)) {
 			getFileChooser().setSelectedFile(fileBrowserPane.getSelectedFile());
-			getFileChooser().setSelectedFiles(
-					fileBrowserPane.getSelectedFiles());
+			getFileChooser().setSelectedFiles(fileBrowserPane.getSelectedFiles());
 			approveSelection();
 		} else if (ACTION_SAVE.equals(cmd)) {
 			approveButton.doClick();
