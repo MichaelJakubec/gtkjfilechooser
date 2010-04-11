@@ -109,14 +109,11 @@ public class GtkPathBar extends JPanel {
 
 		setDirectories(location);
 		createButtonsPanel();
-		add(createPanel(new FlowLayout(FlowLayout.RIGHT), forwardButton),
-				LINE_END);
-
+		
 		int last = directories.length - 1;
 		currentStartIndex = last - VISIBLE_BUTTONS + 1;
 		showButtons(currentStartIndex, last);
 		selectButton(directories.length - 1);
-		buttonsPanel.validate();
 	}
 
 	public File getCurrentDirectory() {
