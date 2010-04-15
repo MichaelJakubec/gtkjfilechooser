@@ -1,6 +1,9 @@
 #summary The lastest news on the project
 
 = Latest News =
+===  15.04.2010 Release 1.4.7 ===
+Minor bug fix release
+
 ===  28.03.2010 Release 1.4.6 ===
 Fixed some bugs
 The licence is now the LGPL 3.0
