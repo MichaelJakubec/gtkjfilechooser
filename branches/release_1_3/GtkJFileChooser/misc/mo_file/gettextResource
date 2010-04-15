@@ -1,6 +1,0 @@
-#!/bin/sh
-
-gettext_cp="../../bin"
-gettext_main="eu.kostia.gtkjfilechooser.GettextResource"
-
-java -cp $gettext_cp $gettext_main "$@"
