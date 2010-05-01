@@ -1345,6 +1345,11 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements
 	private void doFilterChanged(javax.swing.filechooser.FileFilter filter) {
 		fileBrowserPane.setCurrentFilter(filter);
 		pathAutoCompletion.setCurrentFilter(filter);
+		
+		if (filter != null && !filterExists(filter)) {
+			getFileChooser().addChoosableFileFilter(filter);
+		}
+
 		selectFilterInCombo();
 
 		// Update the recent used file panel
@@ -1356,6 +1361,17 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements
 		if (searchPanel != null) {
 			searchPanel.setFileFilter(new FileFilterWrapper(filter));
 		}
+	}
+	
+	// Fix Issue 61
+	private boolean filterExists(FileFilter filter) {
+		FileFilter[] filters = getFileChooser().getChoosableFileFilters();
+		for (FileFilter f : filters) {
+			if (f.getDescription().equals(filter.getDescription())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void doMultiSelectionEnabledChanged(Boolean multiSelectionEnabled) {
@@ -1517,8 +1533,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements
 
 	private void selectFilterInCombo() {
 		FileFilter filterInChooser = getFileChooser().getFileFilter();
-		FileFilter filterInCombo = (FileFilter) filterComboBox
-				.getSelectedItem();
+		FileFilter filterInCombo = (FileFilter) filterComboBox.getSelectedItem();
 
 		if (filterInChooser == null || filterInCombo == null) {
 			return;
