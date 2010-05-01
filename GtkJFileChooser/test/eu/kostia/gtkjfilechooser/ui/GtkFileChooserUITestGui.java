@@ -14,6 +14,7 @@ import java.io.File;
 
 import javax.swing.JFileChooser;
 import javax.swing.UIManager;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
 
@@ -21,6 +22,11 @@ public class GtkFileChooserUITestGui {
 
 	public void showOpenDialog() throws Exception {
 		JFileChooser fileChooser = new JFileChooser();
+		
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files", "txt");
+//		FileFilter filter = createFileFilter("Text	Files", "txt");
+		fileChooser.setFileFilter(filter);
+		
 		fileChooser.setMultiSelectionEnabled(true);
 		int option = fileChooser.showOpenDialog(null);
 		if (JFileChooser.APPROVE_OPTION == option){			
