@@ -1,6 +1,9 @@
 #summary The lastest news on the project
 
 = Latest News =
+===  01.05.2010 Release 1.4.8 ===
+Fixed issue 61 (Filter Description is NOT being displayed in the bottom-right corner)
+
 ===  15.04.2010 Release 1.4.7 ===
 Minor bug fix release
 
