@@ -5,22 +5,22 @@
 Fixed issue 61 (Filter Description is NOT being displayed in the bottom-right corner)
 
 ===  15.04.2010 Release 1.4.7 ===
-Minor bug fix release
+Minor bug fixes
 
 ===  28.03.2010 Release 1.4.6 ===
-Fixed some bugs
-The licence is now the LGPL 3.0
+Bug fixes
+The licence is now LGPL 3.0
 
 ===  27.01.2010 Release 1.4.4 ===
-Bug fixing release
+Bug fixes
 
 ===  07.12.2009 Release 1.4.0 ===
-Updated to these GTK+ 2.18 changes:
+Updated to GTK+ 2.18 appearance:
   * Backup files are hidden by default
-  * GTK+ remembers the sorting state of the file list
+  * GTK+ remembers the sorted state of the file list
   * File sizes are shown by default
-  * No icon more for some buttons
-  * When new devices are mounted (/media folder) or the bookmark changed or files modified in the current dir, the file chooser is "live" updated.
+  * Icons removed from some buttons
+  * When new devices are mounted (/media folder), bookmarks changed, or files modified in the current dir, the file chooser is "live" updated.
 
 [http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/gtk+2.18.0.png]
 
@@ -42,19 +42,19 @@ Implemented the Save dialog:
 ||http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/SaveDialogExpanded.png||http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/SaveDialog.png||
 
 === 21.10.2009 Key Binding Support ===
-Read more details in this [http://code.google.com/p/gtkjfilechooser/wiki/KeyBinding wiki page]
+Read more details on this [http://code.google.com/p/gtkjfilechooser/wiki/KeyBinding wiki page]
 
 === 14.10.2009 Added incremental search ===
-When the focus in on the table and you press a key, an interactive incremental search will be started:
+When the table has focus an interactive incremental search is started on any key press:
 
 [http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/incremental_search.png]
 
 === 11.10.2009 Added preview ===
 [http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/Preview.png]
-More info in the [http://code.google.com/p/gtkjfilechooser/wiki/ImagePreview wiki].
+More info on the [http://code.google.com/p/gtkjfilechooser/wiki/ImagePreview wiki].
 
 === 11.10.2009 Added test app ===
-To launch the demo application, whose purpose is mainly for testing, double click on gtkjfilechooser-demo.jar or type from the command line "java -jar gtkjfilechooser-demo.jar":
+To launch the demo application, used for testing, double click on gtkjfilechooser-demo.jar. Or on the command line run "java -jar gtkjfilechooser-demo.jar":
 
 [http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/FileChooserDemo.png]
 
