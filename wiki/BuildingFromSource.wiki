@@ -10,9 +10,9 @@ Run the follow ant target to create a distributable zip with a demo:
 ant dist
 }}}
 
-If you only the the jar, this ant command is enough:
+If you only want the the jar, this ant command is enough:
 {{{
 ant clean jar
 }}}
 
-Note that the source is an eclipse project ready as it is to be imported in any workspace without any external dependency.
+Note that the source is an Eclipse project ready to be imported into your workspace without any external dependencies.
