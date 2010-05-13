@@ -22,4 +22,4 @@ To run the gtkjfilechooser-demo demo:
 java -jar gtkjfilechooser-demo.jar
 }}}
 
-If you experience some problems, report them immediately in the "Issues" section of this site.
+If you experience any problems, report them immediately in the "Issues" section of this site.
