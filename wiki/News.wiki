@@ -9,7 +9,6 @@ Minor bug fixes
 
 ===  28.03.2010 Release 1.4.6 ===
 Bug fixes
-
 The licence is now LGPL 3.0
 
 ===  27.01.2010 Release 1.4.4 ===
