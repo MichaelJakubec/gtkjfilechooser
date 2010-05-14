@@ -8,6 +8,7 @@
  * Contributors:
  *     Costantino Cerbo - initial API and implementation
  *     i30817 - Issue 60 (Layout improvements)
+ *     Yuvi Masory - Issue 63
  ******************************************************************************/
 package eu.kostia.gtkjfilechooser.ui;
 
