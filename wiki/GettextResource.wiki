@@ -3,7 +3,7 @@
 = I18N and L10N support based on GNU gettext =
 
 == Introduction ==
-The class GettextResource can read the .mo binary transaltion file in /usr/share/locale/_lang_/LC_MESSAGES.
+The class GettextResource can read the .mo binary translation file in /usr/share/locale/_lang_/LC_MESSAGES.
 
 We can internationalise strings as with gettext:
 {{{
