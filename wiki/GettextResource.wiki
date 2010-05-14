@@ -5,12 +5,12 @@
 == Introduction ==
 The class GettextResource can read the .mo binary transaltion file in /usr/share/locale/_lang_/LC_MESSAGES.
 
-We can internationalise string as with gettext:
+We can internationalise strings as with gettext:
 {{{
 button.setText(_("_Browse for other folders"));
 }}}
 
-It's always practical to use a wrapper as [http://code.google.com/p/gtkjfilechooser/source/browse/trunk/GtkJFileChooser/src/eu/kostia/gtkjfilechooser/I18N.java this] and import as static:
+You can use a wrapper such as [http://code.google.com/p/gtkjfilechooser/source/browse/trunk/GtkJFileChooser/src/eu/kostia/gtkjfilechooser/I18N.java this] and import it as static:
 {{{
 import static eu.kostia.gtkjfilechooser.I18N.*;
 [...]
@@ -19,9 +19,9 @@ createFolderButton = new JButton(_("Create Fo_lder"));
 createFolderButton.setMnemonic(getMnemonic("Create Fo_lder"));
 }}}
 
-It can also be used for declaring the mnemonics.
+It can also be used for declaring mnemonics.
 
-This is a general procedure to internationalise application using the gettext approach:
+Here's the general procedure to internationalise applications using the gettext approach:
 
 {{{
 $ xgettext -k -k_ -o keys.pot $(find src/ -name "*.java")
@@ -41,9 +41,9 @@ msgstr ""
 {{{
 $ msgmerge it.po keys.pot --output-file=keys.it.po
 }}}
-The file _it.pot_ contains a bundle of translations for some msgids and the above command merges the translations and saves the result in _keys.it.po_
+The file _it.pot_ contains a bundle of translations for some msgids. The above command merges the translations and saves the result in _keys.it.po_
 Note that the _.pot_ files contain msgids and emtpy msgstrs, while the ._lang iso_.po files contain the translations.
-Output example (if the msgid are already present and traslated in _it.pot_)
+Output example (if the msgids are already present and traslated in _it.pot_)
 {{{
 #: test/eu/kostia/gtkjfilechooser/POTest.java:14
 msgid "Hallo, how are you?"
@@ -68,7 +68,7 @@ System.out.printf (_("This program is running as process number %d.\n"), pid);
 The .mo file format is described [http://www.gnu.org/software/hello/manual/gettext/MO-Files.html#MO-Files here]
 
 
-==GettextResouse as command line tool==
+==GettextResouse as a command line tool==
 GettextResouse can also be used from the command line:
 {{{
 $ ./gettextResource 
@@ -88,4 +88,4 @@ Examples:
   gettextResource /usr/share/locale/it/LC_MESSAGES/gtk20.mo
 }}}
 
-For other info refer to the [http://code.google.com/p/gtkjfilechooser/source/browse/trunk/GtkJFileChooser/src/eu/kostia/gtkjfilechooser/GettextResource.java code] and the javadoc.
+For more info refer to the [http://code.google.com/p/gtkjfilechooser/source/browse/trunk/GtkJFileChooser/src/eu/kostia/gtkjfilechooser/GettextResource.java code] and the javadoc.
