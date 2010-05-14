@@ -203,6 +203,19 @@ public class GtkPathBar extends JPanel {
 						Size.GTK_ICON_SIZE_MENU));
 			}
 
+			//BEGIN Issue 63
+			//set the preferred width of the button to the size the button would need
+			//if it had bold text. this will prevent the button from resizing when it
+			//becomes the current directory and is bolded.
+			Font curFont = dirButton.getFont();
+			int curHeight = (int) dirButton.getPreferredSize().getHeight();
+			Font boldVersion = dirButton.getFont().deriveFont(Font.BOLD);
+			dirButton.setFont(boldVersion);
+			int boldWidth = (int) dirButton.getPreferredSize().getWidth() + 1;
+			dirButton.setFont(curFont);
+			dirButton.setPreferredSize(new Dimension(boldWidth, curHeight));
+			//END Issue 63
+			
 			dirButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
