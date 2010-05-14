@@ -57,12 +57,16 @@ import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -647,7 +651,10 @@ public class FileChooserDemo extends JPanel implements ActionListener {
 
 		FileChooserDemo panel = new FileChooserDemo();
 
-		frame = new JFrame("FileChooserDemo");
+		frame = new JFrame("FileChooserDemo");		
+		frame.setIconImage(Toolkit.getDefaultToolkit().getImage(
+				FileChooserDemo.class.getResource("/gnome_foot.png")));
+			
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
