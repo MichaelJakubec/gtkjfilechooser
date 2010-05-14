@@ -5,7 +5,7 @@
 == Introduction ==
 The class GettextResource can read the .mo binary translation file in /usr/share/locale/_lang_/LC_MESSAGES.
 
-We can internationalise strings as with gettext:
+You can internationalise strings as with gettext:
 {{{
 button.setText(_("_Browse for other folders"));
 }}}
