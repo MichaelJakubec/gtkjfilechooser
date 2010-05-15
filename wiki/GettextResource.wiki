@@ -54,7 +54,7 @@ msgid "Fine, thanks!"
 msgstr "Bene, grazie!"
 }}}
 
-To translate the remaining msgid you can use GUI tools like [www.poedit.net !poedit].
+To translate the remaining msgid you can use GUI tools like !poedit.
 
 {{{
 $ msgfmt keys.it.pot
