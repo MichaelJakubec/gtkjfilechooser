@@ -56,7 +56,7 @@ To launch the demo application, used for testing, double click on gtkjfilechoose
 
 [http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/FileChooserDemo.png]
 
-The demo is completly based on the Sun Java FileChooserDemo in $JAVA_HOME/demo/jfc/FileChooserDemo.
+The demo is completly based on the Sun Java !FileChooserDemo in $JAVA_HOME/demo/jfc/!FileChooserDemo.
 
 === 10.10.2009 Added Path autocompletion support ===
 [http://gtkjfilechooser.googlecode.com/svn/trunk/GtkJFileChooser/site/img/autocompletion.png]
