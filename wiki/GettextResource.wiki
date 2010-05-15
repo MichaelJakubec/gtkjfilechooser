@@ -54,7 +54,7 @@ msgid "Fine, thanks!"
 msgstr "Bene, grazie!"
 }}}
 
-To translate the remaining msgid you can use GUI tools like [www.poedit.net poedit].
+To translate the remaining msgid you can use GUI tools like [www.poedit.net !poedit].
 
 {{{
 $ msgfmt keys.it.pot
@@ -68,8 +68,8 @@ System.out.printf (_("This program is running as process number %d.\n"), pid);
 The .mo file format is described [http://www.gnu.org/software/hello/manual/gettext/MO-Files.html#MO-Files here]
 
 
-==GettextResouse as a command line tool==
-GettextResouse can also be used from the command line:
+==!GettextResouse as a command line tool==
+!GettextResouse can also be used from the command line:
 {{{
 $ ./gettextResource 
 Usage: gettextResource [-k MSGID] | [-i] FILENAME
