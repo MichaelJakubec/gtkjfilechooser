@@ -2,7 +2,7 @@
 
 = Key Bindings =
 
-As in GNOME, our FileChooser supports the following key bindings:
+As in GNOME, our !FileChooser supports the following key bindings:
 
 ||Control L||hide/show the location text field||
 ||Alt Up||go to next folder in the path bar||
