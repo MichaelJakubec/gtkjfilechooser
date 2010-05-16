@@ -112,6 +112,7 @@ public class FilesListPane extends JComponent implements ActionDispatcher {
 		table.setAutoCreateColumnsFromModel(false);
 		table.setBackground(UIManager.getColor("TextPane.background"));
 		table.getTableHeader().setReorderingAllowed(false);
+		table.getTableHeader().setBackground(UIManager.getColor("window"));
 		table.setIntercellSpacing(new Dimension(0,0));
 
 		Boolean showSizeColumn = GtkFileChooserSettings.get().getShowSizeColumn();

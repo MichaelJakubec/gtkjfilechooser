@@ -281,6 +281,7 @@ public class GtkLocationsPane extends JPanel {
 		public LockedJTable() {
 			getTableHeader().setReorderingAllowed(false);
 			getTableHeader().setResizingAllowed(false);
+			getTableHeader().setBackground(UIManager.getColor("window"));
 		}
 		
 		@Override
