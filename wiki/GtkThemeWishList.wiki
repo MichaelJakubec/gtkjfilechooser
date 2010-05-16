@@ -4,11 +4,13 @@ Things we can't really fix without better support from the underlying GTK theme 
 
 While our project gives a _very_ close approximation of most aspects of the GTK file chooser, there are certain limitations in the underlying Swing GTK theme engine that limits our ability to mimic GTK. Please add known limitations to this list.
 
+We are in the process of developing workarounds using gconftool and the like.
+
 This is *not* gospel. Please point out if there *is* a way to accomplish these goals using the existing GTK theme detector.
 
 
 = Known Limitations =
  * JTableHeaders are not drawn correctly. For example, in Ubuntu 10.04 Ambiance, the headers should be sharp rectangles with an inner round region that becomes highlighted with mouse-down. In Swing only the round inner region is drawn.
  * Font rendering is a bit different in Swing. The text is a bit larger in native apps.
- * We cannot detect the alternative color pattern in tables used in many themes. These colors simply are not provided in UIManager. Right now we hard-code a very common color pattern that works for all common built-in themes.
+ * We cannot detect the alternating color pattern in tables used in many themes. These colors simply are not provided in UIManager. Right now we hard-code a very common color pattern that works for all common built-in themes.
  * The theme engine does not provide all the icons we need. We have to try to pull them off the file system.
