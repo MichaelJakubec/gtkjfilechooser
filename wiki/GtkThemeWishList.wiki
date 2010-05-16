@@ -1,4 +1,4 @@
-Things we can't really fix without better support from the underlying GTK theme engine.
+#summary Limitations of the underlying GTK theme engine.
 
 = Overview =
 
