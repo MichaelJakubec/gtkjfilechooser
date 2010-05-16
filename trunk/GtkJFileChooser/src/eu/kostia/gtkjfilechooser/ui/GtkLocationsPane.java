@@ -77,12 +77,7 @@ public class GtkLocationsPane extends JPanel {
 
 		setLayout(new BorderLayout());
 
-		bookmarksTable = new JTable() {
-			@Override
-			public boolean isCellEditable(int row, int column) {
-				return false;
-			}
-		};
+		bookmarksTable = new LockedJTable();
 		bookmarksTable.setRowHeight(22);
 		bookmarksTable.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
 		bookmarksTable.setModel(new GtkBookmarksTableModel(manager.getAll()));
@@ -274,6 +269,22 @@ public class GtkLocationsPane extends JPanel {
 	private void fireActionPerformed(ActionEvent actionEvent) {
 		for (ActionListener listener : actionListeners) {			
 			listener.actionPerformed(actionEvent);
+		}
+	}
+	
+	/**
+	 * Special JTable whose elements are not editable, and header not moveable 
+	 **/
+	public class LockedJTable extends JTable {
+
+		public LockedJTable() {
+			getTableHeader().setReorderingAllowed(false);
+			getTableHeader().setResizingAllowed(false);
+		}
+		
+		@Override
+		public boolean isCellEditable(int row, int column) {
+			return false;
 		}
 	}
 
