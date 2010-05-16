@@ -135,7 +135,7 @@ public class GtkLocationsPane extends JPanel {
 
 
 		JScrollPane scrollpane = new JScrollPane(bookmarksTable);
-		scrollpane.setPreferredSize(new Dimension(200, 300));
+		scrollpane.setPreferredSize(new Dimension(137, 300));
 		add(scrollpane, BorderLayout.CENTER);
 	}
 
