@@ -1,4 +1,4 @@
-#summary Limitations of the underlying GTK theme engine.
+#summary Limitations of the underlying GTK theme engine
 
 = Overview =
 
