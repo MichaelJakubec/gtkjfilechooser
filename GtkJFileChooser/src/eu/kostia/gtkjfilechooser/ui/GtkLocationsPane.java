@@ -314,14 +314,6 @@ public class GtkLocationsPane extends JPanel {
 			setText(path.getName());
 			setIcon(GtkStockIcon.get(path.getIconName(), Size.GTK_ICON_SIZE_MENU));
 
-			if (isSelected) {
-				setForeground(UIManager.getColor("List.selectionForeground"));
-				setBackground(UIManager.getColor("List.selectionBackground"));
-			} else {
-				setForeground(UIManager.getColor("List.foreground"));
-				setBackground(UIManager.getColor("TextPane.background"));
-			}
-
 			if ((row + 1) < table.getRowCount()) { // if has next row
 				Object nextValue = table.getValueAt(row + 1, 0);
 				LowerBorder border = new LowerBorder(Color.GRAY, 1) {
