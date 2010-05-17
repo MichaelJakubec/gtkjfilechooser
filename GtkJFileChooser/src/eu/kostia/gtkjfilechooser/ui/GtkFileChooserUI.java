@@ -8,6 +8,7 @@
  * Contributors:
  *     Costantino Cerbo - initial API and implementation
  *     i30817 - Issue 60 (Layout improvements)
+ *     Yuvi Masory - Issue 71
  ******************************************************************************/
 /*
  * Copyright 2010 Costantino Cerbo.  All Rights Reserved.
@@ -123,7 +124,6 @@ import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
  * 
  * @version 1.95 10/02/08
  * @author Costantino Cerbo
- * Bug fixes - Yuvi Masory
  */
 public class GtkFileChooserUI extends BasicFileChooserUI implements
 		Serializable, PropertyChangeListener, ActionListener {
