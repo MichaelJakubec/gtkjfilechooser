@@ -50,12 +50,9 @@ import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Color;
 import java.awt.ComponentOrientation;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -75,7 +72,6 @@ import java.util.Locale;
 import javax.accessibility.AccessibleContext;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -127,6 +123,7 @@ import eu.kostia.gtkjfilechooser.ui.JPanelUtil.PanelElement;
  * 
  * @version 1.95 10/02/08
  * @author Costantino Cerbo
+ * Bug fixes - Yuvi Masory
  */
 public class GtkFileChooserUI extends BasicFileChooserUI implements
 		Serializable, PropertyChangeListener, ActionListener {
