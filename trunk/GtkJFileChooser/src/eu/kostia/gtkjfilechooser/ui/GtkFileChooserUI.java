@@ -50,9 +50,11 @@ import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.ComponentOrientation;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -73,6 +75,7 @@ import java.util.Locale;
 import javax.accessibility.AccessibleContext;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -519,10 +522,19 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements
 			removeBookmarkButton.setIcon(GtkStockIcon.get("gtk-remove",
 					Size.GTK_ICON_SIZE_BUTTON));
 		}
-
-		JPanel buttonPanel = createPanelBoxLayout(BoxLayout.Y_AXIS, Box
-				.createVerticalStrut(BOTTOM_ROW_GAP), JPanelUtil.createPanel(
-				new GridLayout(1, 2), addBookmarkButton, removeBookmarkButton));
+		
+		
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+		buttonPanel.add(Box.createVerticalStrut(BOTTOM_ROW_GAP));
+		addBookmarkButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+		removeBookmarkButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
+		JPanel innerPanel = new JPanel();
+		innerPanel.add(addBookmarkButton);
+		innerPanel.add(Box.createHorizontalStrut(ButtonAreaLayout.hGap));
+		innerPanel.add(removeBookmarkButton);
+		innerPanel.setLayout(new BoxLayout(innerPanel, BoxLayout.X_AXIS));
+		buttonPanel.add(innerPanel);
 
 		locationsPane = new GtkLocationsPane();
 		locationsPane.addActionListener(new ActionListener() {
