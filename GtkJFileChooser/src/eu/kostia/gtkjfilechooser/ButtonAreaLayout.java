@@ -23,7 +23,12 @@ import java.awt.LayoutManager;
  * preferred size width.
  */
 public class ButtonAreaLayout implements LayoutManager {
-	private int hGap = 5;
+	
+	/**
+	 * Gap between add/remove and open/cancel buttons.
+	 */
+	public static final int hGap = 6;
+	
 	private int topMargin = 17;
 
 	public void addLayoutComponent(String string, Component comp) {
