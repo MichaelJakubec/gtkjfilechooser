@@ -12,12 +12,9 @@
  ******************************************************************************/
 package eu.kostia.gtkjfilechooser.ui;
 
-import static eu.kostia.gtkjfilechooser.ui.JPanelUtil.createPanel;
-import static java.awt.BorderLayout.LINE_END;
-import static java.awt.BorderLayout.LINE_START;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -32,6 +29,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.swing.AbstractButton;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -85,10 +84,18 @@ public class GtkPathBar extends JPanel {
 		createButtonsPanel();
 		
 		backButton = createBackButton();		
-		add(createPanel(flowLayout(FlowLayout.LEFT), backButton, buttonsPanel),	LINE_START);
-
-		forwardButton = createForwardButton();
-		add(createPanel(flowLayout(FlowLayout.RIGHT), forwardButton), LINE_END);
+		forwardButton = createForwardButton();		
+		JPanel pathPanel = new JPanel();
+		BoxLayout bLayout = new BoxLayout(pathPanel, BoxLayout.LINE_AXIS);
+		pathPanel.setLayout(bLayout);
+		backButton.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+		pathPanel.add(backButton);
+		buttonsPanel.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+		pathPanel.add(buttonsPanel);
+		pathPanel.add(Box.createHorizontalGlue());
+		forwardButton.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+		pathPanel.add(forwardButton);
+		add(pathPanel);
 
 		int last = directories.length - 1;
 		currentStartIndex = last - VISIBLE_BUTTONS + 1;
@@ -152,19 +159,24 @@ public class GtkPathBar extends JPanel {
 		return backButton;
 	}
 
-	private void setStandardHeight(JButton backButton) {
-		Dimension size = backButton.getPreferredSize();
-		size.height = BUTTON_HEIGHT;
-		backButton.setPreferredSize(size);
+	private void setStandardHeight(JButton button) {
+		Dimension prefSize = button.getPreferredSize();
+		prefSize.height = BUTTON_HEIGHT;
+		Dimension maxSize = button.getMaximumSize();
+		maxSize.height = BUTTON_HEIGHT;
+		button.setPreferredSize(prefSize);
+		button.setMaximumSize(maxSize);
 	}
 
 	private void createButtonsPanel() {
 		dirButtonsgroup = new ButtonGroup();
 		if (buttonsPanel == null) {
-			buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+			buttonsPanel = new JPanel();
+			buttonsPanel.setLayout(new PathButtonsLayout());
 		}
-
-		buttonsPanel.removeAll();
+		else {
+			buttonsPanel.removeAll();
+		}
 
 		for (int i = 0; i < directories.length; i++) {
 			String dir = directories[i];
@@ -178,8 +190,16 @@ public class GtkPathBar extends JPanel {
 					d.height = BUTTON_HEIGHT;
 					return d;
 				}
+				
+				@Override
+				public Dimension getMaximumSize() {
+					Dimension d = super.getPreferredSize();
+					d.height = BUTTON_HEIGHT;
+					return d;
+				}
 			};
 
+			dirButton.setAlignmentY(Component.BOTTOM_ALIGNMENT);
 			dirButton.putClientProperty(DIRECTORY_INDEX, i);
 
 			if (dir.equals(File.separator)) {
