@@ -16,4 +16,4 @@ This is *not* gospel. Please point out if there *is* a way to accomplish these g
  * We cannot detect the alternating color pattern in tables used in many themes. These colors simply are not provided in UIManager. Right now we hard-code a very common color pattern that works for all common built-in themes.
  * The theme engine does not provide all the icons we need. We have to try to pull them off the file system.
  * Only some themes have mnemonics default-on. Others (e.g., Ambiance), only display mnemonics with the alt key down. There is no way to change the alt-hide behavior in Gtk, nor any way to detect whether the theme hides mnemonics by default.
-* The GTK L&F provides only a single-direction resize cursor (-->) on split pane dividers. it should be bi-directional (< -- >).
+ * The GTK L&F provides only a single-direction resize cursor (-->) on split pane dividers. it should be bi-directional (< -- >).
