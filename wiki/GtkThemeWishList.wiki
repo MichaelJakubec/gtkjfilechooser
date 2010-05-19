@@ -11,9 +11,7 @@ This is *not* gospel. Please point out if there *is* a way to accomplish these g
 
 = Wish List =
  * JTableHeaders are not drawn correctly. For example, in Ubuntu 10.04 Ambiance, the headers should be sharp rectangles with an inner round region that becomes highlighted with mouse-down. In Swing only the round inner region is drawn.
- * Swing gives table headers reasonable colors in custom themes, 
-but not the same ones native widgets get. In Swing they get the same colors as the 
-buttons, but the native widgets get a more neutral color.
+ * Swing gives table headers reasonable colors in custom themes, but not the same ones native widgets get. In Swing they get the same colors as the buttons, but the native widgets get a more neutral color.
  * Font rendering is a bit different in Swing. The text is a bit larger in native apps and the mnemonics are better centered. There are also subtle differences between OpenJDK and Sun Java rendering that causes the buttons and headers to be too short in OpenJDK.
  * We cannot detect the alternating color pattern in tables used in many themes. These colors simply are not provided in UIManager. Right now we hard-code a very common color pattern that works for all common built-in themes.
  * The theme engine does not provide all the icons we need. We have to try to pull them off the file system.
