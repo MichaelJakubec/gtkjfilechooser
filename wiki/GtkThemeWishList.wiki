@@ -18,3 +18,4 @@ This is *not* gospel. Please point out if there *is* a way to accomplish these g
  * Only some themes have mnemonics default-on. Others (e.g., Ambiance), only display mnemonics with the alt key down. There is no way to change the alt-hide behavior in Gtk, nor any way to detect whether the theme hides mnemonics by default.
  * The GTK L&F provides only a single-direction resize cursor (-->) on split pane dividers. It should be bi-directional (< -- >).
  * The color of a selected item is correct only when there is no focus. The selection with focus color is wrong. At least in some cases. See Issue 72 and Issue 73.
+ * JMenuItems drawn without borders in Clearlook theme. Already issue [http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6925412 6925412] in Oracle's bug database.
