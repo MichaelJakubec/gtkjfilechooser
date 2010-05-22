@@ -1,0 +1,2029 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xbel version="1.0"
+      xmlns:bookmark="http://www.freedesktop.org/standards/desktop-bookmarks"
+      xmlns:mime="http://www.freedesktop.org/standards/shared-mime-info"
+>
+  <bookmark href="file:///tmp/PT2.wmv" added="2009-09-13T23:28:58Z" modified="2009-09-21T01:29:09Z" visited="2009-09-13T23:28:58Z">
+    <title>PT2.wmv</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="video/x-ms-wmv"/>
+        <bookmark:groups>
+          <bookmark:group>Totem</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Totem - Riproduttore di filmati" exec="&apos;totem %u&apos;" modified="2009-09-21T01:29:09Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///tmp/090908corsera.pdf" added="2009-09-13T23:31:41Z" modified="2009-09-13T23:31:41Z" visited="2009-09-13T23:31:41Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/pdf"/>
+        <bookmark:applications>
+          <bookmark:application name="Document Viewer" exec="&apos;evince %u&apos;" modified="2009-09-13T23:31:41Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Scrivania/Collegamento%20a%20LJ%20Oct%2009.pdf" added="2009-09-14T17:10:40Z" modified="2009-09-14T17:10:41Z" visited="2009-09-14T17:10:40Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/pdf"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;evince&apos;" modified="2009-09-14T17:10:40Z" count="1"/>
+          <bookmark:application name="Document Viewer" exec="&apos;evince %u&apos;" modified="2009-09-14T17:10:41Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/jdic-0.9.5-bin-cross-platform/Browser.jar" added="2009-09-14T19:37:06Z" modified="2009-09-14T19:37:06Z" visited="2009-09-14T19:37:06Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/x-java-archive"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;java&apos;" modified="2009-09-14T19:37:06Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/jdic-0.9.5-bin-cross-platform/SimpleBrowser.jar" added="2009-09-14T19:37:18Z" modified="2009-09-14T19:37:18Z" visited="2009-09-14T19:37:18Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/x-java-archive"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;java&apos;" modified="2009-09-14T19:37:18Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/Schermata-Apri%20file.png" added="2009-09-14T20:03:21Z" modified="2009-09-14T20:03:51Z" visited="2009-09-14T20:03:21Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/png"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="GNOME Screenshot" exec="&apos;eog %u&apos;" modified="2009-09-14T20:03:21Z" count="1"/>
+          <bookmark:application name="nautilus" exec="&apos;gimp-2.6&apos;" modified="2009-09-14T20:03:35Z" count="1"/>
+          <bookmark:application name="GNU Image Manipulation Program" exec="&apos;gimp-2.6 %u&apos;" modified="2009-09-14T20:03:51Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/showLocation.png" added="2009-09-14T20:05:36Z" modified="2009-09-14T20:05:36Z" visited="2009-09-14T20:05:36Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/png"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="GNU Image Manipulation Program" exec="&apos;gimp-2.6 %u&apos;" modified="2009-09-14T20:05:36Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/jdic-0.9.5-bin-cross-platform/jdic.jar" added="2009-09-14T20:49:17Z" modified="2009-09-14T20:49:17Z" visited="2009-09-14T20:49:17Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/x-java-archive"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;file-roller&apos;" modified="2009-09-14T20:49:17Z" count="1"/>
+          <bookmark:application name="File Roller" exec="&apos;file-roller&apos;" modified="2009-09-14T20:49:17Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Download/rpm/org.jessies.blogbaboon-0.59.2932-2.x86_64.rpm" added="2009-09-14T20:51:33Z" modified="2009-09-14T20:51:33Z" visited="2009-09-14T20:51:33Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/x-rpm"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;/usr/bin/gpk-install-local-file&apos;" modified="2009-09-14T20:51:33Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/Exec.java" added="2009-09-14T21:22:57Z" modified="2009-09-14T21:23:00Z" visited="2009-09-14T21:22:57Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/x-java"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;gedit&apos;" modified="2009-09-14T21:22:57Z" count="1"/>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-14T21:23:00Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///tmp/FlashMvCIwX" added="2009-09-14T22:24:49Z" modified="2009-09-14T22:24:50Z" visited="2009-09-14T22:24:49Z">
+    <title>FlashMvCIwX</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="video/x-flv"/>
+        <bookmark:groups>
+          <bookmark:group>Totem</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;totem&apos;" modified="2009-09-14T22:24:49Z" count="1"/>
+          <bookmark:application name="Totem - Riproduttore di filmati" exec="&apos;totem %u&apos;" modified="2009-09-14T22:24:50Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/zenity-2.20.1/Makefile" added="2009-09-14T22:36:10Z" modified="2009-09-14T22:36:12Z" visited="2009-09-14T22:36:10Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/x-makefile"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;gedit&apos;" modified="2009-09-14T22:36:10Z" count="1"/>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-14T22:36:12Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/zenity-2.20.1/src/Makefile.in" added="2009-09-14T22:36:55Z" modified="2009-09-14T22:36:55Z" visited="2009-09-14T22:36:55Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-14T22:36:55Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/zenity-2.20.1/src/main.c" added="2009-09-14T22:37:15Z" modified="2009-09-14T22:37:16Z" visited="2009-09-14T22:37:15Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/x-csrc"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;gedit&apos;" modified="2009-09-14T22:37:15Z" count="1"/>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-14T22:37:16Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/zenity-2.20.1/src/fileselection.c" added="2009-09-14T22:40:15Z" modified="2009-09-14T22:40:15Z" visited="2009-09-14T22:40:15Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/x-csrc"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-14T22:40:15Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///tmp/samantha" added="2009-09-14T22:54:53Z" modified="2009-09-14T22:54:54Z" visited="2009-09-14T22:54:53Z">
+    <title>samantha</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="video/x-flv"/>
+        <bookmark:groups>
+          <bookmark:group>Totem</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;totem&apos;" modified="2009-09-14T22:54:53Z" count="1"/>
+          <bookmark:application name="Totem - Riproduttore di filmati" exec="&apos;totem %u&apos;" modified="2009-09-14T22:54:54Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///tmp/Flash7mlehH" added="2009-09-14T22:55:36Z" modified="2009-09-14T22:58:48Z" visited="2009-09-14T22:55:36Z">
+    <title>Flash7mlehH</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="video/x-flv"/>
+        <bookmark:groups>
+          <bookmark:group>Totem</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;totem&apos;" modified="2009-09-14T22:58:47Z" count="2"/>
+          <bookmark:application name="Totem - Riproduttore di filmati" exec="&apos;totem %u&apos;" modified="2009-09-14T22:58:48Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///tmp/FlashL44WXO" added="2009-09-14T22:55:59Z" modified="2009-09-14T22:56:11Z" visited="2009-09-14T22:55:59Z">
+    <title>FlashL44WXO</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="video/mp4"/>
+        <bookmark:groups>
+          <bookmark:group>Totem</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;totem&apos;" modified="2009-09-14T22:56:10Z" count="2"/>
+          <bookmark:application name="Totem - Riproduttore di filmati" exec="&apos;totem %u&apos;" modified="2009-09-14T22:56:11Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///tmp/FlashSefuoC" added="2009-09-14T22:56:34Z" modified="2009-09-14T22:57:40Z" visited="2009-09-14T22:56:34Z">
+    <title>FlashSefuoC</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="video/x-flv"/>
+        <bookmark:groups>
+          <bookmark:group>Totem</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;totem&apos;" modified="2009-09-14T22:57:40Z" count="2"/>
+          <bookmark:application name="Totem - Riproduttore di filmati" exec="&apos;totem %u&apos;" modified="2009-09-14T22:57:40Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///tmp/FlashB9y3Iw" added="2009-09-14T22:57:24Z" modified="2009-09-14T22:57:25Z" visited="2009-09-14T22:57:24Z">
+    <title>FlashB9y3Iw</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="video/x-flv"/>
+        <bookmark:groups>
+          <bookmark:group>Totem</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;totem&apos;" modified="2009-09-14T22:57:24Z" count="1"/>
+          <bookmark:application name="Totem - Riproduttore di filmati" exec="&apos;totem %u&apos;" modified="2009-09-14T22:57:25Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///tmp/FlashSX3jRN" added="2009-09-14T22:57:44Z" modified="2009-09-14T22:57:45Z" visited="2009-09-14T22:57:44Z">
+    <title>FlashSX3jRN</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="video/x-flv"/>
+        <bookmark:groups>
+          <bookmark:group>Totem</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;totem&apos;" modified="2009-09-14T22:57:44Z" count="1"/>
+          <bookmark:application name="Totem - Riproduttore di filmati" exec="&apos;totem %u&apos;" modified="2009-09-14T22:57:45Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///tmp/FlashTBki0K" added="2009-09-14T22:58:40Z" modified="2009-09-14T22:58:41Z" visited="2009-09-14T22:58:40Z">
+    <title>FlashTBki0K</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="video/x-flv"/>
+        <bookmark:groups>
+          <bookmark:group>Totem</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;totem&apos;" modified="2009-09-14T22:58:40Z" count="1"/>
+          <bookmark:application name="Totem - Riproduttore di filmati" exec="&apos;totem %u&apos;" modified="2009-09-14T22:58:41Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///tmp/Flash0WA7JZ" added="2009-09-14T22:58:52Z" modified="2009-09-14T22:58:53Z" visited="2009-09-14T22:58:52Z">
+    <title>Flash0WA7JZ</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="video/x-flv"/>
+        <bookmark:groups>
+          <bookmark:group>Totem</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;totem&apos;" modified="2009-09-14T22:58:52Z" count="1"/>
+          <bookmark:application name="Totem - Riproduttore di filmati" exec="&apos;totem %u&apos;" modified="2009-09-14T22:58:53Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///tmp/Ciao%20Bella-1.pdf" added="2009-09-16T16:58:53Z" modified="2009-09-16T16:58:53Z" visited="2009-09-16T16:58:53Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/pdf"/>
+        <bookmark:applications>
+          <bookmark:application name="Document Viewer" exec="&apos;evince %u&apos;" modified="2009-09-16T16:58:53Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///tmp/Ciao%20Bella-2.pdf" added="2009-09-16T16:59:51Z" modified="2009-09-16T16:59:51Z" visited="2009-09-16T16:59:51Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/pdf"/>
+        <bookmark:applications>
+          <bookmark:application name="Document Viewer" exec="&apos;evince %u&apos;" modified="2009-09-16T16:59:51Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/good%20news/r0012732.jpg" added="2009-09-16T17:19:47Z" modified="2009-09-16T17:20:06Z" visited="2009-09-16T17:19:47Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/jpeg"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;eog&apos;" modified="2009-09-16T17:19:47Z" count="1"/>
+          <bookmark:application name="Eye of GNOME Image Viewer" exec="&apos;eog %u&apos;" modified="2009-09-16T17:20:06Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/good%20news/r0012733.jpg" added="2009-09-16T17:19:51Z" modified="2009-09-16T17:19:51Z" visited="2009-09-16T17:19:51Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/jpeg"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Eye of GNOME Image Viewer" exec="&apos;eog %u&apos;" modified="2009-09-16T17:19:51Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/good%20news/r0012734.jpg" added="2009-09-16T17:19:52Z" modified="2009-09-16T17:19:52Z" visited="2009-09-16T17:19:52Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/jpeg"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Eye of GNOME Image Viewer" exec="&apos;eog %u&apos;" modified="2009-09-16T17:19:52Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/good%20news/r0012833.jpg" added="2009-09-16T17:19:57Z" modified="2009-09-16T17:24:04Z" visited="2009-09-16T17:19:57Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/jpeg"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Eye of GNOME Image Viewer" exec="&apos;eog %u&apos;" modified="2009-09-16T17:21:58Z" count="3"/>
+          <bookmark:application name="nautilus" exec="&apos;gimp-2.6&apos;" modified="2009-09-16T17:22:14Z" count="1"/>
+          <bookmark:application name="GNU Image Manipulation Program" exec="&apos;gimp-2.6 %u&apos;" modified="2009-09-16T17:24:04Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/good%20news/r0012834.jpg" added="2009-09-16T17:20:04Z" modified="2009-09-16T17:21:57Z" visited="2009-09-16T17:20:04Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/jpeg"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Eye of GNOME Image Viewer" exec="&apos;eog %u&apos;" modified="2009-09-16T17:21:57Z" count="4"/>
+          <bookmark:application name="nautilus" exec="&apos;eog&apos;" modified="2009-09-16T17:21:56Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/nuovo%20file" added="2009-09-16T21:14:55Z" modified="2009-09-16T21:14:56Z" visited="2009-09-16T21:14:55Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-16T21:14:56Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/txt" added="2009-09-16T21:15:15Z" modified="2009-09-18T19:10:43Z" visited="2009-09-16T21:15:15Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-18T19:10:43Z" count="3"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/.gtk-bookmarks" added="2009-09-17T17:43:09Z" modified="2009-09-17T19:57:39Z" visited="2009-09-17T17:43:09Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-17T19:57:39Z" count="9"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Musica/Classici%20napoletani/9zkimNUmnOk.flv" added="2009-09-17T19:55:53Z" modified="2009-09-17T19:55:55Z" visited="2009-09-17T19:55:53Z">
+    <title>9zkimNUmnOk.flv</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="video/x-flv"/>
+        <bookmark:groups>
+          <bookmark:group>Totem</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;totem&apos;" modified="2009-09-17T19:55:53Z" count="1"/>
+          <bookmark:application name="Totem - Riproduttore di filmati" exec="&apos;totem %u&apos;" modified="2009-09-17T19:55:55Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Musica/Classici%20napoletani/9zkimNUmnOk.mp3" added="2009-09-17T20:26:51Z" modified="2009-09-17T20:36:44Z" visited="2009-09-17T20:26:51Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="audio/mpeg"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;muine&apos;" modified="2009-09-17T20:36:44Z" count="3"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Musica/Classici%20napoletani/iCCPhG74jnw.mp3" added="2009-09-17T20:36:04Z" modified="2009-09-17T20:36:11Z" visited="2009-09-17T20:36:04Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="audio/mpeg"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;muine&apos;" modified="2009-09-17T20:36:11Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Musica/Classici%20napoletani/4ZnOmjj_Suw.mp3" added="2009-09-17T20:37:12Z" modified="2009-09-17T20:37:21Z" visited="2009-09-17T20:37:12Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="audio/mpeg"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;muine&apos;" modified="2009-09-17T20:37:21Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Musica/Classici%20napoletani/Te%20voglio%20bene%20assaje%20(S.%20Bruni).flv" added="2009-09-17T20:48:53Z" modified="2009-09-17T20:48:54Z" visited="2009-09-17T20:48:53Z">
+    <title>Te voglio bene assaje (S. Bruni).flv</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="video/x-flv"/>
+        <bookmark:groups>
+          <bookmark:group>Totem</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;totem&apos;" modified="2009-09-17T20:48:53Z" count="1"/>
+          <bookmark:application name="Totem - Riproduttore di filmati" exec="&apos;totem %u&apos;" modified="2009-09-17T20:48:54Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Musica/Classici%20napoletani/U&apos;%20Surdato%20innamorato%20(C.%20Villa).flv" added="2009-09-17T20:54:25Z" modified="2009-09-17T20:54:25Z" visited="2009-09-17T20:54:25Z">
+    <title>U&apos; Surdato innamorato (C. Villa).flv</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="video/x-flv"/>
+        <bookmark:groups>
+          <bookmark:group>Totem</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Totem - Riproduttore di filmati" exec="&apos;totem %u&apos;" modified="2009-09-17T20:54:25Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/SchermataApriFile.png" added="2009-09-17T22:38:22Z" modified="2009-09-17T22:38:23Z" visited="2009-09-17T22:38:22Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/png"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;eog&apos;" modified="2009-09-17T22:38:22Z" count="1"/>
+          <bookmark:application name="Eye of GNOME Image Viewer" exec="&apos;eog %u&apos;" modified="2009-09-17T22:38:23Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/Schermata.png" added="2009-09-17T22:38:36Z" modified="2009-09-29T21:16:39Z" visited="2009-09-17T22:38:36Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/png"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="GNOME Screenshot" exec="&apos;eog %u&apos;" modified="2009-09-29T21:16:21Z" count="2"/>
+          <bookmark:application name="nautilus" exec="&apos;kolourpaint&apos;" modified="2009-09-29T21:16:39Z" count="2"/>
+          <bookmark:application name="GNU Image Manipulation Program" exec="&apos;gimp-2.6 %u&apos;" modified="2009-09-17T22:38:52Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/Schermata-1.png" added="2009-09-17T22:39:56Z" modified="2009-09-17T22:40:09Z" visited="2009-09-17T22:39:56Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/png"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="GNOME Screenshot" exec="&apos;eog %u&apos;" modified="2009-09-17T22:39:56Z" count="1"/>
+          <bookmark:application name="Eye of GNOME Image Viewer" exec="&apos;eog %u&apos;" modified="2009-09-17T22:40:00Z" count="1"/>
+          <bookmark:application name="GNU Image Manipulation Program" exec="&apos;gimp-2.6 %u&apos;" modified="2009-09-17T22:40:09Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///usr/share/mime/packages/nautilus.xml" added="2009-09-17T22:55:37Z" modified="2009-09-17T22:55:37Z" visited="2009-09-17T22:55:37Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/xml"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-17T22:55:37Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///usr/share/mime/packages/kdenlive.xml" added="2009-09-17T22:56:04Z" modified="2009-09-18T18:16:03Z" visited="2009-09-17T22:56:04Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/xml"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-18T18:16:03Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///usr/share/mime/image/bmp.xml" added="2009-09-17T22:57:28Z" modified="2009-09-17T22:57:28Z" visited="2009-09-17T22:57:28Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/xml"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;gedit&apos;" modified="2009-09-17T22:57:28Z" count="1"/>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-17T22:57:28Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///usr/share/icons/gnome/16x16/mimetypes/txt.png" added="2009-09-17T22:59:31Z" modified="2009-09-17T22:59:32Z" visited="2009-09-17T22:59:31Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/png"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;eog&apos;" modified="2009-09-17T22:59:31Z" count="1"/>
+          <bookmark:application name="Eye of GNOME Image Viewer" exec="&apos;eog %u&apos;" modified="2009-09-17T22:59:32Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///usr/share/mime/all/all.xml" added="2009-09-17T23:03:11Z" modified="2009-09-18T20:44:59Z" visited="2009-09-17T23:03:11Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/xml"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-18T20:44:59Z" count="3"/>
+          <bookmark:application name="nautilus" exec="&apos;gedit&apos;" modified="2009-09-18T20:44:59Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///usr/share/mime/video/x-flv.xml" added="2009-09-17T23:03:21Z" modified="2009-09-17T23:03:21Z" visited="2009-09-17T23:03:21Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/xml"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;gedit&apos;" modified="2009-09-17T23:03:21Z" count="1"/>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-17T23:03:21Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Musica/Classici%20napoletani/for.sh" added="2009-09-18T17:54:42Z" modified="2009-09-18T17:58:28Z" visited="2009-09-18T17:54:42Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/x-shellscript"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;gedit&apos;" modified="2009-09-18T17:54:42Z" count="1"/>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-18T17:58:28Z" count="7"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Musica/Classici%20napoletani/r.mp3" added="2009-09-18T18:00:23Z" modified="2009-09-18T18:01:01Z" visited="2009-09-18T18:00:23Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="audio/mpeg"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;muine&apos;" modified="2009-09-18T18:01:01Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Musica/Classici%20napoletani/Reginella%20(R.Murolo).mp3" added="2009-09-18T18:00:38Z" modified="2009-09-26T20:53:39Z" visited="2009-09-18T18:00:38Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="audio/mpeg"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;muine&apos;" modified="2009-09-26T20:53:39Z" count="3"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///usr/share/mime/globs2" added="2009-09-18T18:18:48Z" modified="2009-09-18T21:15:19Z" visited="2009-09-18T18:18:48Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-18T21:15:19Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///usr/share/mime/generic-icons" added="2009-09-18T18:19:18Z" modified="2009-09-18T20:50:41Z" visited="2009-09-18T18:19:18Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-18T20:46:40Z" count="2"/>
+          <bookmark:application name="nautilus" exec="&apos;gedit&apos;" modified="2009-09-18T20:50:41Z" count="3"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///usr/share/icons/gnome/16x16/mimetypes/package-x-generic.png" added="2009-09-18T18:20:33Z" modified="2009-09-18T18:20:33Z" visited="2009-09-18T18:20:33Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/png"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;eog&apos;" modified="2009-09-18T18:20:33Z" count="1"/>
+          <bookmark:application name="Eye of GNOME Image Viewer" exec="&apos;eog %u&apos;" modified="2009-09-18T18:20:33Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///etc/mime.types" added="2009-09-18T18:22:22Z" modified="2009-09-18T18:22:22Z" visited="2009-09-18T18:22:22Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-18T18:22:22Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///usr/share/mime/icons" added="2009-09-18T18:22:57Z" modified="2009-09-18T20:46:32Z" visited="2009-09-18T18:22:57Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-18T20:46:32Z" count="2"/>
+          <bookmark:application name="nautilus" exec="&apos;gedit&apos;" modified="2009-09-18T20:46:31Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/.local/share/mime/globs2" added="2009-09-18T18:23:35Z" modified="2009-09-18T18:23:35Z" visited="2009-09-18T18:23:35Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-18T18:23:35Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/.local/share/mime/icons" added="2009-09-18T18:23:54Z" modified="2009-09-18T18:23:54Z" visited="2009-09-18T18:23:54Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-18T18:23:54Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/.local/share/mime/generic-icons" added="2009-09-18T18:24:01Z" modified="2009-09-18T20:47:31Z" visited="2009-09-18T18:24:01Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-18T20:47:31Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///usr/share/icons/gnome/16x16/mimetypes/application-x-executable.png" added="2009-09-18T19:05:49Z" modified="2009-09-18T21:33:56Z" visited="2009-09-18T19:05:49Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/png"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;eog&apos;" modified="2009-09-18T21:33:55Z" count="2"/>
+          <bookmark:application name="Eye of GNOME Image Viewer" exec="&apos;eog %u&apos;" modified="2009-09-18T21:33:56Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Musica/Grindhouse%20-%20Death%20Proof%20Soundtrack/11-dave_dee_dozy_beaky_mick_and_titch-hold_tight.mp3" added="2009-09-18T19:13:15Z" modified="2009-09-18T19:13:15Z" visited="2009-09-18T19:13:15Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="audio/mpeg"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;muine&apos;" modified="2009-09-18T19:13:15Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Musica/Grindhouse%20-%20Death%20Proof%20Soundtrack/12-pino_donaggio-sally_and_jack.mp3" added="2009-09-18T19:16:49Z" modified="2009-09-18T19:16:49Z" visited="2009-09-18T19:16:49Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="audio/mpeg"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;muine&apos;" modified="2009-09-18T19:16:49Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///usr/bin/mimetype" added="2009-09-18T19:50:48Z" modified="2009-09-18T19:50:48Z" visited="2009-09-18T19:50:48Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/x-perl"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-18T19:50:48Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///usr/share/file/magic" added="2009-09-18T19:52:31Z" modified="2009-09-18T19:52:31Z" visited="2009-09-18T19:52:31Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/x-vhdl"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-18T19:52:31Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///usr/share/icons/gnome/scalable/mimetypes/gnome-fs-executable.svg" added="2009-09-18T20:23:58Z" modified="2009-09-18T20:23:59Z" visited="2009-09-18T20:23:58Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/svg+xml"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;eog&apos;" modified="2009-09-18T20:23:58Z" count="1"/>
+          <bookmark:application name="Eye of GNOME Image Viewer" exec="&apos;eog %u&apos;" modified="2009-09-18T20:23:59Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///usr/share/icons/gnome/scalable/mimetypes/gnome-mime-application-ogg.svg" added="2009-09-18T20:24:12Z" modified="2009-09-18T20:24:12Z" visited="2009-09-18T20:24:12Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/svg+xml"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-18T20:24:12Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///usr/share/mime/aliases" added="2009-09-18T20:40:48Z" modified="2009-09-18T21:36:54Z" visited="2009-09-18T20:40:48Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-18T21:36:54Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///usr/share/mime/all/allfiles.xml" added="2009-09-18T20:44:36Z" modified="2009-09-18T20:44:36Z" visited="2009-09-18T20:44:36Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/xml"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-18T20:44:36Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///usr/share/mime/application/ogg.xml" added="2009-09-18T20:45:11Z" modified="2009-09-18T20:45:12Z" visited="2009-09-18T20:45:11Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/xml"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;gedit&apos;" modified="2009-09-18T20:45:11Z" count="1"/>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-18T20:45:12Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///usr/share/mime/types" added="2009-09-18T20:46:41Z" modified="2009-09-18T21:36:48Z" visited="2009-09-18T20:46:41Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-18T21:36:48Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/.local/share/mime/magic" added="2009-09-18T20:47:42Z" modified="2009-09-18T20:47:42Z" visited="2009-09-18T20:47:42Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-18T20:47:42Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/tutorial" added="2009-09-18T20:59:25Z" modified="2009-09-18T22:17:26Z" visited="2009-09-18T20:59:25Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/x-python"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;/usr/bin/spe&apos;" modified="2009-09-18T22:17:26Z" count="2"/>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-18T21:01:17Z" count="4"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Musica/Desktop.ini" added="2009-09-18T22:23:01Z" modified="2009-09-18T22:23:26Z" visited="2009-09-18T22:23:01Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-18T22:23:26Z" count="2"/>
+          <bookmark:application name="nautilus" exec="&apos;gedit&apos;" modified="2009-09-18T22:23:26Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/.config/user-dirs.dirs" added="2009-09-18T23:32:35Z" modified="2009-09-18T23:32:52Z" visited="2009-09-18T23:32:35Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-18T23:32:52Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///tmp/lettera_1.pdf" added="2009-09-19T01:00:11Z" modified="2009-09-19T01:00:11Z" visited="2009-09-19T01:00:11Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/pdf"/>
+        <bookmark:applications>
+          <bookmark:application name="Document Viewer" exec="&apos;evince %u&apos;" modified="2009-09-19T01:00:11Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///tmp/lettera_2.pdf" added="2009-09-19T01:00:39Z" modified="2009-09-19T01:00:39Z" visited="2009-09-19T01:00:39Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/pdf"/>
+        <bookmark:applications>
+          <bookmark:application name="Document Viewer" exec="&apos;evince %u&apos;" modified="2009-09-19T01:00:39Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///tmp/lettera_3.pdf" added="2009-09-19T01:00:54Z" modified="2009-09-19T01:00:54Z" visited="2009-09-19T01:00:54Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/pdf"/>
+        <bookmark:applications>
+          <bookmark:application name="Document Viewer" exec="&apos;evince %u&apos;" modified="2009-09-19T01:00:54Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///tmp/yalm.2009.09.pdf" added="2009-09-19T20:13:46Z" modified="2009-09-19T20:13:46Z" visited="2009-09-19T20:13:46Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/pdf"/>
+        <bookmark:applications>
+          <bookmark:application name="Document Viewer" exec="&apos;evince %u&apos;" modified="2009-09-19T20:13:46Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/bin/muCommander-0_8_3/readme.txt" added="2009-09-19T20:24:06Z" modified="2009-09-19T20:24:07Z" visited="2009-09-19T20:24:06Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;gedit&apos;" modified="2009-09-19T20:24:06Z" count="1"/>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-19T20:24:07Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/bin/muCommander-0_8_3/mucommander.sh" added="2009-09-19T20:24:25Z" modified="2009-09-19T20:24:26Z" visited="2009-09-19T20:24:25Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/x-shellscript"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;gedit&apos;" modified="2009-09-19T20:24:25Z" count="1"/>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-19T20:24:26Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="dvd:///dev/sr0" added="2009-09-19T20:45:25Z" modified="2009-09-19T20:45:25Z" visited="2009-09-19T20:45:25Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="video/x-totem-stream"/>
+        <bookmark:groups>
+          <bookmark:group>TotemStreams</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Totem - Riproduttore di filmati" exec="&apos;totem %u&apos;" modified="2009-09-19T20:45:25Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/.local/share/applications/calendar.gif" added="2009-09-19T21:37:50Z" modified="2009-09-19T21:48:45Z" visited="2009-09-19T21:37:50Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/gif"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;gimp-2.6&apos;" modified="2009-09-19T21:43:06Z" count="3"/>
+          <bookmark:application name="GNU Image Manipulation Program" exec="&apos;gimp-2.6 %u&apos;" modified="2009-09-19T21:48:45Z" count="7"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///tmp/ps1q07-20060392-Domsch.pdf" added="2009-09-19T22:05:17Z" modified="2009-09-19T22:05:17Z" visited="2009-09-19T22:05:17Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/pdf"/>
+        <bookmark:applications>
+          <bookmark:application name="Document Viewer" exec="&apos;evince %u&apos;" modified="2009-09-19T22:05:17Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///tmp/RGtk2.pdf" added="2009-09-19T22:59:46Z" modified="2009-09-19T22:59:46Z" visited="2009-09-19T22:59:46Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/pdf"/>
+        <bookmark:applications>
+          <bookmark:application name="Document Viewer" exec="&apos;evince %u&apos;" modified="2009-09-19T22:59:46Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///proc/2066/mounts" added="2009-09-19T23:07:04Z" modified="2009-09-19T23:07:04Z" visited="2009-09-19T23:07:04Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-19T23:07:04Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///tmp/redaktion.pdf" added="2009-09-20T00:33:43Z" modified="2009-09-20T00:33:43Z" visited="2009-09-20T00:33:43Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/pdf"/>
+        <bookmark:applications>
+          <bookmark:application name="Document Viewer" exec="&apos;evince %u&apos;" modified="2009-09-20T00:33:43Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/dvdrip-data/ratatouille/vob/001/ratatouille-006.vob" added="2009-09-20T00:38:38Z" modified="2009-09-20T00:38:40Z" visited="2009-09-20T00:38:38Z">
+    <title>ratatouille-006.vob</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="video/mpeg"/>
+        <bookmark:groups>
+          <bookmark:group>Totem</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;totem&apos;" modified="2009-09-20T00:38:38Z" count="1"/>
+          <bookmark:application name="Totem - Riproduttore di filmati" exec="&apos;totem %u&apos;" modified="2009-09-20T00:38:40Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/dvdrip-data/ratatouille/vob/001/ratatouille-005.vob" added="2009-09-20T00:39:13Z" modified="2009-09-20T00:39:14Z" visited="2009-09-20T00:39:13Z">
+    <title>ratatouille-005.vob</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="video/mpeg"/>
+        <bookmark:groups>
+          <bookmark:group>Totem</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;totem&apos;" modified="2009-09-20T00:39:13Z" count="1"/>
+          <bookmark:application name="Totem - Riproduttore di filmati" exec="&apos;totem %u&apos;" modified="2009-09-20T00:39:14Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/dvdrip-data/ratatouille/tmp/logfile.txt" added="2009-09-20T11:42:15Z" modified="2009-09-20T11:42:17Z" visited="2009-09-20T11:42:15Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;gedit&apos;" modified="2009-09-20T11:42:15Z" count="1"/>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-20T11:42:17Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///tmp/SliderView.java" added="2009-09-20T12:48:36Z" modified="2009-09-20T12:48:36Z" visited="2009-09-20T12:48:36Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/x-java"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-20T12:48:36Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Download/rangesliderdemo/RangeSlider.java" added="2009-09-20T12:55:44Z" modified="2009-09-20T12:55:45Z" visited="2009-09-20T12:55:44Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/x-java"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;gedit&apos;" modified="2009-09-20T12:55:44Z" count="1"/>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-20T12:55:45Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Musica/Classici%20napoletani/Malafemmina.mp3" added="2009-09-20T14:12:25Z" modified="2009-09-26T20:18:08Z" visited="2009-09-20T14:12:25Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="audio/mpeg"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;muine&apos;" modified="2009-09-26T20:18:08Z" count="3"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Musica/Classici%20napoletani/Y2eWglxp6g0.flv" added="2009-09-20T14:25:12Z" modified="2009-09-20T14:25:13Z" visited="2009-09-20T14:25:12Z">
+    <title>Y2eWglxp6g0.flv</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="video/x-flv"/>
+        <bookmark:groups>
+          <bookmark:group>Totem</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;totem&apos;" modified="2009-09-20T14:25:12Z" count="1"/>
+          <bookmark:application name="Totem - Riproduttore di filmati" exec="&apos;totem %u&apos;" modified="2009-09-20T14:25:13Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Musica/Classici%20napoletani/qNu5lWh_v-g.flv" added="2009-09-20T17:08:32Z" modified="2009-09-26T20:47:33Z" visited="2009-09-20T17:08:32Z">
+    <title>qNu5lWh_v-g.flv</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="video/x-flv"/>
+        <bookmark:groups>
+          <bookmark:group>Totem</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;totem&apos;" modified="2009-09-26T20:47:32Z" count="4"/>
+          <bookmark:application name="Totem - Riproduttore di filmati" exec="&apos;totem %u&apos;" modified="2009-09-26T20:47:33Z" count="4"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/testdata.sql" added="2009-09-20T19:22:18Z" modified="2009-09-20T22:30:59Z" visited="2009-09-20T19:22:18Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/x-sql"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-20T22:30:59Z" count="8"/>
+          <bookmark:application name="nautilus" exec="&apos;gedit&apos;" modified="2009-09-20T22:28:45Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Download/rangesliderdemo/slider/RangeSliderDemo.java" added="2009-09-20T22:08:23Z" modified="2009-09-20T22:08:23Z" visited="2009-09-20T22:08:23Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/x-java"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-20T22:08:23Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Download/rangesliderdemo/slider/RangeSlider.java" added="2009-09-20T22:08:55Z" modified="2009-09-20T22:08:55Z" visited="2009-09-20T22:08:55Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/x-java"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-20T22:08:55Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/workspaces_netbeans/CasaDB/src/casadb/Casa.java" added="2009-09-20T22:09:28Z" modified="2009-09-20T22:09:28Z" visited="2009-09-20T22:09:28Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/x-java"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-20T22:09:28Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/workspaces_netbeans/CasaDB/src/casadb/RangeSlider.java" added="2009-09-20T22:09:42Z" modified="2009-09-20T22:09:53Z" visited="2009-09-20T22:09:42Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/x-java"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-20T22:09:53Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/workspaces_netbeans/CasaDB/src/casadb/RangeSliderUI.java" added="2009-09-20T22:09:56Z" modified="2009-09-20T22:09:58Z" visited="2009-09-20T22:09:56Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/x-java"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-20T22:09:58Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/.casa/casa/service.properties" added="2009-09-20T22:26:05Z" modified="2009-09-20T22:26:05Z" visited="2009-09-20T22:26:05Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-20T22:26:05Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/CASA.grab" added="2009-09-20T22:28:04Z" modified="2009-09-20T22:28:04Z" visited="2009-09-20T22:28:04Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/octet-stream"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;gedit&apos;" modified="2009-09-20T22:28:04Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Dropbox/CasaDB/src/casadb/Search.java" added="2009-09-20T22:33:30Z" modified="2009-09-20T22:33:30Z" visited="2009-09-20T22:33:30Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/x-java"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;jedit&apos;" modified="2009-09-20T22:33:30Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Dropbox/CasaDB/src/casadb/Search.form" added="2009-09-20T22:33:39Z" modified="2009-09-20T22:33:40Z" visited="2009-09-20T22:33:39Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/xml"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;gedit&apos;" modified="2009-09-20T22:33:39Z" count="1"/>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-20T22:33:40Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///media/Dati%20personali,%2014%20giu%202007/emmerdeuse.avi" added="2009-09-21T01:18:45Z" modified="2009-09-21T01:18:46Z" visited="2009-09-21T01:18:45Z">
+    <title>emmerdeuse.avi</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="video/x-msvideo"/>
+        <bookmark:groups>
+          <bookmark:group>Totem</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;totem&apos;" modified="2009-09-21T01:18:45Z" count="1"/>
+          <bookmark:application name="Totem - Riproduttore di filmati" exec="&apos;totem %u&apos;" modified="2009-09-21T01:18:46Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///media/Dati%20personali,%2014%20giu%202007/deux_soeurs.avi" added="2009-09-21T01:21:27Z" modified="2009-09-21T01:21:28Z" visited="2009-09-21T01:21:27Z">
+    <title>deux_soeurs.avi</title>
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="video/x-msvideo"/>
+        <bookmark:groups>
+          <bookmark:group>Totem</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;totem&apos;" modified="2009-09-21T01:21:27Z" count="1"/>
+          <bookmark:application name="Totem - Riproduttore di filmati" exec="&apos;totem %u&apos;" modified="2009-09-21T01:21:28Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Dropbox/CasaDB2/casa.sql" added="2009-09-23T18:20:23Z" modified="2009-09-23T18:24:48Z" visited="2009-09-23T18:20:23Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/x-sql"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;gedit&apos;" modified="2009-09-23T18:20:23Z" count="1"/>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-23T18:24:48Z" count="3"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/schema.sql" added="2009-09-23T18:23:37Z" modified="2009-09-23T18:23:37Z" visited="2009-09-23T18:23:37Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/x-sql"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-23T18:23:37Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Dropbox/CasaDB2/src/casadb2/resources/clear.resized.png" added="2009-09-23T22:13:52Z" modified="2009-09-23T22:13:54Z" visited="2009-09-23T22:13:52Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/png"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;eog&apos;" modified="2009-09-23T22:13:52Z" count="1"/>
+          <bookmark:application name="Eye of GNOME Image Viewer" exec="&apos;eog %u&apos;" modified="2009-09-23T22:13:54Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///usr/share/icons/gnome/scalable/actions/editclear.svg" added="2009-09-23T22:15:38Z" modified="2009-09-23T22:15:38Z" visited="2009-09-23T22:15:38Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/svg+xml"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;eog&apos;" modified="2009-09-23T22:15:38Z" count="1"/>
+          <bookmark:application name="Eye of GNOME Image Viewer" exec="&apos;eog %u&apos;" modified="2009-09-23T22:15:38Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///usr/share/icons/gnome/scalable/actions/edit-clear.svg" added="2009-09-23T22:15:57Z" modified="2009-09-23T22:16:02Z" visited="2009-09-23T22:15:57Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/svg+xml"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;inkscape&apos;" modified="2009-09-23T22:15:57Z" count="1"/>
+          <bookmark:application name="inkscape" exec="&apos;inkscape %u&apos;" modified="2009-09-23T22:16:02Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Dropbox/ilfatto20090924.pdf" added="2009-09-23T22:19:06Z" modified="2009-09-23T22:19:06Z" visited="2009-09-23T22:19:06Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/pdf"/>
+        <bookmark:applications>
+          <bookmark:application name="Document Viewer" exec="&apos;evince %u&apos;" modified="2009-09-23T22:19:06Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Dropbox/CasaDB2/dist/README.TXT" added="2009-09-23T23:25:09Z" modified="2009-09-23T23:25:09Z" visited="2009-09-23T23:25:09Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-23T23:25:09Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Dropbox/CasaDB2/dist/CasaDB2.jar" added="2009-09-23T23:25:19Z" modified="2009-09-23T23:25:19Z" visited="2009-09-23T23:25:19Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/x-java-archive"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;java&apos;" modified="2009-09-23T23:25:19Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Dropbox/ilfatto20090925.pdf" added="2009-09-24T22:45:07Z" modified="2009-09-25T18:29:18Z" visited="2009-09-24T22:45:08Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/pdf"/>
+        <bookmark:applications>
+          <bookmark:application name="Document Viewer" exec="&apos;evince %u&apos;" modified="2009-09-25T18:29:18Z" count="2"/>
+          <bookmark:application name="nautilus" exec="&apos;evince&apos;" modified="2009-09-25T18:29:16Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Scrivania/Dropbox/CasaDB2/store/CasaDB2.jar" added="2009-09-25T18:08:33Z" modified="2009-09-25T18:08:45Z" visited="2009-09-25T18:08:33Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/x-java-archive"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;java&apos;" modified="2009-09-25T18:08:45Z" count="2"/>
+          <bookmark:application name="File Roller" exec="&apos;file-roller&apos;" modified="2009-09-25T18:08:35Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Musica/Classici%20napoletani/I&apos;%20te%20vurria%20vas%C3%A0%20(Bruni,%20Martino,%20Murolo,%20Mina).mp3" added="2009-09-25T18:14:04Z" modified="2009-09-26T20:13:01Z" visited="2009-09-25T18:14:04Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="audio/mpeg"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;muine&apos;" modified="2009-09-26T20:13:01Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Scrivania/Dropbox/CasaDB2/dist/CasaDB2.jar" added="2009-09-25T18:31:44Z" modified="2009-09-25T18:31:46Z" visited="2009-09-25T18:31:44Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/x-java-archive"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;file-roller&apos;" modified="2009-09-25T18:31:44Z" count="1"/>
+          <bookmark:application name="File Roller" exec="&apos;file-roller&apos;" modified="2009-09-25T18:31:46Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/.cache/.fr-3rwP3e/META-INF/MANIFEST.MF" added="2009-09-25T18:31:53Z" modified="2009-09-25T18:31:53Z" visited="2009-09-25T18:31:53Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-25T18:31:53Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/CasaDB2/manifest.mf" added="2009-09-25T18:34:59Z" modified="2009-09-25T18:34:59Z" visited="2009-09-25T18:35:00Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-25T18:34:59Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Scrivania/Dropbox/Public/TopSecret.txt" added="2009-09-25T19:03:52Z" modified="2009-09-25T19:03:55Z" visited="2009-09-25T19:03:52Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;gedit&apos;" modified="2009-09-25T19:03:52Z" count="1"/>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-25T19:03:55Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/bin/launch4j/demo/SimpleApp/SimpleApp.jar" added="2009-09-25T21:18:39Z" modified="2009-09-25T21:18:39Z" visited="2009-09-25T21:18:39Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/x-java-archive"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;java&apos;" modified="2009-09-25T21:18:39Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/bin/launch4j/demo/ConsoleApp/ConsoleApp.jar" added="2009-09-25T21:18:56Z" modified="2009-09-25T21:18:56Z" visited="2009-09-25T21:18:56Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/x-java-archive"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;java&apos;" modified="2009-09-25T21:18:56Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/bin/launch4j/demo/ConsoleApp/l4j/ConsoleApp.ico" added="2009-09-25T21:19:02Z" modified="2009-09-25T21:19:03Z" visited="2009-09-25T21:19:02Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/vnd.microsoft.icon"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;eog&apos;" modified="2009-09-25T21:19:02Z" count="1"/>
+          <bookmark:application name="Eye of GNOME Image Viewer" exec="&apos;eog %u&apos;" modified="2009-09-25T21:19:03Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/bin/launch4j/demo/SimpleApp/l4j/SimpleApp.ico" added="2009-09-25T21:19:11Z" modified="2009-09-25T21:19:11Z" visited="2009-09-25T21:19:11Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/vnd.microsoft.icon"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;eog&apos;" modified="2009-09-25T21:19:11Z" count="1"/>
+          <bookmark:application name="Eye of GNOME Image Viewer" exec="&apos;eog %u&apos;" modified="2009-09-25T21:19:11Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Dropbox/ilfatto20090926.pdf" added="2009-09-25T22:05:37Z" modified="2009-09-25T22:05:37Z" visited="2009-09-25T22:05:37Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/pdf"/>
+        <bookmark:applications>
+          <bookmark:application name="Document Viewer" exec="&apos;evince %u&apos;" modified="2009-09-25T22:05:37Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///tmp/Guava_a_sketchy_overview.pdf" added="2009-09-26T01:25:09Z" modified="2009-09-26T01:25:09Z" visited="2009-09-26T01:25:09Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/pdf"/>
+        <bookmark:applications>
+          <bookmark:application name="Document Viewer" exec="&apos;evince %u&apos;" modified="2009-09-26T01:25:09Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/.gconfd/saved_state" added="2009-09-26T10:12:38Z" modified="2009-09-26T10:12:38Z" visited="2009-09-26T10:12:38Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-26T10:12:38Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/.config/gtk-2.0/gtkfilechooser.ini" added="2009-09-26T10:21:24Z" modified="2009-09-28T21:09:11Z" visited="2009-09-26T10:21:25Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/x-wine-extension-ini"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-28T21:09:11Z" count="15"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/.config/glade-3.conf" added="2009-09-26T12:51:37Z" modified="2009-09-26T12:51:37Z" visited="2009-09-26T12:51:37Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-26T12:51:37Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/workspaces_eclipse/text-analysis/trunk/GTKFileChooser/test/eu/kostia/gtkfilechooser/example.ini" added="2009-09-26T14:08:22Z" modified="2009-09-26T14:08:37Z" visited="2009-09-26T14:08:22Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/x-wine-extension-ini"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-26T14:08:37Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Video/Flash/Buon%20Compleanno/compleanno_230305_10.swf" added="2009-09-26T19:57:38Z" modified="2009-09-27T09:40:16Z" visited="2009-09-26T19:57:38Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/x-shockwave-flash"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;/usr/libexec/gnash-wrapper&apos;" modified="2009-09-27T09:40:16Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Musica/Classici%20napoletani/Te%20voglio%20bene%20assaje%20(S.%20Bruni).mp3" added="2009-09-26T20:11:21Z" modified="2009-09-26T20:11:21Z" visited="2009-09-26T20:11:21Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="audio/mpeg"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;muine&apos;" modified="2009-09-26T20:11:21Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Musica/Classici%20napoletani/Marechiaro%20(C.%20Villa).mp3" added="2009-09-26T20:21:29Z" modified="2009-09-26T20:21:29Z" visited="2009-09-26T20:21:29Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="audio/mpeg"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;muine&apos;" modified="2009-09-26T20:21:29Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Musica/Classici%20napoletani/Maruzzella.mp3" added="2009-09-26T20:24:58Z" modified="2009-09-26T20:24:58Z" visited="2009-09-26T20:24:58Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="audio/mpeg"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;muine&apos;" modified="2009-09-26T20:24:58Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Musica/Classici%20napoletani/Munastero%20e&apos;%20Santa%20Chiara%20(C.%20Villa).mp3" added="2009-09-26T20:32:34Z" modified="2009-09-26T20:32:34Z" visited="2009-09-26T20:32:34Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="audio/mpeg"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;muine&apos;" modified="2009-09-26T20:32:34Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/temp/temp" added="2009-09-27T00:28:31Z" modified="2009-09-27T00:28:42Z" visited="2009-09-27T00:28:31Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-27T00:28:42Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Dropbox/ilfatto20090927.pdf" added="2009-09-27T00:41:38Z" modified="2009-09-27T09:57:35Z" visited="2009-09-27T00:41:38Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/pdf"/>
+        <bookmark:applications>
+          <bookmark:application name="Document Viewer" exec="&apos;evince %u&apos;" modified="2009-09-27T09:57:35Z" count="2"/>
+          <bookmark:application name="nautilus" exec="&apos;evince&apos;" modified="2009-09-27T09:57:34Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/workspaces_eclipse/text-analysis/trunk/GtkJFileChooser/site/img/Swing_new_GtkFileChooser.png" added="2009-09-27T19:24:28Z" modified="2009-09-27T19:24:28Z" visited="2009-09-27T19:24:28Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/png"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="GNOME Screenshot" exec="&apos;eog %u&apos;" modified="2009-09-27T19:24:28Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/workspaces_eclipse/text-analysis/trunk/GtkJFileChooser/site/img/old.png" added="2009-09-27T19:24:54Z" modified="2009-09-27T19:24:54Z" visited="2009-09-27T19:24:54Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/png"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="GNOME Screenshot" exec="&apos;eog %u&apos;" modified="2009-09-27T19:24:54Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/workspaces_eclipse/text-analysis/trunk/GtkJFileChooser/site/img/new_GtkFileChooser.png" added="2009-09-27T19:29:11Z" modified="2009-09-27T22:20:06Z" visited="2009-09-27T19:29:11Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/png"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;kolourpaint&apos;" modified="2009-09-27T22:20:06Z" count="4"/>
+          <bookmark:application name="GNU Image Manipulation Program" exec="&apos;gimp-2.6 %u&apos;" modified="2009-09-27T19:29:19Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/bin/terppaint-3.4/terppaint.sh" added="2009-09-27T20:13:56Z" modified="2009-09-27T20:23:07Z" visited="2009-09-27T20:13:56Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/x-shellscript"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-27T20:23:07Z" count="5"/>
+          <bookmark:application name="nautilus" exec="&apos;gedit&apos;" modified="2009-09-27T20:15:12Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/bin/terppaint-3.4/README" added="2009-09-27T20:15:38Z" modified="2009-09-27T20:15:38Z" visited="2009-09-27T20:15:38Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/x-readme"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-27T20:15:38Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/bin/HeliosPaint.jar" added="2009-09-27T21:05:01Z" modified="2009-09-27T21:11:03Z" visited="2009-09-27T21:05:01Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/x-java-archive"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;java&apos;" modified="2009-09-27T21:11:03Z" count="3"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="trash:///terppaint-3.4/terppaint.sh" added="2009-09-27T21:06:06Z" modified="2009-09-27T21:06:06Z" visited="2009-09-27T21:06:06Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/x-shellscript"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-27T21:06:06Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/bin/HeliosPaint/HeliosPaint.sh" added="2009-09-27T21:18:55Z" modified="2009-09-27T21:19:15Z" visited="2009-09-27T21:18:55Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/x-shellscript"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-27T21:19:15Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/workspaces_eclipse/text-analysis/trunk/GtkJFileChooser/site/img/old-gtk-file-selector.resized.png" added="2009-09-27T21:51:56Z" modified="2009-09-27T21:51:57Z" visited="2009-09-27T21:51:56Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/png"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;eog&apos;" modified="2009-09-27T21:51:56Z" count="1"/>
+          <bookmark:application name="Eye of GNOME Image Viewer" exec="&apos;eog %u&apos;" modified="2009-09-27T21:51:57Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Download/win/paintnt.exe" added="2009-09-27T22:08:09Z" modified="2009-09-27T22:10:07Z" visited="2009-09-27T22:08:09Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/x-ms-dos-executable"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;wine&apos;" modified="2009-09-27T22:10:07Z" count="3"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/workspaces_eclipse/text-analysis/trunk/GtkJFileChooser/site/img/Swing_old_GtkFileChooser.png" added="2009-09-27T22:13:12Z" modified="2009-09-27T22:13:12Z" visited="2009-09-27T22:13:12Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/png"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;eog&apos;" modified="2009-09-27T22:13:12Z" count="1"/>
+          <bookmark:application name="Eye of GNOME Image Viewer" exec="&apos;eog %u&apos;" modified="2009-09-27T22:13:12Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/workspaces_eclipse/text-analysis/trunk/GtkJFileChooser/jar.jardesc" added="2009-09-27T22:35:47Z" modified="2009-09-27T22:35:47Z" visited="2009-09-27T22:35:47Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/xml"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-27T22:35:47Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/workspaces_eclipse/text-analysis/trunk/GtkJFileChooser/dist/gtkjfilechooser.jar" added="2009-09-27T22:49:37Z" modified="2009-09-27T22:51:16Z" visited="2009-09-27T22:49:37Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/x-java-archive"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;file-roller&apos;" modified="2009-09-27T22:51:16Z" count="2"/>
+          <bookmark:application name="File Roller" exec="&apos;file-roller&apos;" modified="2009-09-27T22:51:16Z" count="4"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/.cache/.fr-jXntEq/META-INF/MANIFEST.MF" added="2009-09-27T22:51:19Z" modified="2009-09-27T22:51:19Z" visited="2009-09-27T22:51:19Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/plain"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-27T22:51:19Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/workspaces_eclipse/text-analysis/trunk/GtkJFileChooser/site/img/java-gtk.png" added="2009-09-27T23:20:26Z" modified="2009-09-27T23:33:17Z" visited="2009-09-27T23:20:26Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/png"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;eog&apos;" modified="2009-09-27T23:33:17Z" count="6"/>
+          <bookmark:application name="Eye of GNOME Image Viewer" exec="&apos;eog %u&apos;" modified="2009-09-27T23:33:17Z" count="2"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/workspaces_eclipse/text-analysis/trunk/GtkJFileChooser/site/img/java.png" added="2009-09-27T23:24:58Z" modified="2009-09-27T23:24:58Z" visited="2009-09-27T23:24:58Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/png"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;kolourpaint&apos;" modified="2009-09-27T23:24:58Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/workspaces_eclipse/text-analysis/trunk/GtkJFileChooser/site/img/GTK-2.4.xml.png" added="2009-09-27T23:25:07Z" modified="2009-09-27T23:25:07Z" visited="2009-09-27T23:25:07Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/png"/>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;kolourpaint&apos;" modified="2009-09-27T23:25:07Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Dropbox/ilfatto20090929.pdf" added="2009-09-28T22:58:29Z" modified="2009-09-28T22:58:29Z" visited="2009-09-28T22:58:29Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/pdf"/>
+        <bookmark:applications>
+          <bookmark:application name="Document Viewer" exec="&apos;evince %u&apos;" modified="2009-09-28T22:58:29Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/workspaces_eclipse/text-analysis/trunk/GtkJFileChooser/test/eu/kostia/gtkjfilechooser/ui/GtkFileChooserUITestGui.java" added="2009-09-28T23:37:25Z" modified="2009-09-28T23:37:25Z" visited="2009-09-28T23:37:25Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/x-java"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-28T23:37:25Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/Dropbox/ilfatto20090930.pdf" added="2009-09-29T22:56:46Z" modified="2009-09-29T22:56:46Z" visited="2009-09-29T22:56:46Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="application/pdf"/>
+        <bookmark:applications>
+          <bookmark:application name="Document Viewer" exec="&apos;evince %u&apos;" modified="2009-09-29T22:56:46Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/workspaces_eclipse/text-analysis/trunk/GtkJFileChooser/site/img/Schermata-Apri.png" added="2009-09-30T18:55:12Z" modified="2009-09-30T18:55:12Z" visited="2009-09-30T18:55:12Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="image/png"/>
+        <bookmark:groups>
+          <bookmark:group>Graphics</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="GNOME Screenshot" exec="&apos;eog %u&apos;" modified="2009-09-30T18:55:12Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+  <bookmark href="file:///home/c.cerbo/workspaces_eclipse/text-analysis/trunk/GtkJFileChooser/misc/xbel/eu/kostia/Bookmark.java" added="2009-09-30T19:03:25Z" modified="2009-09-30T19:03:27Z" visited="2009-09-30T19:03:25Z">
+    <info>
+      <metadata owner="http://freedesktop.org">
+        <mime:mime-type type="text/x-java"/>
+        <bookmark:groups>
+          <bookmark:group>gedit</bookmark:group>
+        </bookmark:groups>
+        <bookmark:applications>
+          <bookmark:application name="nautilus" exec="&apos;gedit&apos;" modified="2009-09-30T19:03:25Z" count="1"/>
+          <bookmark:application name="Text Editor" exec="&apos;gedit %u&apos;" modified="2009-09-30T19:03:27Z" count="1"/>
+        </bookmark:applications>
+      </metadata>
+    </info>
+  </bookmark>
+</xbel>

@@ -1,0 +1,2 @@
+The native GtkFileDialog is now officially in the OpenJDK 7 (based on some code in this project):
+http://mail.openjdk.java.net/pipermail/awt-dev/2010-April/001254.html
