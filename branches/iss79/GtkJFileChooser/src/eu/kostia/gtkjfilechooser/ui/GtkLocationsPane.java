@@ -196,38 +196,56 @@ public class GtkLocationsPane extends JPanel {
 	}
 
 	protected void onRightMouseButtonClick(MouseEvent evt, Path path) {
+		GtkBookmark bookmark = null;
 		if (path instanceof GtkBookmark) {
-			GtkBookmark bookmark = (GtkBookmark) path;
-			JPopupMenu editPopup = createEditPopup(evt, bookmark);
-			editPopup.show(evt.getComponent(), evt.getX(), evt.getY());
+			bookmark = (GtkBookmark) path;
 		}
+		else if (path instanceof BasicPath) {
+			bookmark = null;
+		}
+		else {
+			return;
+		}
+		JPopupMenu editPopup = createEditPopup(evt, bookmark);
+		editPopup.show(evt.getComponent(), evt.getX(), evt.getY());
 	}
 
+	/* If bookmark is null will create a "dummy" popup menu with disabled items */
 	private JPopupMenu createEditPopup(final MouseEvent evt, final GtkBookmark bookmark) {
 		JPopupMenu popup = new JPopupMenu();
 		JMenuItem removeItem = new JMenuItem(_("_Remove"));
 		removeItem.setMnemonic(getMnemonic("_Remove"));
-		removeItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				remove(bookmark);
-			}
-		});
+		if(bookmark != null) {
+			removeItem.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					remove(bookmark);
+				}
+			});
+		}
 		removeItem.setIcon(GtkStockIcon.get("gtk-remove", Size.GTK_ICON_SIZE_MENU));
 		popup.add(removeItem);
+		if(bookmark == null) {
+			removeItem.setEnabled(false);
+		}
 
 		JMenuItem renameItem = new JMenuItem(_("Rename..."));
-		renameItem.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				final JTable table = (JTable) evt.getSource();
-				Point p = evt.getPoint();
-				final int row = table.rowAtPoint(p);
-				table.editCellAt(row, 0);
-			}
-		});
+		if(bookmark != null) {
+			renameItem.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					final JTable table = (JTable) evt.getSource();
+					Point p = evt.getPoint();
+					final int row = table.rowAtPoint(p);
+					table.editCellAt(row, 0);
+				}
+			});
+		}
 		popup.add(renameItem);
-
+		if(bookmark == null) {
+			renameItem.setEnabled(false);
+		}
+		
 		return popup;
 	}
 
