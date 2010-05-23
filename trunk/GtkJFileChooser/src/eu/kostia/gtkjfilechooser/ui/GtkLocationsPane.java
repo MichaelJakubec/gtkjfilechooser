@@ -7,7 +7,7 @@
  * 
  * Contributors:
  *     Costantino Cerbo - initial API and implementation
- *     Yuvi Masory - Issues 59 (partial), 66, 67, 68
+ *     Yuvi Masory - Issues 59 (partial), 66, 67, 68, 79
  ******************************************************************************/
 package eu.kostia.gtkjfilechooser.ui;
 
