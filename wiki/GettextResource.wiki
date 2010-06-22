@@ -24,7 +24,7 @@ It can also be used for declaring mnemonics.
 Here's the general procedure to internationalise applications using the gettext approach:
 
 {{{
-$ xgettext -k -k_ -o keys.pot $(find src/ -name "*.java")
+$ xgettext -L Java -k -k_ -o keys.pot $(find src/ -name "*.java")
 }}}
 Create a .pot file, extracting all the strings in the function `_()`
 Example:
