@@ -26,7 +26,13 @@ Here's the general procedure to internationalise applications using the gettext 
 {{{
 $ xgettext -L Java -k -k_ -o keys.pot $(find src/ -name "*.java")
 }}}
-Create a .pot file, extracting all the strings in the function `_()`
+Create a .pot file, extracting all the strings in the function `_()`. Notes that also concatenated strings across multiple lines like this one
+{{{
+String text = _("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ut " +
+"mollis neque. Nunc interdum orci non magna suscipit dignissim. Pellentesque nec " +
+"ipsum orci, vehicula porttitor massa.");
+}}}
+will be extracted
 Example:
 {{{
 #: test/eu/kostia/gtkjfilechooser/POTest.java:14
@@ -36,12 +42,25 @@ msgstr ""
 #: test/eu/kostia/gtkjfilechooser/POTest.java:15
 msgid "Fine, thanks!"
 msgstr ""
+
+#: test/eu/kostia/gtkjfilechooser/POTest.java:20
+msgid ""
+"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ut "
+"mollis neque. Nunc interdum orci non magna suscipit dignissim. Pellentesque nec "
+"ipsum orci, vehicula porttitor massa."
+msgstr ""
 }}}
 
 {{{
 $ msgmerge it.po keys.pot --output-file=keys.it.po
 }}}
-The file _it.pot_ contains a bundle of translations for some msgids. The above command merges the translations and saves the result in _keys.it.po_
+The file _it.pot_ contains a bundle of translations for some msgids. The above command merges the translations and saves the result in _keys.it.po_.
+The multiple-lines string in the just created _keys.it.po_ will be transformed in a single line string as follows:
+{{{
+#: test/eu/kostia/gtkjfilechooser/POTest.java:20
+msgid "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi ut mollis neque. Nunc interdum orci non magna suscipit dignissim. Pellentesque nec ipsum orci, vehicula porttitor massa."
+msgstr ""
+}}}
 Note that the _.pot_ files contain msgids and emtpy msgstrs, while the ._lang iso_.po files contain the translations.
 Output example (if the msgids are already present and traslated in _it.pot_)
 {{{
