@@ -2,7 +2,7 @@
 
 = Latest News =
 ===  26.09.2010 Release 1.4.9 ===
-Bug fixes.
+Better mimicking of native widget.
 
 ===  01.05.2010 Release 1.4.8 ===
 Fixed issue 61 (Filter Description is NOT being displayed in the bottom-right corner)
