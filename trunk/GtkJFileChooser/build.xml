@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project basedir="." default="build" name="GtkJFileChooser">
+<project basedir="." default="build" name="gtkjfilechooser">
 	<property environment="env" />
 	<property file="build.properties" />
 	<property name="debuglevel" value="source,lines,vars" />
@@ -10,8 +10,8 @@
 	<property name="build.dir" value="build" />
 	<property name="dist.dir" value="dist" />
 	<property name="demo.resources" value="demo_resources" />
-	<property name="jar.file" value="gtkjfilechooser.jar" />
-	<property name="demo.jar.file" value="gtkjfilechooser-demo.jar" />
+	<property name="jar.file" value="${ant.project.name}.jar" />
+	<property name="demo.jar.file" value="${ant.project.name}-demo.jar" />
 	<property name="javadoc.dir" value="doc" />
 	<property name="top.package" value="com.google.code.gtkjfilechooser" />
 	<property name="version.number" value="1.5.0" />
@@ -32,7 +32,7 @@
 
 	<target name="clean">
 		<delete dir="${build.dir}"/>
-        <delete dir="${dist.dir}"/>
+		<delete dir="${dist.dir}"/>
 	</target>
 
 	<target name="build" depends="init">
@@ -70,7 +70,7 @@
 				<attribute name="Implementation-Version" value="${version.number}" />
 				<attribute name="Built-Date" value="${TODAY}" />
 			</manifest>
-            <fileset dir="${demo.resources}"/>
+			<fileset dir="${demo.resources}"/>
 		</jar>
 	</target>
 
@@ -80,13 +80,50 @@
 		<javadoc sourcepath="${src.dir}" destdir="${javadoc.dir}" access="public" author="true" doctitle="GtkJFileChooser" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.6" splitindex="true" use="true" version="true">
 			<classpath refid="project.classpath" />
 		</javadoc>
+
+		<jar destfile="${dist.dir}/${ant.project.name}-javadoc.jar" basedir="${javadoc.dir}" />
 	</target>
 
-	<!-- Create a distributable zip with a demo-->
-	<target name="dist" depends="clean, jar, demo" description="Create a distributable zip">
-		<copy file="misc/README.txt" todir="${dist.dir}" />
-		<zip destfile="${ant.project.name}_v${version.number}.zip" basedir="${dist.dir}" />
+	<!-- Pack the javadoc in a jar -->
+	<target name="javadoc.jar" depends="init, javadoc" description="Pack the javadoc in a jar">
+		<jar destfile="${dist.dir}/${ant.project.name}-javadoc.jar" basedir="${javadoc.dir}" />
 	</target>
+
+	<!-- Pack the sources in a jar -->
+	<target name="sources.jar" depends="init" description="Pack the sources in a jar">
+		<jar destfile="${dist.dir}/${ant.project.name}-sources.jar" basedir="${src.dir}" />
+	</target>
+
+	<!-- Create the pom descriptor for the maven central repo -->
+	<target name="create.pom" depends="init" description="Create the pom descriptor for the maven central repo">
+		<echo file="${dist.dir}/pom.xml"><![CDATA[<project>
+<modelVersion>4.0.0</modelVersion>
+<groupId>${top.package}</groupId>
+<artifactId>${ant.project.name}</artifactId>
+<packaging>jar</packaging>
+<name>GtkJFileChooser</name>
+<version>${version.number}</version>
+<description>A prettier JFileChooser for Swing's GTK look and feel</description>
+<url>http://code.google.com/p/gtkjfilechooser</url>
+<licenses>
+	<license>
+		<name>GNU Lesser General Public License, Version 3.0</name>
+		<url>http://www.gnu.org/licenses/lgpl-3.0.txt</url>
+		<distribution>repo</distribution>
+	</license>
+</licenses>
+<scm>
+	<url>http://code.google.com/p/gtkjfilechooser/source/browse/#svn/trunk/GtkJFileChooser</url>
+</scm>
+</project>]]>
+		</echo>
+</target>
+
+<!-- Create a distributable zip with a demo-->
+<target name="dist" depends="clean, jar, demo, javadoc.jar, sources.jar" description="Create a distributable zip">
+	<copy file="misc/README.txt" todir="${dist.dir}" />
+	<zip destfile="${ant.project.name}_v${version.number}.zip" basedir="${dist.dir}" />
+</target>
 
 
 
