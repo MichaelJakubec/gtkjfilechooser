@@ -13,7 +13,8 @@
 	<property name="jar.file" value="gtkjfilechooser.jar" />
 	<property name="demo.jar.file" value="gtkjfilechooser-demo.jar" />
 	<property name="javadoc.dir" value="doc" />
-	<property name="version.number" value="1.4.9" />
+	<property name="top.package" value="com.google.code.gtkjfilechooser" />
+	<property name="version.number" value="1.5.0" />
 
 	<path id="project.classpath">
 		<pathelement location="${build.dir}" />
@@ -62,9 +63,9 @@
 
 	<target name="demo" depends="jar, build.demo" description="Create a small demo app">
 		<mkdir dir="${dist.dir}" />
-		<jar destfile="${dist.dir}/${demo.jar.file}" baseDir="${build.dir}" includes="eu/kostia/gtkjfilechooser/demo/**">
+		<jar destfile="${dist.dir}/${demo.jar.file}" baseDir="${build.dir}" includes="com/google/code/gtkjfilechooser/demo/**">
 			<manifest>
-				<attribute name="Main-Class" value="eu.kostia.gtkjfilechooser.demo.FileChooserDemo" />
+				<attribute name="Main-Class" value="${top.package}.demo.FileChooserDemo" />
 				<attribute name="Class-Path" value="${jar.file}" />
 				<attribute name="Implementation-Version" value="${version.number}" />
 				<attribute name="Built-Date" value="${TODAY}" />
