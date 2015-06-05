@@ -1254,7 +1254,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements
 	}
 
 	private void doDirectoryChanged(File olddir, File newdir, Object source) {
-		if (getFileChooser().getCurrentDirectory().equals(newdir)) {
+		if (olddir != null  ? olddir.equals(newdir) : newdir == null) {
 			// to avoid repeated invocations on the same directory.
 			return;
 		}
