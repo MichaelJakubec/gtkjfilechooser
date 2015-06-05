@@ -335,10 +335,10 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements
 		chooser.setFileHidingEnabled(!GtkFileChooserSettings.get()
 				.getShowHidden());
 
-		if (chooser.getCurrentDirectory() == null) {
-			chooser.setCurrentDirectory(new File(System
-					.getProperty("user.home")));
-		}
+//		if (chooser.getCurrentDirectory() == null) {
+//			chooser.setCurrentDirectory(new File(System
+//					.getProperty("user.home")));
+//		}
 
 		// Persist component bounds and sizes
 		chooser.removeComponentListener(chooserComponentListener);
@@ -419,7 +419,7 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements
 		showPositionButton.setToolTipText(_("Type a file name"));
 
 		// CurrentDir Combo Buttons
-		pathBarButtons = new GtkPathBar(getFileChooser().getCurrentDirectory());
+		pathBarButtons = new GtkPathBar(new File("").getAbsoluteFile());
 		pathBarButtons.addActionListener(pathBarActionListener);
 
 		/**
@@ -1810,8 +1810,14 @@ public class GtkFileChooserUI extends BasicFileChooserUI implements
 	 * ComponentUI Interface Implementation methods
 	 */
 	public static ComponentUI createUI(JComponent c) {
-		GtkFileChooserUI ui = new GtkFileChooserUI((JFileChooser) c);
-		return ui;
+		try {
+			GtkFileChooserUI ui = new GtkFileChooserUI((JFileChooser) c);
+			return ui;
+		}catch(Exception e){
+			e.printStackTrace();
+			throw e;
+		}
+
 	}
 
 	/**

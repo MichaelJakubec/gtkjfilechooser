@@ -90,8 +90,10 @@ public class FileWatcher {
 	 * @throws FileNotFoundException
 	 */
 	public void register(File file) {
-		filesToWatch.add(file);
-		timeStamps.put(file, file.lastModified());
+		if (file != null) {
+			filesToWatch.add(file);
+			timeStamps.put(file, file.lastModified());
+		}
 	}
 
 	/**

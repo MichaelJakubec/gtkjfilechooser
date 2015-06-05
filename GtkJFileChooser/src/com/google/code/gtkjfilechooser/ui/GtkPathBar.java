@@ -355,6 +355,9 @@ public class GtkPathBar extends JPanel {
 
 		File parentDir = location.isDirectory() ? location : location
 				.getParentFile();
+		if (parentDir == null){
+			parentDir = new File("");
+		}
 
 		String parentDirPath = null;
 		try {

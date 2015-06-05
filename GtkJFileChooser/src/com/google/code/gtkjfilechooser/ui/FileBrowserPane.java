@@ -150,6 +150,10 @@ public class FileBrowserPane extends FilesListPane {
 	}
 
 	private void listDirectory(File dir, javax.swing.filechooser.FileFilter swingFilter) {
+		if (dir == null ) {
+			dir = new File("");
+		}
+		dir = dir.getAbsoluteFile();
 		if (!dir.exists()) {
 			throw new IllegalArgumentException(dir + " doesn't exist.");
 		}
@@ -190,6 +194,9 @@ public class FileBrowserPane extends FilesListPane {
 	}
 
 	public File getCurrentDir() {
+		if (currentDir == null){
+			return new File("");
+		}
 		return currentDir;
 	}
 
